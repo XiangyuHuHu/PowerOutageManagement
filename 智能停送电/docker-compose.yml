@@ -1,0 +1,93 @@
+name: power-control
+
+services:
+  # MySQL数据库
+  mysql:
+    image: mysql:8.0
+    container_name: power_mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=hxy19990606
+      - MYSQL_DATABASE=power_control
+      - MYSQL_CHARACTER_SET_SERVER=utf8mb4
+      - MYSQL_COLLATION_SERVER=utf8mb4_unicode_ci
+      - MYSQL_DEFAULT_CHARSET=utf8mb4
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./shared/database.sql:/docker-entrypoint-initdb.d/database.sql
+    networks:
+      - power_network
+    restart: unless-stopped
+
+  # Flask后端服务
+  flask-backend:
+    build: .
+    container_name: power_backend
+    ports:
+      - "5050:5050"
+    environment:
+      - DB_HOST=mysql
+      - DB_USER=root
+      - DB_PASSWORD=hxy19990606
+      - DB_NAME=power_control
+      - FLASK_ENV=production
+      - SECRET_KEY=your-secret-key-here
+      - MQTT_BROKER=host.docker.internal
+      - MQTT_PORT=1883
+      - LANG=zh_CN.UTF-8
+      - LC_ALL=zh_CN.UTF-8
+      - PYTHONIOENCODING=utf-8
+    depends_on:
+      - mysql
+    networks:
+      - power_network
+    restart: unless-stopped
+
+  # Prometheus监控
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: power_prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    networks:
+      - power_network
+    restart: unless-stopped
+
+  # Grafana可视化
+  grafana:
+    image: grafana/grafana:latest
+    container_name: power_grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
+    networks:
+      - power_network
+    restart: unless-stopped
+
+volumes:
+  mysql_data:
+  prometheus_data:
+  grafana_data:
+
+networks:
+  power_network:
+    driver: bridge
+
+

@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>电工操作 - 智能停送电系统</title>
+  <script src="https://unpkg.com/vue@3"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/element-plus/dist/index.css">
+  <script src="https://cdn.jsdelivr.net/npm/element-plus"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+    }
+    body {
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      color: #fff;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    #app {
+      max-width: 1400px;
+      margin: 0 auto;
+      background: rgba(16, 33, 47, 0.8);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(64, 158, 255, 0.2);
+    }
+    .app-header {
+      background: linear-gradient(to right, #0c1d2c, #1a3a5f);
+      padding: 25px 40px;
+      display: flex;
+      align-items: center;
+      border-bottom: 2px solid #409eff;
+      position: relative;
+      overflow: hidden;
+    }
+    .app-header::before {
+      content: "";
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(64, 158, 255, 0.1) 0%, transparent 70%);
+      z-index: 0;
+    }
+    .header-content {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      width: 100%;
+      justify-content: space-between;
+    }
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    .logo-icon {
+      width: 60px;
+      height: 60px;
+      background: linear-gradient(135deg, #409eff, #1e3a8a);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 20px rgba(64, 158, 255, 0.5);
+    }
+    .logo-icon i {
+      font-size: 28px;
+      color: #fff;
+    }
+    .header-text h1 {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+      background: linear-gradient(to right, #409eff, #a0d9ff);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    .header-text p {
+      font-size: 16px;
+      color: #a0d9ff;
+    }
+    .stats-container {
+      display: flex;
+      gap: 30px;
+      background: rgba(0, 30, 60, 0.5);
+      padding: 15px 25px;
+      border-radius: 12px;
+      border: 1px solid rgba(64, 158, 255, 0.3);
+    }
+    .stat-item {
+      text-align: center;
+      min-width: 100px;
+    }
+    .stat-value {
+      font-size: 24px;
+      font-weight: 700;
+      color: #409eff;
+    }
+    .stat-label {
+      font-size: 14px;
+      color: #a0d9ff;
+      margin-top: 5px;
+    }
+    .app-container {
+      padding: 30px 40px;
+    }
+    .operator-user {
+      margin-left: 40px;
+      font-size: 17px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #a0d9ff;
+    }
+    .logout-btn {
+      background: linear-gradient(135deg, #409eff, #2a6bc5);
+      border: none;
+      color: #fff;
+      padding: 6px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 15px;
+      margin-left: 32px;
+      margin-right: 8px;
+      transition: background 0.2s;
+    }
+    .logout-btn:hover {
+      background: linear-gradient(135deg, #2a6bc5, #409eff);
+    }
+    .el-table {
+      background: rgba(12, 28, 44, 0.7) !important;
+      border-radius: 12px !important;
+      overflow: hidden;
+      border: 1px solid rgba(64, 158, 255, 0.2) !important;
+    }
+    .el-table th {
+      background: linear-gradient(to bottom, #0d2b46, #143a5f) !important;
+      color: #e6f7ff !important;
+      font-weight: 600 !important;
+      border: none !important;
+    }
+    .el-table tr {
+      background: rgba(16, 33, 47, 0.5) !important;
+      transition: all 0.3s ease;
+    }
+    .el-table tr:hover {
+      background: rgba(30, 60, 90, 0.7) !important;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+    .el-table td {
+      border-bottom: 1px solid rgba(64, 158, 255, 0.1) !important;
+      color: #e6f7ff !important;
+    }
+    .el-tag {
+      font-weight: 600 !important;
+      border: none !important;
+    }
+    .status-pending .el-tag {
+      background: linear-gradient(135deg, #e6a23c, #b88230) !important;
+      color: #fff !important;
+    }
+    .status-approved .el-tag {
+      background: linear-gradient(135deg, #67c23a, #4a8c2c) !important;
+      color: #fff !important;
+    }
+    .status-verified .el-tag {
+      background: linear-gradient(135deg, #409eff, #2a6bc5) !important;
+      color: #fff !important;
+    }
+    .status-repairing .el-tag {
+      background: linear-gradient(135deg, #e6a23c, #b88230) !important;
+      color: #fff !important;
+    }
+    .status-completed .el-tag {
+      background: linear-gradient(135deg, #67c23a, #4a8c2c) !important;
+      color: #fff !important;
+    }
+    .el-button-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .el-button {
+      border: none !important;
+      font-weight: 600 !important;
+      transition: all 0.3s ease !important;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
+    }
+    .el-button--success {
+      background: linear-gradient(135deg, #67c23a, #4a8c2c) !important;
+    }
+    .el-button--warning {
+      background: linear-gradient(135deg, #e6a23c, #b88230) !important;
+    }
+    .el-button--primary {
+      background: linear-gradient(135deg, #409eff, #2a6bc5) !important;
+    }
+    .el-button--success:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 12px rgba(103, 194, 58, 0.3) !important;
+    }
+    .el-button--warning:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 12px rgba(230, 162, 60, 0.3) !important;
+    }
+    .el-button--primary:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 12px rgba(64, 158, 255, 0.3) !important;
+    }
+    .notification {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 15px 25px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      z-index: 10000;
+      opacity: 0;
+      animation: fadeIn 0.3s forwards;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    }
+    @keyframes fadeIn {
+      to { opacity: 1; top: 30px; }
+    }
+    .notification-success {
+      background: linear-gradient(135deg, #67c23a, #4a8c2c);
+      color: white;
+    }
+    .notification-error {
+      background: linear-gradient(135deg, #f56c6c, #c45656);
+      color: white;
+    }
+    .notification-warning {
+      background: linear-gradient(135deg, #e6a23c, #b88230);
+      color: white;
+    }
+    .notification-loading {
+      background: linear-gradient(135deg, #409eff, #2a6bc5);
+      color: white;
+    }
+    .notification-icon {
+      font-size: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div class="app-header">
+      <div class="header-content">
+        <div class="logo-container">
+          <div class="logo-icon">
+            <i class="fas fa-tools"></i>
+          </div>
+          <div class="header-text">
+            <h1>电工工作台</h1>
+            <p>我的申请 · 验电 · 检修 · 送电申请</p>
+          </div>
+        </div>
+        <div class="stats-container">
+          <div class="stat-item">
+            <div class="stat-value">{{ stats.total }}</div>
+            <div class="stat-label">我的申请</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value">{{ stats.verify }}</div>
+            <div class="stat-label">待验电</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value">{{ stats.repair }}</div>
+            <div class="stat-label">检修中</div>
+          </div>
+        </div>
+        <div class="operator-user">
+          <i class="fas fa-user-cog"></i>
+          操作员：{{ realname || username }}
+          <button class="logout-btn" @click="logout">退出登录</button>
+        </div>
+      </div>
+    </div>
+    <div class="app-container">
+      <el-tabs v-model="activeTab" @tab-click="fetchData">
+        <el-tab-pane label="全部申请" name="all"></el-tab-pane>
+        <el-tab-pane label="送电申请" name="poweron"></el-tab-pane>
+      </el-tabs>
+      <el-table
+        :data="filteredList"
+        style="width: 100%"
+        border
+        height="500"
+        v-loading="loading"
+        element-loading-text="加载中..."
+      >
+        <el-table-column prop="id" label="ID" width="80">
+          <template #default="{ row }">
+            <div style="font-weight: bold;">#{{ row.id }}</div>
+          </template>
+        </el-table-column>
+        <el-table-column prop="applicant" label="申请人" width="140">
+          <template #default="{ row }">
+            <i class="fas fa-user-circle"></i>
+            {{ row.applicant }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="created_at" label="时间" width="200">
+          <template #default="{ row }">
+            <i class="fas fa-clock"></i>
+            {{ formatDateTime(row.created_at) }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="deviceId" label="设备编号" width="140">
+          <template #default="{ row }">
+            <i class="fas fa-microchip"></i>
+            {{ row.deviceId }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="reason" label="停电原因">
+          <template #default="{ row }">
+            <i class="fas fa-comment-alt"></i>
+            {{ row.reason }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="status" label="当前状态" width="160">
+          <template #default="{ row }">
+            <div :class="'status-' + row.status">
+              <el-tag>{{ statusText(row.status) }}</el-tag>
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column label="电工操作" width="450">
+          <template #default="{ row }">
+            <el-button-group>
+              <template v-if="row.status === 'approved'">
+                <el-button type="primary" @click="showVerifyDialog(row)">
+                  <i class="fas fa-bolt"></i> 验电确认
+                </el-button>
+              </template>
+              <template v-else-if="row.status === 'verified'">
+                <el-button type="warning" @click="startRepair(row.id)">
+                  <i class="fas fa-tools"></i> 开始检修
+                </el-button>
+              </template>
+              <template v-else-if="row.status === 'repairing'">
+                <el-button type="success" @click="endRepair(row.id)">
+                  <i class="fas fa-check"></i> 完成检修
+                </el-button>
+              </template>
+              <template v-else-if="row.status === 'repair_completed'">
+                <el-button type="primary" @click="showPowerOnDialog(row)">
+                  <i class="fas fa-plug"></i> 申请送电
+                </el-button>
+              </template>
+              <template v-else>
+                <el-tag type="info">无需操作</el-tag>
+              </template>
+              <el-button type="primary" @click="viewDetail(row.id)" style="margin-left: 8px;">
+                <i class="fas fa-eye"></i> 查看详情
+              </el-button>
+            </el-button-group>
+          </template>
+        </el-table-column>
+      </el-table>
+    </div>
+
+    <!-- 验电对话框 -->
+    <el-dialog
+      v-model="verifyDialogVisible"
+      title="验电确认"
+      width="500px"
+      :close-on-click-modal="false"
+    >
+      <el-form :model="verifyForm" label-width="100px">
+        <el-form-item label="安全措施">
+          <el-input
+            v-model="verifyForm.safety_measures"
+            type="textarea"
+            :rows="3"
+            placeholder="请确认安全措施..."
+          />
+        </el-form-item>
+        <el-form-item label="验电意见">
+          <el-input
+            v-model="verifyForm.comment"
+            type="textarea"
+            :rows="3"
+            placeholder="请输入验电意见..."
+          />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="verifyDialogVisible = false">取消</el-button>
+          <el-button type="primary" @click="confirmVerify">确认验电</el-button>
+        </span>
+      </template>
+    </el-dialog>
+
+    <!-- 送电申请对话框 -->
+    <el-dialog
+      v-model="powerOnDialogVisible"
+      title="送电申请"
+      width="500px"
+      :close-on-click-modal="false"
+    >
+      <el-form :model="powerOnForm" label-width="100px">
+        <el-form-item label="送电原因">
+          <el-input
+            v-model="powerOnForm.power_on_reason"
+            type="textarea"
+            :rows="2"
+            placeholder="请输入送电原因..."
+          />
+        </el-form-item>
+        <el-form-item label="计划送电时间">
+          <el-input
+            v-model="powerOnForm.power_on_time"
+            type="datetime-local"
+            placeholder="请选择计划送电时间"
+          />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="powerOnDialogVisible = false">取消</el-button>
+          <el-button type="primary" @click="confirmPowerOn">提交送电申请</el-button>
+        </span>
+      </template>
+    </el-dialog>
+  </div>
+
+  <script>
+    // 检查登录状态
+    if (!localStorage.getItem('user_realname') && !localStorage.getItem('user_username')) {
+      window.location.href = '/login.html';
+    }
+    axios.defaults.withCredentials = true;
+    const { createApp, ref, onMounted, computed } = Vue;
+    createApp({
+      setup() {
+        const applications = ref([]);
+        const loading = ref(false);
+        const stats = ref({
+          total: 0,
+          verify: 0,
+          repair: 0
+        });
+
+        // 验电对话框
+        const verifyDialogVisible = ref(false);
+        const verifyForm = ref({
+          id: null,
+          safety_measures: '',
+          comment: ''
+        });
+
+        // 送电申请对话框
+        const powerOnDialogVisible = ref(false);
+        const powerOnForm = ref({
+          id: null,
+          power_on_reason: '',
+          power_on_time: ''
+        });
+
+        // 当前操作员
+        const realname = localStorage.getItem('user_realname') || '';
+        const username = localStorage.getItem('user_username') || '';
+
+        const logout = () => {
+          localStorage.clear();
+          window.location.href = '/login.html';
+        };
+
+        const statusMap = {
+          pending: "待审批",
+          approved: "审批通过",
+          rejected: "审批驳回",
+          verified: "已验电",
+          "verify-rejected": "验电驳回",
+          repairing: "检修中",
+          "repair_completed": "检修完成",
+          "power_on_applied": "送电申请",
+          completed: "已完成",
+          "power_on_rejected": "送电驳回"
+        };
+
+        const statusText = (status) => statusMap[status] || status;
+
+        const formatDateTime = (timestamp) => {
+          if (!timestamp) return '';
+          const date = new Date(timestamp);
+          return date.toLocaleString('zh-CN', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit'
+          });
+        };
+
+        const showNotification = (message, type) => {
+          const existingNote = document.querySelector('.notification');
+          if (existingNote) existingNote.remove();
+
+          const notification = document.createElement('div');
+          notification.className = `notification notification-${type}`;
+          notification.innerHTML = `
+            <i class="notification-icon ${getIcon(type)}"></i>
+            <span>${message}</span>
+          `;
+
+          document.body.appendChild(notification);
+
+          if (type !== 'loading') {
+            setTimeout(() => {
+              notification.style.opacity = '0';
+              setTimeout(() => {
+                if (notification.parentNode) {
+                  notification.parentNode.removeChild(notification);
+                }
+              }, 300);
+            }, 3000);
+          }
+        };
+
+        const getIcon = (type) => {
+          switch(type) {
+            case 'success': return 'fas fa-check-circle';
+            case 'error': return 'fas fa-exclamation-circle';
+            case 'warning': return 'fas fa-exclamation-triangle';
+            case 'loading': return 'fas fa-spinner fa-spin';
+            default: return 'fas fa-info-circle';
+          }
+        };
+
+        const fetchData = async () => {
+          loading.value = true;
+          try {
+            const res = await axios.get('/api/list');
+            // 电工页面显示所有申请，包括自己提交的和需要操作的
+            applications.value = res.data;
+            console.log('获取到的所有申请:', applications.value);
+            console.log('当前用户:', realname || username);
+            updateStats();
+          } catch (err) {
+            showNotification('获取数据失败: ' + (err?.message || err), 'error');
+            console.error("发生错误：", err);
+          } finally {
+            loading.value = false;
+          }
+        };
+
+        const updateStats = () => {
+          // 统计当前电工相关的申请
+          const currentUser = realname || username;
+          const userApplications = applications.value.filter(app => 
+            app.applicant === currentUser || 
+            app.electrician_verifier === currentUser ||
+            app.repair_operator === currentUser
+          );
+          
+          console.log('当前用户相关申请:', userApplications);
+          
+          stats.value.total = userApplications.length;
+          stats.value.verify = userApplications.filter(app =>
+            app.status === 'approved'
+          ).length;
+          stats.value.repair = userApplications.filter(app =>
+            app.status === 'repairing'
+          ).length;
+        };
+
+        // 显示验电对话框
+        const showVerifyDialog = (row) => {
+          verifyForm.value = {
+            id: row.id,
+            safety_measures: '',
+            comment: ''
+          };
+          verifyDialogVisible.value = true;
+        };
+
+        // 确认验电
+        const confirmVerify = async () => {
+          loading.value = true;
+          try {
+            await axios.post('/api/electrician-verify', {
+              id: verifyForm.value.id,
+              safety_measures: verifyForm.value.safety_measures,
+              comment: verifyForm.value.comment
+            });
+            verifyDialogVisible.value = false;
+            await fetchData();
+            showNotification('验电确认成功！', 'success');
+          } catch (err) {
+            let errMsg = err?.response?.data?.msg || err?.message || err;
+            showNotification('验电失败: ' + errMsg, 'error');
+            console.error('发生错误：', err);
+          } finally {
+            loading.value = false;
+          }
+        };
+
+        // 开始检修
+        const startRepair = async (id) => {
+          loading.value = true;
+          try {
+            await axios.post('/api/repair-operation', {
+              id,
+              operation: 'start',
+              comment: '开始检修操作'
+            });
+            await fetchData();
+            showNotification('检修开始！', 'success');
+          } catch (err) {
+            let errMsg = err?.response?.data?.msg || err?.message || err;
+            showNotification('操作失败: ' + errMsg, 'error');
+            console.error('发生错误：', err);
+          } finally {
+            loading.value = false;
+          }
+        };
+
+        // 完成检修
+        const endRepair = async (id) => {
+          loading.value = true;
+          try {
+            await axios.post('/api/repair-operation', {
+              id,
+              operation: 'end',
+              comment: '检修完成'
+            });
+            await fetchData();
+            showNotification('检修完成！', 'success');
+          } catch (err) {
+            let errMsg = err?.response?.data?.msg || err?.message || err;
+            showNotification('操作失败: ' + errMsg, 'error');
+            console.error('发生错误：', err);
+          } finally {
+            loading.value = false;
+          }
+        };
+
+        // 申请送电
+        const applyPowerOn = async (id) => {
+          loading.value = true;
+          try {
+            await axios.post('/api/power-on-apply', {
+              id,
+              comment: '检修完成，申请送电'
+            });
+            await fetchData();
+            showNotification('送电申请提交成功！', 'success');
+          } catch (err) {
+            let errMsg = err?.response?.data?.msg || err?.message || err;
+            showNotification('申请失败: ' + errMsg, 'error');
+            console.error('发生错误：', err);
+          } finally {
+            loading.value = false;
+          }
+        };
+
+        // 显示送电申请对话框
+        const showPowerOnDialog = (row) => {
+          powerOnForm.value = {
+            id: row.id,
+            power_on_reason: '',
+            power_on_time: ''
+          };
+          powerOnDialogVisible.value = true;
+        };
+
+        // 确认送电申请
+        const confirmPowerOn = async () => {
+          loading.value = true;
+          try {
+            await axios.post('/api/power-on-apply', {
+              id: powerOnForm.value.id,
+              comment: powerOnForm.value.power_on_reason,
+              power_on_time: powerOnForm.value.power_on_time
+            });
+            powerOnDialogVisible.value = false;
+            await fetchData();
+            showNotification('送电申请提交成功！', 'success');
+          } catch (err) {
+            let errMsg = err?.response?.data?.msg || err?.message || err;
+            showNotification('申请失败: ' + errMsg, 'error');
+            console.error('发生错误：', err);
+          } finally {
+            loading.value = false;
+          }
+        };
+
+        // 查看详情
+        const viewDetail = (id) => {
+          window.open(`/detail.html?id=${id}`, '_blank');
+        };
+
+        const activeTab = ref('all');
+        const filteredList = computed(() => {
+          const currentUser = realname || username;
+          // 筛选当前电工相关的申请
+          const userApplications = applications.value.filter(app => 
+            app.applicant === currentUser || 
+            app.electrician_verifier === currentUser ||
+            app.repair_operator === currentUser
+          );
+          
+          if (activeTab.value === 'poweron') {
+            return userApplications.filter(app => app.status === 'repair_completed');
+          }
+          return userApplications;
+        });
+
+        onMounted(() => {
+          fetchData();
+        });
+
+        return {
+          applications,
+          stats,
+          loading,
+          realname,
+          username,
+          logout,
+          statusText,
+          formatDateTime,
+          fetchData,
+          verifyDialogVisible,
+          verifyForm,
+          showVerifyDialog,
+          confirmVerify,
+          startRepair,
+          endRepair,
+          applyPowerOn,
+          viewDetail,
+          powerOnDialogVisible,
+          powerOnForm,
+          showPowerOnDialog,
+          confirmPowerOn,
+          activeTab,
+          filteredList
+        };
+      }
+    }).use(ElementPlus).mount('#app')
+  </script>
+</body>
+</html>

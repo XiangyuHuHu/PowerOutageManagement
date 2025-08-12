@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>用户管理 - 智能停送电系统</title>
+  <script src="https://unpkg.com/vue@3"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/element-plus/dist/index.css">
+  <script src="https://cdn.jsdelivr.net/npm/element-plus"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+    }
+    body {
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      color: #fff;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    #app {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: rgba(16, 33, 47, 0.8);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(64, 158, 255, 0.2);
+    }
+    .app-header {
+      background: linear-gradient(to right, #0c1d2c, #1a3a5f);
+      padding: 25px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 2px solid #409eff;
+    }
+    .header-content {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    .logo-icon {
+      width: 50px;
+      height: 50px;
+      background: linear-gradient(135deg, #409eff, #1e3a8a);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 20px rgba(64, 158, 255, 0.5);
+    }
+    .logo-icon i {
+      font-size: 24px;
+      color: #fff;
+    }
+    .header-text h1 {
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      margin-bottom: 5px;
+      background: linear-gradient(to right, #409eff, #a0d9ff);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    .header-text p {
+      font-size: 14px;
+      color: #a0d9ff;
+    }
+    .back-btn {
+      background: linear-gradient(135deg, #409eff, #2a6bc5);
+      border: none;
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 14px;
+      transition: all 0.3s ease;
+    }
+    .back-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(64, 158, 255, 0.3);
+    }
+    .app-container {
+      padding: 30px 40px;
+    }
+    .stats-container {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+    .stat-card {
+      background: rgba(12, 28, 44, 0.7);
+      border-radius: 12px;
+      padding: 20px;
+      flex: 1;
+      text-align: center;
+      border: 1px solid rgba(64, 158, 255, 0.2);
+    }
+    .stat-value {
+      font-size: 32px;
+      font-weight: bold;
+      color: #409eff;
+      margin-bottom: 8px;
+    }
+    .stat-label {
+      color: #a0d9ff;
+      font-size: 14px;
+    }
+    .el-table {
+      background: rgba(12, 28, 44, 0.7) !important;
+      border-radius: 12px !important;
+      overflow: hidden;
+      border: 1px solid rgba(64, 158, 255, 0.2) !important;
+    }
+    .el-table th {
+      background: linear-gradient(to bottom, #0d2b46, #143a5f) !important;
+      color: #e6f7ff !important;
+      font-weight: 600 !important;
+      border: none !important;
+    }
+    .el-table tr {
+      background: rgba(16, 33, 47, 0.5) !important;
+      transition: all 0.3s ease;
+    }
+    .el-table tr:hover {
+      background: rgba(30, 60, 90, 0.7) !important;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+    .el-table td {
+      border-bottom: 1px solid rgba(64, 158, 255, 0.1) !important;
+      color: #e6f7ff !important;
+    }
+    .el-tag {
+      font-weight: 600 !important;
+      border: none !important;
+    }
+    .role-admin .el-tag {
+      background: linear-gradient(135deg, #ff6b6b, #ffa500) !important;
+      color: #fff !important;
+    }
+    .role-dispatcher .el-tag {
+      background: linear-gradient(135deg, #409eff, #2a6bc5) !important;
+      color: #fff !important;
+    }
+    .role-electrician .el-tag {
+      background: linear-gradient(135deg, #67c23a, #4a8c2c) !important;
+      color: #fff !important;
+    }
+    .role-user .el-tag {
+      background: linear-gradient(135deg, #909399, #606266) !important;
+      color: #fff !important;
+    }
+    .notification {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 15px 25px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      z-index: 10000;
+      opacity: 0;
+      animation: fadeIn 0.3s forwards;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    }
+    @keyframes fadeIn {
+      to { opacity: 1; top: 30px; }
+    }
+    .notification-success {
+      background: linear-gradient(135deg, #67c23a, #4a8c2c);
+      color: white;
+    }
+    .notification-error {
+      background: linear-gradient(135deg, #f56c6c, #c45656);
+      color: white;
+    }
+    
+    /* 编辑弹窗样式 */
+    .edit-dialog {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+    }
+    
+    .edit-dialog-content {
+      background: rgba(16, 33, 47, 0.95);
+      border-radius: 16px;
+      padding: 30px;
+      width: 400px;
+      max-width: 90vw;
+      border: 1px solid rgba(64, 158, 255, 0.3);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+    
+    .edit-dialog-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 25px;
+    }
+    
+    .edit-dialog-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: #e6f7ff;
+    }
+    
+    .close-btn {
+      background: none;
+      border: none;
+      color: #a0d9ff;
+      font-size: 20px;
+      cursor: pointer;
+      padding: 5px;
+    }
+    
+    .close-btn:hover {
+      color: #409eff;
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    .form-label {
+      display: block;
+      margin-bottom: 8px;
+      color: #a0d9ff;
+      font-weight: 500;
+    }
+    
+    .form-input {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid rgba(64, 158, 255, 0.3);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.1);
+      color: #e6f7ff;
+      font-size: 14px;
+    }
+    
+    .form-input:focus {
+      outline: none;
+      border-color: #409eff;
+      box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.2);
+    }
+    
+    .form-select {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid rgba(64, 158, 255, 0.3);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.1);
+      color: #e6f7ff;
+      font-size: 14px;
+    }
+    
+    .form-select:focus {
+      outline: none;
+      border-color: #409eff;
+    }
+    
+    .dialog-buttons {
+      display: flex;
+      gap: 15px;
+      margin-top: 25px;
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, #409eff, #2a6bc5);
+      border: none;
+      color: #fff;
+      padding: 12px 24px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+    
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #2a6bc5, #409eff);
+      transform: translateY(-2px);
+    }
+    
+    .btn-secondary {
+      background: linear-gradient(135deg, #909399, #606266);
+      border: none;
+      color: #fff;
+      padding: 12px 24px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+    
+    .btn-secondary:hover {
+      background: linear-gradient(135deg, #606266, #909399);
+      transform: translateY(-2px);
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div class="app-header">
+      <div class="header-content">
+        <div class="logo-icon">
+          <i class="fas fa-users-cog"></i>
+        </div>
+        <div class="header-text">
+          <h1>用户管理</h1>
+          <p>管理系统用户和权限</p>
+        </div>
+      </div>
+      <button class="back-btn" @click="goBack">
+        <i class="fas fa-arrow-left"></i> 返回
+      </button>
+    </div>
+    
+    <div class="app-container">
+      <div class="stats-container">
+        <div class="stat-card">
+          <div class="stat-value">{{ stats.total }}</div>
+          <div class="stat-label">总用户数</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">{{ stats.admin }}</div>
+          <div class="stat-label">管理员</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">{{ stats.dispatcher }}</div>
+          <div class="stat-label">调度员</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">{{ stats.electrician }}</div>
+          <div class="stat-label">电工</div>
+        </div>
+      </div>
+      
+      <el-table
+        :data="users"
+        style="width: 100%"
+        border
+        height="500"
+        v-loading="loading"
+        element-loading-text="加载中..."
+      >
+        <el-table-column prop="id" label="ID" width="80">
+          <template #default="{ row }">
+            <div style="font-weight: bold;">#{{ row.id }}</div>
+          </template>
+        </el-table-column>
+        <el-table-column prop="username" label="用户名" width="150">
+          <template #default="{ row }">
+            <i class="fas fa-user"></i>
+            {{ row.username }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="realname" label="真实姓名" width="150">
+          <template #default="{ row }">
+            <i class="fas fa-id-card"></i>
+            {{ row.realname }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="role" label="角色" width="120">
+          <template #default="{ row }">
+            <div :class="'role-' + row.role">
+              <el-tag>{{ roleText(row.role) }}</el-tag>
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column prop="created_at" label="注册时间" width="200">
+          <template #default="{ row }">
+            <i class="fas fa-clock"></i>
+            {{ formatDateTime(row.created_at) }}
+          </template>
+        </el-table-column>
+        <el-table-column label="操作" width="200">
+          <template #default="{ row }">
+            <el-button-group>
+              <el-button type="primary" size="small" @click="editUser(row)">
+                <i class="fas fa-edit"></i> 编辑
+              </el-button>
+              <el-button type="danger" size="small" @click="deleteUser(row.id)" v-if="row.role !== 'admin'">
+                <i class="fas fa-trash"></i> 删除
+              </el-button>
+            </el-button-group>
+          </template>
+        </el-table-column>
+      </el-table>
+    </div>
+    
+    <!-- 编辑用户弹窗 -->
+    <div v-if="showEditDialog" class="edit-dialog" @click="closeEditDialog">
+      <div class="edit-dialog-content" @click.stop>
+        <div class="edit-dialog-header">
+          <div class="edit-dialog-title">
+            <i class="fas fa-edit"></i> 编辑用户
+          </div>
+          <button class="close-btn" @click="closeEditDialog">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">用户名</label>
+          <input class="form-input" v-model="editForm.username" readonly>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">真实姓名</label>
+          <input class="form-input" v-model="editForm.realname" placeholder="请输入真实姓名">
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">角色</label>
+          <select class="form-select" v-model="editForm.role">
+            <option value="admin">管理员</option>
+            <option value="dispatcher">调度员</option>
+            <option value="electrician">电工</option>
+            <option value="user">普通用户</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">新密码（留空则不修改）</label>
+          <input class="form-input" type="password" v-model="editForm.password" placeholder="请输入新密码">
+        </div>
+        
+        <div class="dialog-buttons">
+          <button class="btn-primary" @click="saveUser" :disabled="saving">
+            <i class="fas fa-save"></i> {{ saving ? '保存中...' : '保存' }}
+          </button>
+          <button class="btn-secondary" @click="closeEditDialog">
+            <i class="fas fa-times"></i> 取消
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 检查登录状态
+    if (!localStorage.getItem('user_realname') && !localStorage.getItem('user_username')) {
+      window.location.href = '/login.html';
+    }
+    
+    // 检查管理员权限
+    const userRole = localStorage.getItem('user_role');
+    if (userRole !== 'admin') {
+      alert('只有管理员可以访问用户管理页面');
+      window.location.href = '/login.html';
+    }
+    
+    axios.defaults.withCredentials = true;
+    const { createApp, ref, onMounted } = Vue;
+    createApp({
+      setup() {
+        const users = ref([]);
+        const loading = ref(false);
+        const stats = ref({
+          total: 0,
+          admin: 0,
+          dispatcher: 0,
+          electrician: 0
+        });
+        
+        // 编辑相关状态
+        const showEditDialog = ref(false);
+        const editForm = ref({
+          id: null,
+          username: '',
+          realname: '',
+          role: '',
+          password: ''
+        });
+        const saving = ref(false);
+
+        const roleText = (role) => {
+          const roleMap = {
+            'admin': '管理员',
+            'dispatcher': '调度员',
+            'electrician': '电工',
+            'user': '普通用户'
+          };
+          return roleMap[role] || role;
+        };
+
+        const formatDateTime = (timestamp) => {
+          if (!timestamp) return '';
+          const date = new Date(timestamp);
+          return date.toLocaleString('zh-CN', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit'
+          });
+        };
+
+        const showNotification = (message, type) => {
+          const existingNote = document.querySelector('.notification');
+          if (existingNote) existingNote.remove();
+
+          const notification = document.createElement('div');
+          notification.className = `notification notification-${type}`;
+          notification.innerHTML = `
+            <i class="notification-icon ${getIcon(type)}"></i>
+            <span>${message}</span>
+          `;
+
+          document.body.appendChild(notification);
+
+          setTimeout(() => {
+            notification.style.opacity = '0';
+            setTimeout(() => {
+              if (notification.parentNode) {
+                notification.parentNode.removeChild(notification);
+              }
+            }, 300);
+          }, 3000);
+        };
+
+        const getIcon = (type) => {
+          switch(type) {
+            case 'success': return 'fas fa-check-circle';
+            case 'error': return 'fas fa-exclamation-circle';
+            default: return 'fas fa-info-circle';
+          }
+        };
+
+        const fetchUsers = async () => {
+          loading.value = true;
+          try {
+            const res = await axios.get('/api/users');
+            users.value = res.data;
+            updateStats();
+          } catch (err) {
+            showNotification('获取用户列表失败: ' + (err?.message || err), 'error');
+            console.error("发生错误：", err);
+          } finally {
+            loading.value = false;
+          }
+        };
+
+        const updateStats = () => {
+          stats.value.total = users.value.length;
+          stats.value.admin = users.value.filter(u => u.role === 'admin').length;
+          stats.value.dispatcher = users.value.filter(u => u.role === 'dispatcher').length;
+          stats.value.electrician = users.value.filter(u => u.role === 'electrician').length;
+        };
+
+        const editUser = (user) => {
+          editForm.value = {
+            id: user.id,
+            username: user.username,
+            realname: user.realname,
+            role: user.role,
+            password: ''
+          };
+          showEditDialog.value = true;
+        };
+
+        const closeEditDialog = () => {
+          showEditDialog.value = false;
+          editForm.value = {
+            id: null,
+            username: '',
+            realname: '',
+            role: '',
+            password: ''
+          };
+        };
+
+        const saveUser = async () => {
+          if (!editForm.value.realname.trim()) {
+            showNotification('真实姓名不能为空', 'error');
+            return;
+          }
+
+          saving.value = true;
+          try {
+            const updateData = {
+              realname: editForm.value.realname,
+              role: editForm.value.role
+            };
+            
+            // 如果输入了密码，则包含密码更新
+            if (editForm.value.password.trim()) {
+              updateData.password = editForm.value.password;
+            }
+
+            await axios.put(`/api/users/${editForm.value.id}`, updateData);
+            await fetchUsers();
+            showNotification('用户信息更新成功！', 'success');
+            closeEditDialog();
+          } catch (err) {
+            showNotification('更新失败: ' + (err?.message || err), 'error');
+          } finally {
+            saving.value = false;
+          }
+        };
+
+        const deleteUser = async (userId) => {
+          if (!confirm('确定要删除这个用户吗？')) return;
+          
+          try {
+            await axios.delete(`/api/users/${userId}`);
+            await fetchUsers();
+            showNotification('用户删除成功！', 'success');
+          } catch (err) {
+            showNotification('删除失败: ' + (err?.message || err), 'error');
+          }
+        };
+
+        const goBack = () => {
+          window.history.back();
+        };
+
+        onMounted(() => {
+          fetchUsers();
+        });
+
+        return {
+          users,
+          stats,
+          loading,
+          showEditDialog,
+          editForm,
+          saving,
+          roleText,
+          formatDateTime,
+          editUser,
+          closeEditDialog,
+          saveUser,
+          deleteUser,
+          goBack
+        };
+      }
+    }).use(ElementPlus).mount('#app')
+  </script>
+</body>
+</html> 

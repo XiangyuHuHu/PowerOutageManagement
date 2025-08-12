@@ -1,0 +1,860 @@
+2025-08-04 15:51:21,668 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5050
+ * Running on http://26.26.26.1:5050
+2025-08-04 15:51:21,668 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-08-04 15:51:21,669 - werkzeug - INFO -  * Restarting with stat
+2025-08-04 15:51:26,852 - werkzeug - WARNING -  * Debugger is active!
+2025-08-04 15:51:26,869 - werkzeug - INFO -  * Debugger PIN: 628-010-070
+2025-08-04 15:51:28,341 - __main__ - INFO - Request: GET / - User: admin
+2025-08-04 15:51:28,346 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 15:51:28] "GET / HTTP/1.1" 200 -
+2025-08-04 15:51:29,556 - __main__ - INFO - Request: GET /favicon.ico - User: admin
+2025-08-04 15:51:29,560 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 15:51:29] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-04 15:51:38,949 - __main__ - INFO - Request: POST /api/login - User: anonymous
+2025-08-04 15:51:38,960 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 15:51:38] "POST /api/login HTTP/1.1" 200 -
+2025-08-04 15:51:39,468 - __main__ - INFO - Request: GET /api/users - User: anonymous
+2025-08-04 15:51:39,469 - __main__ - INFO - Request: GET /api/list - User: anonymous
+2025-08-04 15:51:39,555 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 15:51:39] "[31m[1mGET /api/list HTTP/1.1[0m" 401 -
+2025-08-04 15:51:39,555 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 15:51:39] "[31m[1mGET /api/users HTTP/1.1[0m" 401 -
+2025-08-04 15:55:57,162 - __main__ - INFO - Request: POST /api/login - User: anonymous
+2025-08-04 15:55:57,242 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 15:55:57] "POST /api/login HTTP/1.1" 200 -
+2025-08-04 15:55:57,746 - __main__ - INFO - Request: GET /api/users - User: anonymous
+2025-08-04 15:55:57,746 - __main__ - INFO - Request: GET /api/list - User: anonymous
+2025-08-04 15:55:57,793 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 15:55:57] "[31m[1mGET /api/users HTTP/1.1[0m" 401 -
+2025-08-04 15:55:57,793 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 15:55:57] "[31m[1mGET /api/list HTTP/1.1[0m" 401 -
+2025-08-04 16:05:57,646 - __main__ - INFO - Request: POST /api/login - User: anonymous
+2025-08-04 16:05:57,732 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 16:05:57] "POST /api/login HTTP/1.1" 200 -
+2025-08-04 16:06:15,379 - __main__ - INFO - Request: GET /api/users - User: anonymous
+2025-08-04 16:06:15,408 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 16:06:15] "[31m[1mGET /api/users HTTP/1.1[0m" 401 -
+2025-08-04 16:07:27,791 - werkzeug - INFO -  * Detected change in '/Users/huxiangyu/Documents/HBuilderProjects/智能停送电/web-backend/server.py', reloading
+2025-08-04 16:07:27,825 - werkzeug - INFO -  * Restarting with stat
+2025-08-04 16:07:33,061 - werkzeug - WARNING -  * Debugger is active!
+2025-08-04 16:07:33,069 - werkzeug - INFO -  * Debugger PIN: 628-010-070
+2025-08-04 16:07:34,313 - __main__ - INFO - Request: GET / - User: admin
+2025-08-04 16:07:34,411 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 16:07:34] "[36mGET / HTTP/1.1[0m" 304 -
+2025-08-04 16:07:35,378 - __main__ - INFO - Request: GET /favicon.ico - User: admin
+2025-08-04 16:07:35,379 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 16:07:35] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-04 16:09:55,113 - werkzeug - INFO -  * Detected change in '/Users/huxiangyu/Documents/HBuilderProjects/智能停送电/web-backend/server.py', reloading
+2025-08-04 16:09:55,150 - werkzeug - INFO -  * Restarting with stat
+2025-08-04 16:10:00,425 - werkzeug - WARNING -  * Debugger is active!
+2025-08-04 16:10:00,437 - werkzeug - INFO -  * Debugger PIN: 628-010-070
+2025-08-04 16:10:01,707 - __main__ - INFO - Request: GET / - User: admin
+2025-08-04 16:10:01,710 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 16:10:01] "[36mGET / HTTP/1.1[0m" 304 -
+2025-08-04 16:10:02,879 - __main__ - INFO - Request: GET /favicon.ico - User: admin
+2025-08-04 16:10:02,881 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 16:10:02] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-04 16:10:38,754 - __main__ - INFO - Request: POST /api/login - User: anonymous
+2025-08-04 16:10:38,768 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 16:10:38] "POST /api/login HTTP/1.1" 200 -
+2025-08-04 16:10:41,173 - __main__ - INFO - Request: GET /api/mp/stats - User: anonymous
+2025-08-04 16:10:41,255 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 16:10:41] "[31m[1mGET /api/mp/stats HTTP/1.1[0m" 401 -
+2025-08-04 16:10:41,261 - __main__ - INFO - Request: GET /api/mp/applications - User: anonymous
+2025-08-04 16:10:41,285 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 16:10:41] "[31m[1mGET /api/mp/applications HTTP/1.1[0m" 401 -
+2025-08-04 16:12:30,488 - __main__ - INFO - Request: POST /api/login - User: anonymous
+2025-08-04 16:12:30,581 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 16:12:30] "POST /api/login HTTP/1.1" 200 -
+2025-08-04 16:12:38,701 - __main__ - INFO - Request: GET /api/list - User: anonymous
+2025-08-04 16:12:38,729 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 16:12:38] "[31m[1mGET /api/list HTTP/1.1[0m" 401 -
+2025-08-04 16:12:42,313 - __main__ - INFO - Request: GET /api/list - User: anonymous
+2025-08-04 16:12:42,341 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 16:12:42] "[31m[1mGET /api/list HTTP/1.1[0m" 401 -
+2025-08-04 16:15:15,275 - werkzeug - INFO -  * Detected change in '/Users/huxiangyu/Documents/HBuilderProjects/智能停送电/web-backend/server.py', reloading
+2025-08-04 16:15:15,307 - werkzeug - INFO -  * Restarting with stat
+2025-08-04 16:15:20,577 - werkzeug - WARNING -  * Debugger is active!
+2025-08-04 16:15:20,591 - werkzeug - INFO -  * Debugger PIN: 628-010-070
+2025-08-04 16:15:21,826 - __main__ - INFO - Request: GET / - User: admin
+2025-08-04 16:15:21,910 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 16:15:21] "[36mGET / HTTP/1.1[0m" 304 -
+2025-08-04 16:15:23,030 - __main__ - INFO - Request: GET /favicon.ico - User: admin
+2025-08-04 16:15:23,099 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 16:15:23] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-04 16:17:45,411 - werkzeug - INFO -  * Detected change in '/Users/huxiangyu/Documents/HBuilderProjects/智能停送电/web-backend/server.py', reloading
+2025-08-04 16:17:45,464 - werkzeug - INFO -  * Restarting with stat
+2025-08-04 16:17:50,743 - werkzeug - WARNING -  * Debugger is active!
+2025-08-04 16:17:50,759 - werkzeug - INFO -  * Debugger PIN: 628-010-070
+2025-08-04 16:17:52,009 - __main__ - INFO - Request: GET / - User: admin
+2025-08-04 16:17:52,016 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 16:17:52] "[36mGET / HTTP/1.1[0m" 304 -
+2025-08-04 16:17:53,022 - __main__ - INFO - Request: GET /favicon.ico - User: admin
+2025-08-04 16:17:53,026 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 16:17:53] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-04 16:18:09,155 - __main__ - INFO - Request: POST /api/login - User: anonymous
+2025-08-04 16:18:09,167 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 16:18:09] "POST /api/login HTTP/1.1" 200 -
+2025-08-04 16:18:11,528 - __main__ - INFO - Request: GET /api/mp/my-applications - User: anonymous
+2025-08-04 16:18:11,610 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 16:18:11] "[31m[1mGET /api/mp/my-applications?applicant=电工李四 HTTP/1.1[0m" 401 -
+2025-08-04 16:18:25,886 - __main__ - INFO - Request: POST /api/login - User: anonymous
+2025-08-04 16:18:25,917 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 16:18:25] "POST /api/login HTTP/1.1" 200 -
+2025-08-04 16:18:37,285 - __main__ - INFO - Request: GET /api/mp/stats - User: anonymous
+2025-08-04 16:18:37,311 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 16:18:37] "[31m[1mGET /api/mp/stats HTTP/1.1[0m" 401 -
+2025-08-04 16:18:37,317 - __main__ - INFO - Request: GET /api/mp/applications - User: anonymous
+2025-08-04 16:18:37,336 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 16:18:37] "[31m[1mGET /api/mp/applications HTTP/1.1[0m" 401 -
+2025-08-04 16:21:04,746 - __main__ - INFO - Request: GET / - User: admin
+2025-08-04 16:21:04,827 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 16:21:04] "[36mGET / HTTP/1.1[0m" 304 -
+2025-08-04 16:21:05,594 - __main__ - INFO - Request: GET /favicon.ico - User: admin
+2025-08-04 16:21:05,600 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 16:21:05] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-04 16:21:09,714 - __main__ - INFO - Request: POST /api/login - User: admin
+2025-08-04 16:21:09,726 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 16:21:09] "POST /api/login HTTP/1.1" 200 -
+2025-08-04 16:21:09,741 - __main__ - INFO - Request: GET /admin.html - User: admin
+2025-08-04 16:21:09,743 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 16:21:09] "GET /admin.html HTTP/1.1" 200 -
+2025-08-04 16:21:09,862 - __main__ - INFO - Request: GET /favicon.ico - User: admin
+2025-08-04 16:21:09,862 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 16:21:09] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-04 16:21:11,781 - __main__ - INFO - Request: GET /user_management.html - User: admin
+2025-08-04 16:21:11,784 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 16:21:11] "GET /user_management.html HTTP/1.1" 200 -
+2025-08-04 16:21:11,844 - __main__ - INFO - Request: GET /api/users - User: admin
+2025-08-04 16:21:11,852 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 16:21:11] "GET /api/users HTTP/1.1" 200 -
+2025-08-04 16:21:11,974 - __main__ - INFO - Request: GET /favicon.ico - User: admin
+2025-08-04 16:21:11,975 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 16:21:11] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-04 16:29:05,971 - werkzeug - INFO -  * Detected change in '/Users/huxiangyu/Documents/HBuilderProjects/智能停送电/web-backend/server.py', reloading
+2025-08-04 16:29:06,010 - werkzeug - INFO -  * Restarting with stat
+2025-08-04 16:36:07,769 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5050
+ * Running on http://26.26.26.1:5050
+2025-08-04 16:36:07,770 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-08-04 16:36:07,770 - werkzeug - INFO -  * Restarting with stat
+2025-08-04 16:36:13,002 - werkzeug - WARNING -  * Debugger is active!
+2025-08-04 16:36:13,013 - werkzeug - INFO -  * Debugger PIN: 261-303-135
+2025-08-04 16:36:14,341 - __main__ - INFO - Request: GET / - User: admin
+2025-08-04 16:36:14,349 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 16:36:14] "[36mGET / HTTP/1.1[0m" 304 -
+2025-08-04 16:36:15,657 - __main__ - INFO - Request: GET /favicon.ico - User: admin
+2025-08-04 16:36:15,658 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 16:36:15] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-04 16:37:23,467 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5050
+ * Running on http://26.26.26.1:5050
+2025-08-04 16:37:23,467 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-08-04 16:37:23,471 - werkzeug - INFO -  * Restarting with stat
+2025-08-04 16:37:28,663 - werkzeug - WARNING -  * Debugger is active!
+2025-08-04 16:37:28,671 - werkzeug - INFO -  * Debugger PIN: 261-303-135
+2025-08-04 16:37:28,690 - __main__ - INFO - Request: POST /api/login - User: anonymous
+2025-08-04 16:37:28,690 - __main__ - INFO - Request: POST /api/login - User: anonymous
+2025-08-04 16:37:28,705 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 16:37:28] "POST /api/login HTTP/1.1" 200 -
+2025-08-04 16:37:28,705 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 16:37:28] "POST /api/login HTTP/1.1" 200 -
+2025-08-04 16:37:29,910 - __main__ - INFO - Request: GET / - User: admin
+2025-08-04 16:37:30,012 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 16:37:30] "[36mGET / HTTP/1.1[0m" 304 -
+2025-08-04 16:37:30,673 - __main__ - INFO - Request: GET /favicon.ico - User: admin
+2025-08-04 16:37:30,675 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 16:37:30] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-04 16:37:39,495 - __main__ - INFO - Request: GET /api/mp/stats - User: anonymous
+2025-08-04 16:37:39,509 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 16:37:39] "[31m[1mGET /api/mp/stats HTTP/1.1[0m" 401 -
+2025-08-04 16:37:39,516 - __main__ - INFO - Request: GET /api/mp/applications - User: anonymous
+2025-08-04 16:37:39,541 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 16:37:39] "[31m[1mGET /api/mp/applications HTTP/1.1[0m" 401 -
+2025-08-04 16:44:12,658 - __main__ - INFO - Request: POST /api/login - User: anonymous
+2025-08-04 16:44:12,747 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 16:44:12] "POST /api/login HTTP/1.1" 200 -
+2025-08-04 16:44:19,746 - __main__ - INFO - Request: GET /api/mp/stats - User: anonymous
+2025-08-04 16:44:19,778 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 16:44:19] "[31m[1mGET /api/mp/stats HTTP/1.1[0m" 401 -
+2025-08-04 16:44:19,785 - __main__ - INFO - Request: GET /api/mp/applications - User: anonymous
+2025-08-04 16:44:19,804 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 16:44:19] "[31m[1mGET /api/mp/applications HTTP/1.1[0m" 401 -
+2025-08-04 16:45:14,856 - __main__ - INFO - Request: POST /api/login - User: anonymous
+2025-08-04 16:45:14,951 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 16:45:14] "POST /api/login HTTP/1.1" 200 -
+2025-08-04 16:45:16,500 - __main__ - INFO - Request: GET /api/mp/users - User: anonymous
+2025-08-04 16:45:16,525 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 16:45:16] "[31m[1mGET /api/mp/users HTTP/1.1[0m" 401 -
+2025-08-04 16:46:00,569 - __main__ - INFO - Request: GET /api/mp/stats - User: anonymous
+2025-08-04 16:46:00,641 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 16:46:00] "[31m[1mGET /api/mp/stats HTTP/1.1[0m" 401 -
+2025-08-04 16:46:23,597 - werkzeug - INFO -  * Detected change in '/Users/huxiangyu/Documents/HBuilderProjects/智能停送电/web-backend/server.py', reloading
+2025-08-04 16:46:23,637 - werkzeug - INFO -  * Restarting with stat
+2025-08-04 16:46:28,868 - werkzeug - WARNING -  * Debugger is active!
+2025-08-04 16:46:28,875 - werkzeug - INFO -  * Debugger PIN: 261-303-135
+2025-08-04 16:46:30,211 - __main__ - INFO - Request: GET / - User: admin
+2025-08-04 16:46:30,809 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 16:46:30] "[36mGET / HTTP/1.1[0m" 304 -
+2025-08-04 16:46:31,368 - __main__ - INFO - Request: GET /favicon.ico - User: admin
+2025-08-04 16:46:31,369 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 16:46:31] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-04 16:47:04,269 - __main__ - INFO - Request: POST /api/login - User: anonymous
+2025-08-04 16:47:04,277 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 16:47:04] "POST /api/login HTTP/1.1" 200 -
+2025-08-04 16:47:05,702 - __main__ - INFO - Request: GET /api/mp/stats - User: anonymous
+2025-08-04 16:47:05,770 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 16:47:05] "[31m[1mGET /api/mp/stats HTTP/1.1[0m" 401 -
+2025-08-04 16:47:05,776 - __main__ - INFO - Request: GET /api/mp/applications - User: anonymous
+2025-08-04 16:47:05,796 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 16:47:05] "[31m[1mGET /api/mp/applications HTTP/1.1[0m" 401 -
+2025-08-04 16:47:23,437 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5050
+ * Running on http://26.26.26.1:5050
+2025-08-04 16:47:23,438 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-08-04 16:47:23,439 - werkzeug - INFO -  * Restarting with stat
+2025-08-04 16:47:28,628 - werkzeug - WARNING -  * Debugger is active!
+2025-08-04 16:47:28,638 - werkzeug - INFO -  * Debugger PIN: 261-303-135
+2025-08-04 16:47:29,987 - __main__ - INFO - Request: GET / - User: admin
+2025-08-04 16:47:30,636 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 16:47:30] "[36mGET / HTTP/1.1[0m" 304 -
+2025-08-04 16:47:30,945 - __main__ - INFO - Request: GET /favicon.ico - User: admin
+2025-08-04 16:47:30,947 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 16:47:30] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-04 16:47:44,740 - __main__ - INFO - Request: GET /api/mp/stats - User: anonymous
+2025-08-04 16:47:44,741 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 16:47:44] "[31m[1mGET /api/mp/stats HTTP/1.1[0m" 401 -
+2025-08-04 16:48:13,755 - werkzeug - INFO -  * Detected change in '/Users/huxiangyu/Documents/HBuilderProjects/智能停送电/web-backend/server.py', reloading
+2025-08-04 16:48:13,786 - werkzeug - INFO -  * Restarting with stat
+2025-08-04 16:48:19,021 - werkzeug - WARNING -  * Debugger is active!
+2025-08-04 16:48:19,027 - werkzeug - INFO -  * Debugger PIN: 261-303-135
+2025-08-04 16:48:20,303 - __main__ - INFO - Request: GET / - User: admin
+2025-08-04 16:48:20,396 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 16:48:20] "[36mGET / HTTP/1.1[0m" 304 -
+2025-08-04 16:48:21,421 - __main__ - INFO - Request: GET /favicon.ico - User: admin
+2025-08-04 16:48:21,422 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 16:48:21] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-04 16:48:55,051 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5050
+ * Running on http://26.26.26.1:5050
+2025-08-04 16:48:55,052 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-08-04 16:48:55,052 - werkzeug - INFO -  * Restarting with stat
+2025-08-04 16:49:00,239 - werkzeug - WARNING -  * Debugger is active!
+2025-08-04 16:49:00,248 - werkzeug - INFO -  * Debugger PIN: 261-303-135
+2025-08-04 16:49:00,269 - __main__ - INFO - Request: GET /api/mp/stats - User: anonymous
+2025-08-04 16:49:00,271 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 16:49:00] "[31m[1mGET /api/mp/stats HTTP/1.1[0m" 401 -
+2025-08-04 16:49:01,675 - __main__ - INFO - Request: GET / - User: admin
+2025-08-04 16:49:02,344 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 16:49:02] "[36mGET / HTTP/1.1[0m" 304 -
+2025-08-04 16:49:02,640 - __main__ - INFO - Request: GET /favicon.ico - User: admin
+2025-08-04 16:49:02,641 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 16:49:02] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-04 16:49:05,308 - __main__ - INFO - Request: GET /api/mp/stats - User: anonymous
+2025-08-04 16:49:05,310 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 16:49:05] "[31m[1mGET /api/mp/stats HTTP/1.1[0m" 401 -
+2025-08-04 16:49:18,913 - __main__ - INFO - Request: POST /api/login - User: anonymous
+2025-08-04 16:49:18,940 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 16:49:18] "[31m[1mPOST /api/login HTTP/1.1[0m" 401 -
+2025-08-04 16:49:23,948 - __main__ - INFO - Request: POST /api/login - User: anonymous
+2025-08-04 16:49:23,971 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 16:49:23] "[31m[1mPOST /api/login HTTP/1.1[0m" 401 -
+2025-08-04 16:49:33,251 - __main__ - INFO - Request: POST /api/login - User: anonymous
+2025-08-04 16:49:33,275 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 16:49:33] "POST /api/login HTTP/1.1" 200 -
+2025-08-04 16:49:37,529 - __main__ - INFO - Request: GET /api/mp/stats - User: admin
+2025-08-04 16:49:37,551 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 16:49:37] "[31m[1mGET /api/mp/stats HTTP/1.1[0m" 403 -
+2025-08-04 16:51:18,662 - werkzeug - INFO -  * Detected change in '/Users/huxiangyu/Documents/HBuilderProjects/智能停送电/web-backend/server.py', reloading
+2025-08-04 16:51:18,701 - werkzeug - INFO -  * Restarting with stat
+2025-08-04 16:51:23,942 - werkzeug - WARNING -  * Debugger is active!
+2025-08-04 16:51:23,951 - werkzeug - INFO -  * Debugger PIN: 261-303-135
+2025-08-04 16:51:25,294 - __main__ - INFO - Request: GET / - User: admin
+2025-08-04 16:51:25,301 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 16:51:25] "[36mGET / HTTP/1.1[0m" 304 -
+2025-08-04 16:51:28,490 - __main__ - INFO - Request: GET /favicon.ico - User: admin
+2025-08-04 16:51:28,491 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 16:51:28] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-04 17:05:38,451 - werkzeug - INFO -  * Detected change in '/Users/huxiangyu/Documents/HBuilderProjects/智能停送电/web-backend/server.py', reloading
+2025-08-04 17:05:38,479 - werkzeug - INFO -  * Restarting with stat
+2025-08-04 17:05:43,791 - werkzeug - WARNING -  * Debugger is active!
+2025-08-04 17:05:43,799 - werkzeug - INFO -  * Debugger PIN: 261-303-135
+2025-08-04 17:05:45,119 - __main__ - INFO - Request: GET / - User: admin
+2025-08-04 17:05:45,126 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 17:05:45] "[36mGET / HTTP/1.1[0m" 304 -
+2025-08-04 17:05:46,185 - __main__ - INFO - Request: GET /favicon.ico - User: admin
+2025-08-04 17:05:46,188 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 17:05:46] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-04 17:07:11,483 - __main__ - INFO - Request: GET /api/mp/stats - User: anonymous
+2025-08-04 17:07:11,485 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 17:07:11] "[31m[1mGET /api/mp/stats HTTP/1.1[0m" 401 -
+2025-08-04 17:09:54,684 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5050
+ * Running on http://26.26.26.1:5050
+2025-08-04 17:09:54,685 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-08-04 17:09:54,685 - werkzeug - INFO -  * Restarting with stat
+2025-08-04 17:09:59,877 - werkzeug - WARNING -  * Debugger is active!
+2025-08-04 17:09:59,887 - werkzeug - INFO -  * Debugger PIN: 261-303-135
+2025-08-04 17:09:59,923 - __main__ - INFO - Request: GET /api/mp/stats - User: anonymous
+2025-08-04 17:10:00,002 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 17:10:00] "[31m[1mGET /api/mp/stats HTTP/1.1[0m" 401 -
+2025-08-04 17:10:01,248 - __main__ - INFO - Request: GET / - User: admin
+2025-08-04 17:10:01,306 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 17:10:01] "[36mGET / HTTP/1.1[0m" 304 -
+2025-08-04 17:10:02,323 - __main__ - INFO - Request: GET /favicon.ico - User: admin
+2025-08-04 17:10:02,323 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 17:10:02] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-04 17:10:06,115 - werkzeug - INFO -  * Detected change in '/Users/huxiangyu/Documents/HBuilderProjects/智能停送电/web-backend/server.py', reloading
+2025-08-04 17:10:06,148 - werkzeug - INFO -  * Restarting with stat
+2025-08-04 17:10:11,422 - werkzeug - WARNING -  * Debugger is active!
+2025-08-04 17:10:11,430 - werkzeug - INFO -  * Debugger PIN: 261-303-135
+2025-08-04 17:10:12,684 - __main__ - INFO - Request: GET / - User: admin
+2025-08-04 17:10:12,690 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 17:10:12] "[36mGET / HTTP/1.1[0m" 304 -
+2025-08-04 17:10:13,017 - __main__ - INFO - Request: GET /favicon.ico - User: admin
+2025-08-04 17:10:13,018 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 17:10:13] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-04 17:12:50,422 - werkzeug - INFO -  * Detected change in '/Users/huxiangyu/Documents/HBuilderProjects/智能停送电/server.py', reloading
+2025-08-04 17:12:50,451 - werkzeug - INFO -  * Restarting with stat
+2025-08-04 17:12:55,690 - werkzeug - WARNING -  * Debugger is active!
+2025-08-04 17:12:55,699 - werkzeug - INFO -  * Debugger PIN: 261-303-135
+2025-08-04 17:12:56,946 - __main__ - INFO - Request: GET / - User: admin
+2025-08-04 17:12:56,951 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 17:12:56] "[36mGET / HTTP/1.1[0m" 304 -
+2025-08-04 17:12:58,003 - __main__ - INFO - Request: GET /favicon.ico - User: admin
+2025-08-04 17:12:58,004 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 17:12:58] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-04 17:13:07,029 - werkzeug - INFO -  * Detected change in '/Users/huxiangyu/Documents/HBuilderProjects/智能停送电/server.py', reloading
+2025-08-04 17:13:07,057 - werkzeug - INFO -  * Restarting with stat
+2025-08-04 17:13:12,285 - werkzeug - WARNING -  * Debugger is active!
+2025-08-04 17:13:12,300 - werkzeug - INFO -  * Debugger PIN: 261-303-135
+2025-08-04 17:13:13,533 - __main__ - INFO - Request: GET / - User: admin
+2025-08-04 17:13:13,536 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 17:13:13] "[36mGET / HTTP/1.1[0m" 304 -
+2025-08-04 17:13:13,840 - __main__ - INFO - Request: GET /favicon.ico - User: admin
+2025-08-04 17:13:13,842 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 17:13:13] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-04 17:14:31,393 - werkzeug - INFO -  * Detected change in '/Users/huxiangyu/Documents/HBuilderProjects/智能停送电/server.py', reloading
+2025-08-04 17:14:31,420 - werkzeug - INFO -  * Restarting with stat
+2025-08-04 17:14:36,601 - werkzeug - WARNING -  * Debugger is active!
+2025-08-04 17:14:36,607 - werkzeug - INFO -  * Debugger PIN: 261-303-135
+2025-08-04 17:14:37,809 - __main__ - INFO - Request: GET / - User: admin
+2025-08-04 17:14:37,813 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 17:14:37] "[36mGET / HTTP/1.1[0m" 304 -
+2025-08-04 17:14:39,064 - __main__ - INFO - Request: GET /favicon.ico - User: admin
+2025-08-04 17:14:39,065 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 17:14:39] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-04 17:16:57,389 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5050
+ * Running on http://26.26.26.1:5050
+2025-08-04 17:16:57,390 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-08-04 17:16:57,390 - werkzeug - INFO -  * Restarting with stat
+2025-08-04 17:17:02,580 - werkzeug - WARNING -  * Debugger is active!
+2025-08-04 17:17:02,590 - werkzeug - INFO -  * Debugger PIN: 261-303-135
+2025-08-04 17:17:03,789 - __main__ - INFO - Request: GET / - User: admin
+2025-08-04 17:17:03,796 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 17:17:03] "[36mGET / HTTP/1.1[0m" 304 -
+2025-08-04 17:17:04,900 - __main__ - INFO - Request: GET /favicon.ico - User: admin
+2025-08-04 17:17:04,901 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 17:17:04] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-04 17:17:35,164 - __main__ - INFO - Request: POST /api/login - User: anonymous
+2025-08-04 17:17:35,183 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 17:17:35] "POST /api/login HTTP/1.1" 200 -
+2025-08-04 17:17:37,667 - __main__ - INFO - Mini-program API: GET /api/mp/users
+2025-08-04 17:17:37,766 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 17:17:37] "GET /api/mp/users HTTP/1.1" 200 -
+2025-08-04 17:17:44,936 - __main__ - INFO - Mini-program API: GET /api/mp/stats
+2025-08-04 17:17:44,977 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 17:17:44] "GET /api/mp/stats HTTP/1.1" 200 -
+2025-08-04 17:17:55,156 - __main__ - INFO - Mini-program API: GET /api/mp/applications
+2025-08-04 17:17:55,186 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 17:17:55] "GET /api/mp/applications HTTP/1.1" 200 -
+2025-08-04 17:18:21,444 - werkzeug - INFO -  * Detected change in '/Users/huxiangyu/Documents/HBuilderProjects/智能停送电/server.py', reloading
+2025-08-04 17:18:21,475 - werkzeug - INFO -  * Restarting with stat
+2025-08-04 17:18:26,748 - werkzeug - WARNING -  * Debugger is active!
+2025-08-04 17:18:26,755 - werkzeug - INFO -  * Debugger PIN: 261-303-135
+2025-08-04 17:18:28,112 - __main__ - INFO - Request: GET / - User: admin
+2025-08-04 17:18:28,167 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 17:18:28] "[36mGET / HTTP/1.1[0m" 304 -
+2025-08-04 17:18:28,867 - __main__ - INFO - Request: GET /favicon.ico - User: admin
+2025-08-04 17:18:28,868 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 17:18:28] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-04 17:19:03,589 - werkzeug - INFO -  * Detected change in '/Users/huxiangyu/Documents/HBuilderProjects/智能停送电/server.py', reloading
+2025-08-04 17:19:03,618 - werkzeug - INFO -  * Restarting with stat
+2025-08-04 17:19:08,896 - werkzeug - WARNING -  * Debugger is active!
+2025-08-04 17:19:08,912 - werkzeug - INFO -  * Debugger PIN: 261-303-135
+2025-08-04 17:19:10,128 - __main__ - INFO - Request: GET / - User: admin
+2025-08-04 17:19:10,132 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 17:19:10] "[36mGET / HTTP/1.1[0m" 304 -
+2025-08-04 17:19:10,458 - __main__ - INFO - Request: GET /favicon.ico - User: admin
+2025-08-04 17:19:10,459 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 17:19:10] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-04 17:19:45,326 - __main__ - INFO - Request: POST /api/login - User: anonymous
+2025-08-04 17:19:45,343 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 17:19:45] "POST /api/login HTTP/1.1" 200 -
+2025-08-04 17:19:47,414 - __main__ - INFO - Mini-program API: GET /api/mp/users
+2025-08-04 17:19:47,501 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 17:19:47] "GET /api/mp/users HTTP/1.1" 200 -
+2025-08-04 17:23:45,451 - __main__ - INFO - Mini-program API: GET /api/mp/users
+2025-08-04 17:23:45,543 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 17:23:45] "GET /api/mp/users HTTP/1.1" 200 -
+2025-08-04 17:27:53,303 - __main__ - INFO - Request: POST /api/login - User: anonymous
+2025-08-04 17:27:53,390 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 17:27:53] "POST /api/login HTTP/1.1" 200 -
+2025-08-04 17:27:57,623 - __main__ - INFO - Mini-program API: GET /api/mp/users
+2025-08-04 17:27:57,655 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 17:27:57] "GET /api/mp/users HTTP/1.1" 200 -
+2025-08-04 17:28:50,998 - __main__ - INFO - Request: POST /api/login - User: anonymous
+2025-08-04 17:28:51,093 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 17:28:51] "POST /api/login HTTP/1.1" 200 -
+2025-08-04 17:28:52,863 - __main__ - INFO - Mini-program API: GET /api/mp/users
+2025-08-04 17:28:52,894 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 17:28:52] "GET /api/mp/users HTTP/1.1" 200 -
+2025-08-04 17:28:56,006 - __main__ - INFO - Mini-program API: GET /api/mp/users
+2025-08-04 17:28:56,050 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 17:28:56] "GET /api/mp/users HTTP/1.1" 200 -
+2025-08-04 17:29:16,553 - __main__ - INFO - Mini-program API: GET /api/mp/applications
+2025-08-04 17:29:16,586 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 17:29:16] "GET /api/mp/applications HTTP/1.1" 200 -
+2025-08-04 17:40:51,202 - __main__ - INFO - Request: POST /api/login - User: anonymous
+2025-08-04 17:40:51,314 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 17:40:51] "POST /api/login HTTP/1.1" 200 -
+2025-08-04 17:40:54,098 - __main__ - INFO - Mini-program API: GET /api/mp/users
+2025-08-04 17:40:54,123 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 17:40:54] "GET /api/mp/users HTTP/1.1" 200 -
+2025-08-04 17:43:47,602 - __main__ - INFO - Request: POST /api/login - User: anonymous
+2025-08-04 17:43:47,674 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 17:43:47] "POST /api/login HTTP/1.1" 200 -
+2025-08-04 17:43:50,384 - __main__ - INFO - Mini-program API: GET /api/mp/users
+2025-08-04 17:43:50,412 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 17:43:50] "GET /api/mp/users HTTP/1.1" 200 -
+2025-08-04 17:43:53,617 - __main__ - INFO - Mini-program API: GET /api/mp/users
+2025-08-04 17:43:53,651 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 17:43:53] "GET /api/mp/users HTTP/1.1" 200 -
+2025-08-04 17:43:56,832 - __main__ - INFO - Mini-program API: GET /api/mp/users
+2025-08-04 17:43:56,859 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 17:43:56] "GET /api/mp/users HTTP/1.1" 200 -
+2025-08-04 17:44:34,088 - __main__ - INFO - Request: POST /api/login - User: anonymous
+2025-08-04 17:44:34,173 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 17:44:34] "POST /api/login HTTP/1.1" 200 -
+2025-08-04 17:44:37,286 - __main__ - INFO - Mini-program API: GET /api/mp/applications
+2025-08-04 17:44:37,316 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 17:44:37] "GET /api/mp/applications HTTP/1.1" 200 -
+2025-08-04 17:44:44,364 - __main__ - INFO - Mini-program API: GET /api/mp/applications
+2025-08-04 17:44:44,396 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 17:44:44] "GET /api/mp/applications HTTP/1.1" 200 -
+2025-08-04 17:50:32,341 - __main__ - INFO - Mini-program API: GET /api/mp/users
+2025-08-04 17:50:32,420 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 17:50:32] "GET /api/mp/users HTTP/1.1" 200 -
+2025-08-04 17:50:51,572 - __main__ - INFO - Request: POST /api/login - User: anonymous
+2025-08-04 17:50:51,655 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 17:50:51] "POST /api/login HTTP/1.1" 200 -
+2025-08-04 17:50:53,971 - __main__ - INFO - Mini-program API: GET /api/mp/users
+2025-08-04 17:50:54,010 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 17:50:54] "GET /api/mp/users HTTP/1.1" 200 -
+2025-08-04 17:57:51,173 - __main__ - INFO - Request: POST /api/login - User: anonymous
+2025-08-04 17:57:51,276 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 17:57:51] "POST /api/login HTTP/1.1" 200 -
+2025-08-04 17:57:54,931 - __main__ - INFO - Mini-program API: GET /api/mp/users
+2025-08-04 17:57:54,969 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 17:57:54] "GET /api/mp/users HTTP/1.1" 200 -
+2025-08-04 17:58:05,090 - __main__ - INFO - Mini-program API: GET /api/mp/users
+2025-08-04 17:58:05,162 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 17:58:05] "GET /api/mp/users HTTP/1.1" 200 -
+2025-08-04 17:58:06,724 - __main__ - INFO - Mini-program API: GET /api/mp/users
+2025-08-04 17:58:06,760 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 17:58:06] "GET /api/mp/users HTTP/1.1" 200 -
+2025-08-04 17:58:08,338 - __main__ - INFO - Mini-program API: GET /api/mp/users
+2025-08-04 17:58:08,382 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 17:58:08] "GET /api/mp/users HTTP/1.1" 200 -
+2025-08-04 17:58:23,775 - __main__ - INFO - Mini-program API: GET /api/mp/users
+2025-08-04 17:58:24,020 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 17:58:24] "GET /api/mp/users HTTP/1.1" 200 -
+2025-08-04 17:58:26,693 - __main__ - INFO - Mini-program API: GET /api/mp/applications
+2025-08-04 17:58:26,726 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 17:58:26] "GET /api/mp/applications HTTP/1.1" 200 -
+2025-08-04 18:01:00,599 - __main__ - INFO - Mini-program API: GET /api/mp/users
+2025-08-04 18:01:00,685 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 18:01:00] "GET /api/mp/users HTTP/1.1" 200 -
+2025-08-04 18:01:05,048 - __main__ - INFO - Mini-program API: GET /api/mp/users
+2025-08-04 18:01:05,078 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 18:01:05] "GET /api/mp/users HTTP/1.1" 200 -
+2025-08-04 18:05:01,451 - __main__ - INFO - Request: POST /api/login - User: anonymous
+2025-08-04 18:05:01,539 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 18:05:01] "POST /api/login HTTP/1.1" 200 -
+2025-08-04 18:05:04,218 - __main__ - INFO - Mini-program API: GET /api/mp/users
+2025-08-04 18:05:04,250 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 18:05:04] "GET /api/mp/users HTTP/1.1" 200 -
+2025-08-06 14:25:58,264 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5050
+ * Running on http://26.26.26.1:5050
+2025-08-06 14:25:58,264 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-08-06 14:25:58,265 - werkzeug - INFO -  * Restarting with stat
+2025-08-06 14:26:03,478 - werkzeug - WARNING -  * Debugger is active!
+2025-08-06 14:26:03,493 - werkzeug - INFO -  * Debugger PIN: 261-303-135
+2025-08-06 14:26:04,801 - __main__ - INFO - Request: GET / - User: admin
+2025-08-06 14:26:05,742 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 14:26:05] "[36mGET / HTTP/1.1[0m" 304 -
+2025-08-06 14:26:06,798 - __main__ - INFO - Request: GET /favicon.ico - User: admin
+2025-08-06 14:26:06,799 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 14:26:06] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-06 14:26:13,546 - __main__ - INFO - Request: POST /api/login - User: admin
+2025-08-06 14:26:13,586 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 14:26:13] "POST /api/login HTTP/1.1" 200 -
+2025-08-06 14:26:13,602 - __main__ - INFO - Request: GET /admin.html - User: admin
+2025-08-06 14:26:13,604 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 14:26:13] "GET /admin.html HTTP/1.1" 200 -
+2025-08-06 14:26:13,707 - __main__ - INFO - Request: GET /favicon.ico - User: admin
+2025-08-06 14:26:13,708 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 14:26:13] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-06 14:26:16,614 - __main__ - INFO - Request: GET /device_monitor.html - User: admin
+2025-08-06 14:26:16,616 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 14:26:16] "[31m[1mGET /device_monitor.html HTTP/1.1[0m" 403 -
+2025-08-06 14:26:16,696 - __main__ - INFO - Request: GET /favicon.ico - User: admin
+2025-08-06 14:26:16,697 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 14:26:16] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-06 14:26:21,729 - __main__ - INFO - Request: GET /favicon.ico - User: admin
+2025-08-06 14:26:21,731 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 14:26:21] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-06 14:26:22,941 - __main__ - INFO - Request: GET /user_management.html - User: admin
+2025-08-06 14:26:22,944 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 14:26:22] "[36mGET /user_management.html HTTP/1.1[0m" 304 -
+2025-08-06 14:26:22,998 - __main__ - INFO - Request: GET /api/users - User: admin
+2025-08-06 14:26:23,004 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 14:26:23] "GET /api/users HTTP/1.1" 200 -
+2025-08-06 14:26:23,118 - __main__ - INFO - Request: GET /favicon.ico - User: admin
+2025-08-06 14:26:23,119 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 14:26:23] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-06 14:26:24,999 - __main__ - INFO - Request: GET /favicon.ico - User: admin
+2025-08-06 14:26:25,001 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 14:26:25] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-06 14:27:26,996 - __main__ - INFO - Request: GET /login.html - User: admin
+2025-08-06 14:27:27,004 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 14:27:27] "GET /login.html HTTP/1.1" 200 -
+2025-08-06 14:27:28,373 - __main__ - INFO - Request: GET /favicon.ico - User: admin
+2025-08-06 14:27:28,374 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 14:27:28] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-06 14:27:42,397 - __main__ - INFO - Request: POST /api/login - User: admin
+2025-08-06 14:27:42,404 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 14:27:42] "POST /api/login HTTP/1.1" 200 -
+2025-08-06 14:27:42,415 - __main__ - INFO - Request: GET /dispatcher_home.html - User: dispatcher1
+2025-08-06 14:27:42,416 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 14:27:42] "GET /dispatcher_home.html HTTP/1.1" 200 -
+2025-08-06 14:27:42,506 - __main__ - INFO - Request: GET /favicon.ico - User: dispatcher1
+2025-08-06 14:27:42,507 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 14:27:42] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-06 14:28:14,271 - werkzeug - INFO -  * Detected change in '/Users/huxiangyu/Documents/HBuilderProjects/智能停送电/server.py', reloading
+2025-08-06 14:28:14,304 - werkzeug - INFO -  * Restarting with stat
+2025-08-06 14:28:19,753 - werkzeug - WARNING -  * Debugger is active!
+2025-08-06 14:28:19,761 - werkzeug - INFO -  * Debugger PIN: 261-303-135
+2025-08-06 14:28:20,953 - __main__ - INFO - Request: GET / - User: dispatcher1
+2025-08-06 14:28:20,963 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 14:28:20] "[36mGET / HTTP/1.1[0m" 304 -
+2025-08-06 14:28:21,316 - __main__ - INFO - Request: GET /favicon.ico - User: dispatcher1
+2025-08-06 14:28:21,317 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 14:28:21] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-06 14:28:41,324 - werkzeug - INFO -  * Detected change in '/Users/huxiangyu/Documents/HBuilderProjects/智能停送电/web-backend/server.py', reloading
+2025-08-06 14:28:41,353 - werkzeug - INFO -  * Restarting with stat
+2025-08-06 14:28:46,590 - werkzeug - WARNING -  * Debugger is active!
+2025-08-06 14:28:46,596 - werkzeug - INFO -  * Debugger PIN: 261-303-135
+2025-08-06 14:28:46,837 - __main__ - INFO - Request: POST /api/login - User: dispatcher1
+2025-08-06 14:28:46,841 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 14:28:46] "POST /api/login HTTP/1.1" 200 -
+2025-08-06 14:28:46,849 - __main__ - INFO - Request: GET /admin.html - User: admin
+2025-08-06 14:28:46,851 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 14:28:46] "[36mGET /admin.html HTTP/1.1[0m" 304 -
+2025-08-06 14:28:46,976 - __main__ - INFO - Request: GET /favicon.ico - User: admin
+2025-08-06 14:28:46,977 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 14:28:46] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-06 14:28:47,771 - __main__ - INFO - Request: GET / - User: admin
+2025-08-06 14:28:47,772 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 14:28:47] "[36mGET / HTTP/1.1[0m" 304 -
+2025-08-06 14:28:48,807 - __main__ - INFO - Request: GET /favicon.ico - User: admin
+2025-08-06 14:28:48,808 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 14:28:48] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-06 14:28:54,812 - __main__ - INFO - Request: POST /api/login - User: admin
+2025-08-06 14:28:54,815 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 14:28:54] "POST /api/login HTTP/1.1" 200 -
+2025-08-06 14:28:54,823 - __main__ - INFO - Request: GET /admin.html - User: admin
+2025-08-06 14:28:54,824 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 14:28:54] "[36mGET /admin.html HTTP/1.1[0m" 304 -
+2025-08-06 14:28:54,946 - __main__ - INFO - Request: GET /favicon.ico - User: admin
+2025-08-06 14:28:54,948 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 14:28:54] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-06 14:28:57,538 - __main__ - INFO - Request: GET /device_monitor.html - User: admin
+2025-08-06 14:28:57,543 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 14:28:57] "GET /device_monitor.html HTTP/1.1" 200 -
+2025-08-06 14:29:00,886 - __main__ - INFO - Mini-program API: GET /api/mp/device-status
+2025-08-06 14:29:00,887 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 14:29:00] "GET /api/mp/device-status HTTP/1.1" 200 -
+2025-08-06 14:29:00,891 - __main__ - INFO - Mini-program API: GET /api/mp/device-alerts
+2025-08-06 14:29:00,892 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 14:29:00] "GET /api/mp/device-alerts HTTP/1.1" 200 -
+2025-08-06 14:29:00,973 - __main__ - INFO - Request: GET /favicon.ico - User: admin
+2025-08-06 14:29:00,974 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 14:29:00] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-06 14:29:02,110 - __main__ - INFO - Request: GET /device_monitor.html - User: anonymous
+2025-08-06 14:29:02,111 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 14:29:02] "[31m[1mGET /device_monitor.html HTTP/1.1[0m" 401 -
+2025-08-06 14:29:02,508 - __main__ - INFO - Mini-program API: GET /api/mp/device-status
+2025-08-06 14:29:02,590 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 14:29:02] "GET /api/mp/device-status HTTP/1.1" 200 -
+2025-08-06 14:29:02,598 - __main__ - INFO - Mini-program API: GET /api/mp/device-alerts
+2025-08-06 14:29:02,599 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 14:29:02] "GET /api/mp/device-alerts HTTP/1.1" 200 -
+2025-08-06 14:29:05,132 - __main__ - INFO - Request: GET /favicon.ico - User: admin
+2025-08-06 14:29:05,133 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 14:29:05] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-06 14:29:06,179 - __main__ - INFO - Request: GET /user_management.html - User: admin
+2025-08-06 14:29:06,180 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 14:29:06] "[36mGET /user_management.html HTTP/1.1[0m" 304 -
+2025-08-06 14:29:06,223 - __main__ - INFO - Request: GET /api/users - User: admin
+2025-08-06 14:29:06,231 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 14:29:06] "GET /api/users HTTP/1.1" 200 -
+2025-08-06 14:29:06,351 - __main__ - INFO - Request: GET /favicon.ico - User: admin
+2025-08-06 14:29:06,352 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 14:29:06] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-06 14:29:07,949 - __main__ - INFO - Request: GET /favicon.ico - User: admin
+2025-08-06 14:29:07,950 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 14:29:07] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-06 14:29:09,299 - __main__ - INFO - Request: GET /favicon.ico - User: admin
+2025-08-06 14:29:09,301 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 14:29:09] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-06 14:29:09,343 - werkzeug - INFO -  * Detected change in '/Users/huxiangyu/Documents/HBuilderProjects/智能停送电/web-backend/server.py', reloading
+2025-08-06 14:29:09,436 - werkzeug - INFO -  * Restarting with stat
+2025-08-06 14:29:14,782 - werkzeug - WARNING -  * Debugger is active!
+2025-08-06 14:29:14,794 - werkzeug - INFO -  * Debugger PIN: 261-303-135
+2025-08-06 14:29:16,053 - __main__ - INFO - Request: GET / - User: admin
+2025-08-06 14:29:16,063 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 14:29:16] "[36mGET / HTTP/1.1[0m" 304 -
+2025-08-06 14:29:16,406 - __main__ - INFO - Request: GET /favicon.ico - User: admin
+2025-08-06 14:29:16,407 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 14:29:16] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-06 14:30:33,188 - werkzeug - INFO -  * Detected change in '/Users/huxiangyu/Documents/HBuilderProjects/智能停送电/server.py', reloading
+2025-08-06 14:30:33,216 - werkzeug - INFO -  * Restarting with stat
+2025-08-06 14:30:38,457 - werkzeug - WARNING -  * Debugger is active!
+2025-08-06 14:30:38,463 - werkzeug - INFO -  * Debugger PIN: 261-303-135
+2025-08-06 14:30:39,752 - __main__ - INFO - Request: GET / - User: admin
+2025-08-06 14:30:39,763 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 14:30:39] "[36mGET / HTTP/1.1[0m" 304 -
+2025-08-06 14:30:40,881 - __main__ - INFO - Request: GET /favicon.ico - User: admin
+2025-08-06 14:30:40,881 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 14:30:40] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-06 14:30:47,658 - werkzeug - INFO -  * Detected change in '/Users/huxiangyu/Documents/HBuilderProjects/智能停送电/server.py', reloading
+2025-08-06 14:30:47,687 - werkzeug - INFO -  * Restarting with stat
+2025-08-06 14:30:52,938 - werkzeug - WARNING -  * Debugger is active!
+2025-08-06 14:30:52,946 - werkzeug - INFO -  * Debugger PIN: 261-303-135
+2025-08-06 14:30:54,120 - __main__ - INFO - Request: GET / - User: admin
+2025-08-06 14:30:54,124 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 14:30:54] "[36mGET / HTTP/1.1[0m" 304 -
+2025-08-06 14:30:54,437 - __main__ - INFO - Request: GET /favicon.ico - User: admin
+2025-08-06 14:30:54,438 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 14:30:54] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-06 14:31:11,371 - werkzeug - INFO -  * Detected change in '/Users/huxiangyu/Documents/HBuilderProjects/智能停送电/web-backend/server.py', reloading
+2025-08-06 14:31:11,400 - werkzeug - INFO -  * Restarting with stat
+2025-08-06 14:31:16,640 - werkzeug - WARNING -  * Debugger is active!
+2025-08-06 14:31:16,647 - werkzeug - INFO -  * Debugger PIN: 261-303-135
+2025-08-06 14:31:17,813 - __main__ - INFO - Request: GET / - User: admin
+2025-08-06 14:31:17,819 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 14:31:17] "[36mGET / HTTP/1.1[0m" 304 -
+2025-08-06 14:31:18,139 - __main__ - INFO - Request: GET /favicon.ico - User: admin
+2025-08-06 14:31:18,140 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 14:31:18] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-06 14:31:27,488 - __main__ - INFO - Request: POST /api/login - User: admin
+2025-08-06 14:31:27,497 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 14:31:27] "POST /api/login HTTP/1.1" 200 -
+2025-08-06 14:31:27,511 - __main__ - INFO - Request: GET /dispatcher_home.html - User: dispatcher1
+2025-08-06 14:31:27,513 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 14:31:27] "[36mGET /dispatcher_home.html HTTP/1.1[0m" 304 -
+2025-08-06 14:31:27,602 - __main__ - INFO - Request: GET /favicon.ico - User: dispatcher1
+2025-08-06 14:31:27,603 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 14:31:27] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-06 14:32:26,198 - werkzeug - INFO -  * Detected change in '/Users/huxiangyu/Documents/HBuilderProjects/智能停送电/server.py', reloading
+2025-08-06 14:32:26,227 - werkzeug - INFO -  * Restarting with stat
+2025-08-06 14:32:31,521 - werkzeug - WARNING -  * Debugger is active!
+2025-08-06 14:32:31,535 - werkzeug - INFO -  * Debugger PIN: 261-303-135
+2025-08-06 14:32:32,827 - __main__ - INFO - Request: GET / - User: dispatcher1
+2025-08-06 14:32:32,832 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 14:32:32] "[36mGET / HTTP/1.1[0m" 304 -
+2025-08-06 14:32:33,647 - __main__ - INFO - Request: GET /favicon.ico - User: dispatcher1
+2025-08-06 14:32:33,648 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 14:32:33] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-06 14:32:36,680 - werkzeug - INFO -  * Detected change in '/Users/huxiangyu/Documents/HBuilderProjects/智能停送电/server.py', reloading
+2025-08-06 14:32:36,716 - werkzeug - INFO -  * Restarting with stat
+2025-08-06 14:32:42,000 - werkzeug - WARNING -  * Debugger is active!
+2025-08-06 14:32:42,009 - werkzeug - INFO -  * Debugger PIN: 261-303-135
+2025-08-06 14:32:43,303 - __main__ - INFO - Request: GET / - User: dispatcher1
+2025-08-06 14:32:43,307 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 14:32:43] "[36mGET / HTTP/1.1[0m" 304 -
+2025-08-06 14:32:43,670 - __main__ - INFO - Request: GET /favicon.ico - User: dispatcher1
+2025-08-06 14:32:43,672 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 14:32:43] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-06 14:43:20,218 - __main__ - INFO - Request: POST /api/login - User: dispatcher1
+2025-08-06 14:43:20,232 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 14:43:20] "POST /api/login HTTP/1.1" 200 -
+2025-08-06 14:43:20,251 - __main__ - INFO - Request: GET /dispatcher_home.html - User: dispatcher1
+2025-08-06 14:43:20,254 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 14:43:20] "GET /dispatcher_home.html HTTP/1.1" 200 -
+2025-08-06 14:43:20,412 - __main__ - INFO - Request: GET /favicon.ico - User: dispatcher1
+2025-08-06 14:43:20,413 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 14:43:20] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-06 14:43:22,087 - __main__ - INFO - Request: GET /device_monitor.html - User: dispatcher1
+2025-08-06 14:43:22,090 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 14:43:22] "[36mGET /device_monitor.html HTTP/1.1[0m" 304 -
+2025-08-06 14:43:22,822 - __main__ - INFO - Mini-program API: GET /api/mp/device-status
+2025-08-06 14:43:22,827 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 14:43:22] "GET /api/mp/device-status HTTP/1.1" 200 -
+2025-08-06 14:43:22,834 - __main__ - INFO - Mini-program API: GET /api/mp/device-alerts
+2025-08-06 14:43:22,835 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 14:43:22] "GET /api/mp/device-alerts HTTP/1.1" 200 -
+2025-08-06 14:43:22,909 - __main__ - INFO - Request: GET /favicon.ico - User: dispatcher1
+2025-08-06 14:43:22,911 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 14:43:22] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-06 14:43:24,505 - __main__ - INFO - Mini-program API: GET /api/mp/device-status
+2025-08-06 14:43:24,506 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 14:43:24] "GET /api/mp/device-status HTTP/1.1" 200 -
+2025-08-06 14:43:24,523 - __main__ - INFO - Mini-program API: GET /api/mp/device-alerts
+2025-08-06 14:43:24,525 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 14:43:24] "GET /api/mp/device-alerts HTTP/1.1" 200 -
+2025-08-06 14:43:28,186 - __main__ - INFO - Request: GET /favicon.ico - User: dispatcher1
+2025-08-06 14:43:28,187 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 14:43:28] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-06 14:45:54,312 - __main__ - INFO - Request: GET /approval.html - User: dispatcher1
+2025-08-06 14:45:54,330 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 14:45:54] "GET /approval.html HTTP/1.1" 200 -
+2025-08-06 14:45:55,257 - __main__ - INFO - Request: GET /api/list - User: dispatcher1
+2025-08-06 14:45:55,288 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 14:45:55] "GET /api/list HTTP/1.1" 200 -
+2025-08-06 14:45:55,458 - __main__ - INFO - Request: GET /favicon.ico - User: dispatcher1
+2025-08-06 14:45:55,459 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 14:45:55] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-06 14:46:06,746 - __main__ - INFO - Request: GET /detail.html - User: dispatcher1
+2025-08-06 14:46:06,747 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 14:46:06] "GET /detail.html?id=6 HTTP/1.1" 200 -
+2025-08-06 14:46:06,786 - __main__ - INFO - Request: GET /api/application/6 - User: dispatcher1
+2025-08-06 14:46:06,808 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 14:46:06] "GET /api/application/6 HTTP/1.1" 200 -
+2025-08-06 14:46:06,925 - __main__ - INFO - Request: GET /favicon.ico - User: dispatcher1
+2025-08-06 14:46:06,926 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 14:46:06] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-06 14:52:24,403 - werkzeug - INFO -  * Detected change in '/Users/huxiangyu/Documents/HBuilderProjects/智能停送电/server.py', reloading
+2025-08-06 14:52:24,438 - werkzeug - INFO -  * Restarting with stat
+2025-08-06 14:52:29,710 - werkzeug - WARNING -  * Debugger is active!
+2025-08-06 14:52:29,719 - werkzeug - INFO -  * Debugger PIN: 261-303-135
+2025-08-06 14:52:30,914 - __main__ - INFO - Request: GET / - User: dispatcher1
+2025-08-06 14:52:30,918 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 14:52:30] "[36mGET / HTTP/1.1[0m" 304 -
+2025-08-06 14:52:32,205 - __main__ - INFO - Request: GET /favicon.ico - User: dispatcher1
+2025-08-06 14:52:32,206 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 14:52:32] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-06 14:52:53,307 - werkzeug - INFO -  * Detected change in '/Users/huxiangyu/Documents/HBuilderProjects/智能停送电/server.py', reloading
+2025-08-06 14:52:53,338 - werkzeug - INFO -  * Restarting with stat
+2025-08-06 14:52:58,576 - werkzeug - WARNING -  * Debugger is active!
+2025-08-06 14:52:58,584 - werkzeug - INFO -  * Debugger PIN: 261-303-135
+2025-08-06 14:52:59,903 - __main__ - INFO - Request: GET / - User: dispatcher1
+2025-08-06 14:52:59,930 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 14:52:59] "[36mGET / HTTP/1.1[0m" 304 -
+2025-08-06 14:53:00,408 - __main__ - INFO - Request: GET /favicon.ico - User: dispatcher1
+2025-08-06 14:53:00,409 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 14:53:00] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-06 14:54:21,411 - werkzeug - INFO -  * Detected change in '/Users/huxiangyu/Documents/HBuilderProjects/智能停送电/server.py', reloading
+2025-08-06 14:54:21,443 - werkzeug - INFO -  * Restarting with stat
+2025-08-06 14:54:26,730 - werkzeug - WARNING -  * Debugger is active!
+2025-08-06 14:54:26,740 - werkzeug - INFO -  * Debugger PIN: 261-303-135
+2025-08-06 14:54:28,042 - __main__ - INFO - Request: GET / - User: dispatcher1
+2025-08-06 14:54:28,053 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 14:54:28] "[36mGET / HTTP/1.1[0m" 304 -
+2025-08-06 14:54:28,930 - __main__ - INFO - Request: GET /favicon.ico - User: dispatcher1
+2025-08-06 14:54:28,931 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 14:54:28] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-06 15:00:22,077 - werkzeug - INFO -  * Detected change in '/Users/huxiangyu/Documents/HBuilderProjects/智能停送电/server.py', reloading
+2025-08-06 15:00:22,116 - werkzeug - INFO -  * Restarting with stat
+2025-08-06 15:00:27,441 - werkzeug - WARNING -  * Debugger is active!
+2025-08-06 15:00:27,449 - werkzeug - INFO -  * Debugger PIN: 261-303-135
+2025-08-06 15:00:28,828 - __main__ - INFO - Request: GET / - User: dispatcher1
+2025-08-06 15:00:28,834 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 15:00:28] "[36mGET / HTTP/1.1[0m" 304 -
+2025-08-06 15:00:29,943 - __main__ - INFO - Request: GET /favicon.ico - User: dispatcher1
+2025-08-06 15:00:29,943 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 15:00:29] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-06 15:01:08,455 - werkzeug - INFO -  * Detected change in '/Users/huxiangyu/Documents/HBuilderProjects/智能停送电/server.py', reloading
+2025-08-06 15:01:08,507 - werkzeug - INFO -  * Restarting with stat
+2025-08-06 15:01:13,813 - werkzeug - WARNING -  * Debugger is active!
+2025-08-06 15:01:13,822 - werkzeug - INFO -  * Debugger PIN: 261-303-135
+2025-08-06 15:01:15,025 - __main__ - INFO - Request: GET / - User: dispatcher1
+2025-08-06 15:01:15,029 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 15:01:15] "[36mGET / HTTP/1.1[0m" 304 -
+2025-08-06 15:01:15,446 - __main__ - INFO - Request: GET /favicon.ico - User: dispatcher1
+2025-08-06 15:01:15,447 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 15:01:15] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-06 15:01:52,750 - werkzeug - INFO -  * Detected change in '/Users/huxiangyu/Documents/HBuilderProjects/智能停送电/server.py', reloading
+2025-08-06 15:01:52,780 - werkzeug - INFO -  * Restarting with stat
+2025-08-06 15:01:58,045 - werkzeug - WARNING -  * Debugger is active!
+2025-08-06 15:01:58,059 - werkzeug - INFO -  * Debugger PIN: 261-303-135
+2025-08-06 15:01:59,204 - __main__ - INFO - Request: GET / - User: dispatcher1
+2025-08-06 15:01:59,207 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 15:01:59] "[36mGET / HTTP/1.1[0m" 304 -
+2025-08-06 15:02:00,482 - __main__ - INFO - Request: GET /favicon.ico - User: dispatcher1
+2025-08-06 15:02:00,483 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 15:02:00] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-06 15:03:38,356 - werkzeug - INFO -  * Detected change in '/Users/huxiangyu/Documents/HBuilderProjects/智能停送电/server.py', reloading
+2025-08-06 15:03:38,390 - werkzeug - INFO -  * Restarting with stat
+2025-08-06 15:03:43,845 - werkzeug - WARNING -  * Debugger is active!
+2025-08-06 15:03:43,856 - werkzeug - INFO -  * Debugger PIN: 261-303-135
+2025-08-06 15:03:45,251 - __main__ - INFO - Request: GET / - User: dispatcher1
+2025-08-06 15:03:45,256 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 15:03:45] "[36mGET / HTTP/1.1[0m" 304 -
+2025-08-06 15:03:46,532 - __main__ - INFO - Request: GET /favicon.ico - User: dispatcher1
+2025-08-06 15:03:46,533 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 15:03:46] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-06 16:21:17,546 - __main__ - INFO - Mini-program API: GET /api/mp/stats
+2025-08-06 16:21:17,559 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:21:17] "GET /api/mp/stats HTTP/1.1" 200 -
+2025-08-06 16:34:58,101 - __main__ - INFO - Request: POST /api/login - User: dispatcher1
+2025-08-06 16:34:58,201 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:34:58] "POST /api/login HTTP/1.1" 200 -
+2025-08-06 16:34:58,215 - __main__ - INFO - Request: GET /dispatcher_home.html - User: dispatcher1
+2025-08-06 16:34:58,216 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:34:58] "GET /dispatcher_home.html HTTP/1.1" 200 -
+2025-08-06 16:34:58,514 - __main__ - INFO - Request: GET /favicon.ico - User: dispatcher1
+2025-08-06 16:34:58,517 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:34:58] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-06 16:35:01,191 - __main__ - INFO - Request: GET /notifications.html - User: dispatcher1
+2025-08-06 16:35:01,195 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:35:01] "GET /notifications.html HTTP/1.1" 200 -
+2025-08-06 16:35:01,849 - __main__ - INFO - Request: GET /api/notifications - User: dispatcher1
+2025-08-06 16:35:01,862 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:35:01] "[35m[1mGET /api/notifications HTTP/1.1[0m" 500 -
+2025-08-06 16:35:01,925 - __main__ - INFO - Request: GET /favicon.ico - User: dispatcher1
+2025-08-06 16:35:01,927 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:35:01] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-06 16:35:04,202 - __main__ - INFO - Request: GET /favicon.ico - User: dispatcher1
+2025-08-06 16:35:04,203 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:35:04] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-06 16:35:13,022 - __main__ - INFO - Request: POST /api/login - User: dispatcher1
+2025-08-06 16:35:13,029 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:35:13] "POST /api/login HTTP/1.1" 200 -
+2025-08-06 16:35:13,044 - __main__ - INFO - Request: GET /electrician_home.html - User: electrician1
+2025-08-06 16:35:13,047 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:35:13] "GET /electrician_home.html HTTP/1.1" 200 -
+2025-08-06 16:35:13,354 - __main__ - INFO - Request: GET /favicon.ico - User: electrician1
+2025-08-06 16:35:13,356 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:35:13] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-06 16:35:18,882 - __main__ - INFO - Request: GET /notifications.html - User: electrician1
+2025-08-06 16:35:18,885 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:35:18] "[36mGET /notifications.html HTTP/1.1[0m" 304 -
+2025-08-06 16:35:18,958 - __main__ - INFO - Request: GET /api/notifications - User: electrician1
+2025-08-06 16:35:18,962 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:35:18] "[35m[1mGET /api/notifications HTTP/1.1[0m" 500 -
+2025-08-06 16:35:19,040 - __main__ - INFO - Request: GET /favicon.ico - User: electrician1
+2025-08-06 16:35:19,044 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:35:19] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-06 16:35:20,395 - __main__ - INFO - Request: GET /favicon.ico - User: electrician1
+2025-08-06 16:35:20,398 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:35:20] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-06 16:35:29,221 - __main__ - INFO - Request: GET /approval.html - User: electrician1
+2025-08-06 16:35:29,222 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:35:29] "[31m[1mGET /approval.html HTTP/1.1[0m" 403 -
+2025-08-06 16:35:29,322 - __main__ - INFO - Request: GET /favicon.ico - User: electrician1
+2025-08-06 16:35:29,323 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:35:29] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-06 16:35:32,232 - __main__ - INFO - Request: GET /favicon.ico - User: electrician1
+2025-08-06 16:35:32,234 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:35:32] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-06 16:35:33,787 - __main__ - INFO - Request: GET /apply.html - User: electrician1
+2025-08-06 16:35:33,789 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:35:33] "GET /apply.html HTTP/1.1" 200 -
+2025-08-06 16:35:34,465 - __main__ - INFO - Request: GET /favicon.ico - User: electrician1
+2025-08-06 16:35:34,466 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:35:34] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-06 16:35:35,327 - __main__ - INFO - Request: GET /favicon.ico - User: electrician1
+2025-08-06 16:35:35,330 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:35:35] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-06 16:35:36,553 - __main__ - INFO - Request: GET /approval.html - User: electrician1
+2025-08-06 16:35:36,558 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:35:36] "[31m[1mGET /approval.html HTTP/1.1[0m" 403 -
+2025-08-06 16:35:36,638 - __main__ - INFO - Request: GET /favicon.ico - User: electrician1
+2025-08-06 16:35:36,639 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:35:36] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-06 16:35:37,869 - __main__ - INFO - Request: GET /favicon.ico - User: electrician1
+2025-08-06 16:35:37,871 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:35:37] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-06 16:36:17,983 - __main__ - INFO - Request: POST /api/login - User: anonymous
+2025-08-06 16:36:17,990 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:36:17] "[31m[1mPOST /api/login HTTP/1.1[0m" 401 -
+2025-08-06 16:36:23,465 - __main__ - INFO - Mini-program API: GET /api/mp/users
+2025-08-06 16:36:24,032 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:36:24] "GET /api/mp/users HTTP/1.1" 200 -
+2025-08-06 16:36:28,927 - __main__ - INFO - Request: POST /api/login - User: anonymous
+2025-08-06 16:36:28,962 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:36:28] "[31m[1mPOST /api/login HTTP/1.1[0m" 401 -
+2025-08-06 16:36:35,886 - __main__ - INFO - Request: POST /api/login - User: anonymous
+2025-08-06 16:36:35,911 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:36:35] "POST /api/login HTTP/1.1" 200 -
+2025-08-06 16:36:39,944 - __main__ - INFO - Request: POST /api/login - User: anonymous
+2025-08-06 16:36:39,971 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:36:39] "POST /api/login HTTP/1.1" 200 -
+2025-08-06 16:36:45,963 - __main__ - INFO - Request: GET /api/list - User: admin
+2025-08-06 16:36:45,985 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:36:45] "GET /api/list HTTP/1.1" 200 -
+2025-08-06 16:36:54,343 - __main__ - INFO - Request: GET /api/list - User: dispatcher1
+2025-08-06 16:36:54,351 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:36:54] "GET /api/list HTTP/1.1" 200 -
+2025-08-06 16:37:45,779 - __main__ - INFO - Request: GET /approval_history.html - User: electrician1
+2025-08-06 16:37:45,782 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:37:45] "[31m[1mGET /approval_history.html HTTP/1.1[0m" 403 -
+2025-08-06 16:37:45,888 - __main__ - INFO - Request: GET /favicon.ico - User: electrician1
+2025-08-06 16:37:45,889 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:37:45] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-06 16:37:47,239 - __main__ - INFO - Request: GET /favicon.ico - User: electrician1
+2025-08-06 16:37:47,246 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:37:47] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-06 16:37:50,138 - __main__ - INFO - Request: GET /repair.html - User: electrician1
+2025-08-06 16:37:50,140 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:37:50] "GET /repair.html HTTP/1.1" 200 -
+2025-08-06 16:37:50,657 - __main__ - INFO - Request: GET /api/list - User: electrician1
+2025-08-06 16:37:50,664 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:37:50] "GET /api/list HTTP/1.1" 200 -
+2025-08-06 16:37:50,820 - __main__ - INFO - Request: GET /favicon.ico - User: electrician1
+2025-08-06 16:37:50,820 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:37:50] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-06 16:37:52,588 - __main__ - INFO - Request: GET /favicon.ico - User: electrician1
+2025-08-06 16:37:52,590 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:37:52] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-06 16:37:54,511 - __main__ - INFO - Request: GET /notifications.html - User: electrician1
+2025-08-06 16:37:54,513 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:37:54] "[36mGET /notifications.html HTTP/1.1[0m" 304 -
+2025-08-06 16:37:54,867 - __main__ - INFO - Request: GET /api/notifications - User: electrician1
+2025-08-06 16:37:54,885 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:37:54] "[35m[1mGET /api/notifications HTTP/1.1[0m" 500 -
+2025-08-06 16:37:54,949 - __main__ - INFO - Request: GET /favicon.ico - User: electrician1
+2025-08-06 16:37:54,949 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:37:54] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-06 16:37:56,210 - __main__ - INFO - Request: GET /favicon.ico - User: electrician1
+2025-08-06 16:37:56,212 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:37:56] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-06 16:37:57,469 - __main__ - INFO - Request: GET /apply.html - User: electrician1
+2025-08-06 16:37:57,472 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:37:57] "[36mGET /apply.html HTTP/1.1[0m" 304 -
+2025-08-06 16:37:57,600 - __main__ - INFO - Request: GET /favicon.ico - User: electrician1
+2025-08-06 16:37:57,601 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:37:57] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-06 16:38:08,067 - __main__ - INFO - Request: POST /api/power-apply - User: electrician1
+2025-08-06 16:38:08,096 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:38:08] "POST /api/power-apply HTTP/1.1" 200 -
+2025-08-06 16:38:10,216 - __main__ - INFO - Request: GET /dispatcher_home.html - User: electrician1
+2025-08-06 16:38:10,220 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:38:10] "[31m[1mGET /dispatcher_home.html HTTP/1.1[0m" 403 -
+2025-08-06 16:38:10,285 - __main__ - INFO - Request: GET /favicon.ico - User: electrician1
+2025-08-06 16:38:10,286 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:38:10] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-06 16:38:12,096 - __main__ - INFO - Request: GET /favicon.ico - User: electrician1
+2025-08-06 16:38:12,098 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:38:12] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-06 16:38:21,514 - __main__ - INFO - Request: POST /api/login - User: electrician1
+2025-08-06 16:38:21,521 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:38:21] "POST /api/login HTTP/1.1" 200 -
+2025-08-06 16:38:21,529 - __main__ - INFO - Request: GET /dispatcher_home.html - User: dispatcher1
+2025-08-06 16:38:21,532 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:38:21] "GET /dispatcher_home.html HTTP/1.1" 200 -
+2025-08-06 16:38:21,633 - __main__ - INFO - Request: GET /favicon.ico - User: dispatcher1
+2025-08-06 16:38:21,634 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:38:21] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-06 16:38:24,106 - __main__ - INFO - Request: GET /notifications.html - User: dispatcher1
+2025-08-06 16:38:24,107 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:38:24] "[36mGET /notifications.html HTTP/1.1[0m" 304 -
+2025-08-06 16:38:24,195 - __main__ - INFO - Request: GET /api/notifications - User: dispatcher1
+2025-08-06 16:38:24,200 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:38:24] "[35m[1mGET /api/notifications HTTP/1.1[0m" 500 -
+2025-08-06 16:38:24,277 - __main__ - INFO - Request: GET /favicon.ico - User: dispatcher1
+2025-08-06 16:38:24,278 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:38:24] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-06 16:38:29,866 - __main__ - INFO - Request: GET /notifications.html - User: dispatcher1
+2025-08-06 16:38:29,868 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:38:29] "[36mGET /notifications.html HTTP/1.1[0m" 304 -
+2025-08-06 16:38:29,929 - __main__ - INFO - Request: GET /api/notifications - User: dispatcher1
+2025-08-06 16:38:29,938 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:38:29] "[35m[1mGET /api/notifications HTTP/1.1[0m" 500 -
+2025-08-06 16:38:29,960 - __main__ - INFO - Request: GET /favicon.ico - User: dispatcher1
+2025-08-06 16:38:29,961 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:38:29] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-06 16:41:12,214 - __main__ - INFO - Request: GET /notifications.html - User: dispatcher1
+2025-08-06 16:41:12,216 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:41:12] "[36mGET /notifications.html HTTP/1.1[0m" 304 -
+2025-08-06 16:41:13,054 - __main__ - INFO - Request: GET /api/notifications - User: dispatcher1
+2025-08-06 16:41:13,066 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:41:13] "[35m[1mGET /api/notifications HTTP/1.1[0m" 500 -
+2025-08-06 16:41:13,091 - __main__ - INFO - Request: GET /favicon.ico - User: dispatcher1
+2025-08-06 16:41:13,092 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:41:13] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-06 16:41:14,760 - __main__ - INFO - Request: GET /notifications.html - User: dispatcher1
+2025-08-06 16:41:14,763 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:41:14] "[36mGET /notifications.html HTTP/1.1[0m" 304 -
+2025-08-06 16:41:14,824 - __main__ - INFO - Request: GET /api/notifications - User: dispatcher1
+2025-08-06 16:41:14,829 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:41:14] "[35m[1mGET /api/notifications HTTP/1.1[0m" 500 -
+2025-08-06 16:41:14,857 - __main__ - INFO - Request: GET /favicon.ico - User: dispatcher1
+2025-08-06 16:41:14,858 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:41:14] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-06 16:41:15,300 - __main__ - INFO - Request: GET /notifications.html - User: dispatcher1
+2025-08-06 16:41:15,302 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:41:15] "[36mGET /notifications.html HTTP/1.1[0m" 304 -
+2025-08-06 16:41:15,349 - __main__ - INFO - Request: GET /api/notifications - User: dispatcher1
+2025-08-06 16:41:15,353 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:41:15] "[35m[1mGET /api/notifications HTTP/1.1[0m" 500 -
+2025-08-06 16:41:15,384 - __main__ - INFO - Request: GET /favicon.ico - User: dispatcher1
+2025-08-06 16:41:15,386 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:41:15] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-06 16:41:15,757 - __main__ - INFO - Request: GET /notifications.html - User: dispatcher1
+2025-08-06 16:41:15,760 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:41:15] "[36mGET /notifications.html HTTP/1.1[0m" 304 -
+2025-08-06 16:41:15,791 - __main__ - INFO - Request: GET /api/notifications - User: dispatcher1
+2025-08-06 16:41:15,796 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:41:15] "[35m[1mGET /api/notifications HTTP/1.1[0m" 500 -
+2025-08-06 16:41:15,830 - __main__ - INFO - Request: GET /favicon.ico - User: dispatcher1
+2025-08-06 16:41:15,832 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:41:15] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-06 16:41:16,187 - __main__ - INFO - Request: GET /notifications.html - User: dispatcher1
+2025-08-06 16:41:16,190 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:41:16] "[36mGET /notifications.html HTTP/1.1[0m" 304 -
+2025-08-06 16:41:16,221 - __main__ - INFO - Request: GET /api/notifications - User: dispatcher1
+2025-08-06 16:41:16,225 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:41:16] "[35m[1mGET /api/notifications HTTP/1.1[0m" 500 -
+2025-08-06 16:41:16,269 - __main__ - INFO - Request: GET /favicon.ico - User: dispatcher1
+2025-08-06 16:41:16,270 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:41:16] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-06 16:41:18,685 - __main__ - INFO - Request: GET /notifications.html - User: dispatcher1
+2025-08-06 16:41:18,689 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:41:18] "[36mGET /notifications.html HTTP/1.1[0m" 304 -
+2025-08-06 16:41:18,732 - __main__ - INFO - Request: GET /api/notifications - User: dispatcher1
+2025-08-06 16:41:18,736 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:41:18] "[35m[1mGET /api/notifications HTTP/1.1[0m" 500 -
+2025-08-06 16:41:18,772 - __main__ - INFO - Request: GET /favicon.ico - User: dispatcher1
+2025-08-06 16:41:18,774 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:41:18] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-06 16:41:19,648 - __main__ - INFO - Request: GET /notifications.html - User: dispatcher1
+2025-08-06 16:41:19,649 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:41:19] "[36mGET /notifications.html HTTP/1.1[0m" 304 -
+2025-08-06 16:41:19,692 - __main__ - INFO - Request: GET /api/notifications - User: dispatcher1
+2025-08-06 16:41:19,698 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:41:19] "[35m[1mGET /api/notifications HTTP/1.1[0m" 500 -
+2025-08-06 16:41:19,735 - __main__ - INFO - Request: GET /favicon.ico - User: dispatcher1
+2025-08-06 16:41:19,736 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:41:19] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-06 16:41:20,462 - __main__ - INFO - Request: GET /notifications.html - User: dispatcher1
+2025-08-06 16:41:20,466 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:41:20] "[36mGET /notifications.html HTTP/1.1[0m" 304 -
+2025-08-06 16:41:20,505 - __main__ - INFO - Request: GET /api/notifications - User: dispatcher1
+2025-08-06 16:41:20,517 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:41:20] "[35m[1mGET /api/notifications HTTP/1.1[0m" 500 -
+2025-08-06 16:41:20,546 - __main__ - INFO - Request: GET /favicon.ico - User: dispatcher1
+2025-08-06 16:41:20,547 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:41:20] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-06 16:41:23,249 - __main__ - INFO - Request: GET /apply.html - User: dispatcher1
+2025-08-06 16:41:23,251 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:41:23] "[31m[1mGET /apply.html HTTP/1.1[0m" 403 -
+2025-08-06 16:41:23,410 - __main__ - INFO - Request: GET /favicon.ico - User: dispatcher1
+2025-08-06 16:41:23,411 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:41:23] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-06 16:41:24,040 - __main__ - INFO - Request: GET /apply.html - User: dispatcher1
+2025-08-06 16:41:24,041 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:41:24] "[31m[1mGET /apply.html HTTP/1.1[0m" 403 -
+2025-08-06 16:41:24,113 - __main__ - INFO - Request: GET /favicon.ico - User: dispatcher1
+2025-08-06 16:41:24,114 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:41:24] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-06 16:41:24,561 - __main__ - INFO - Request: GET /apply.html - User: dispatcher1
+2025-08-06 16:41:24,562 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:41:24] "[31m[1mGET /apply.html HTTP/1.1[0m" 403 -
+2025-08-06 16:41:24,639 - __main__ - INFO - Request: GET /favicon.ico - User: dispatcher1
+2025-08-06 16:41:24,640 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:41:24] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-06 16:41:25,973 - __main__ - INFO - Request: GET /notifications.html - User: dispatcher1
+2025-08-06 16:41:25,974 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:41:25] "[36mGET /notifications.html HTTP/1.1[0m" 304 -
+2025-08-06 16:41:26,005 - __main__ - INFO - Request: GET /api/notifications - User: dispatcher1
+2025-08-06 16:41:26,011 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:41:26] "[35m[1mGET /api/notifications HTTP/1.1[0m" 500 -
+2025-08-06 16:41:26,047 - __main__ - INFO - Request: GET /favicon.ico - User: dispatcher1
+2025-08-06 16:41:26,048 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:41:26] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-06 16:42:42,674 - __main__ - INFO - Request: GET /api/notifications - User: dispatcher1
+2025-08-06 16:42:42,683 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:42:42] "[35m[1mGET /api/notifications HTTP/1.1[0m" 500 -
+2025-08-06 16:44:20,443 - werkzeug - INFO -  * Detected change in '/Users/huxiangyu/Documents/HBuilderProjects/智能停送电/app/__init__.py', reloading
+2025-08-06 16:44:20,475 - werkzeug - INFO -  * Restarting with stat
+2025-08-06 16:44:25,731 - werkzeug - WARNING -  * Debugger is active!
+2025-08-06 16:44:25,739 - werkzeug - INFO -  * Debugger PIN: 261-303-135
+2025-08-06 16:44:26,987 - __main__ - INFO - Request: GET / - User: dispatcher1
+2025-08-06 16:44:26,994 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:44:26] "[36mGET / HTTP/1.1[0m" 304 -
+2025-08-06 16:44:28,032 - __main__ - INFO - Request: GET /favicon.ico - User: dispatcher1
+2025-08-06 16:44:28,033 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:44:28] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-06 16:45:10,671 - werkzeug - INFO -  * Detected change in '/Users/huxiangyu/Documents/HBuilderProjects/智能停送电/app/database.py', reloading
+2025-08-06 16:45:10,700 - werkzeug - INFO -  * Restarting with stat
+2025-08-06 16:45:15,938 - werkzeug - WARNING -  * Debugger is active!
+2025-08-06 16:45:15,946 - werkzeug - INFO -  * Debugger PIN: 261-303-135
+2025-08-06 16:45:17,217 - __main__ - INFO - Request: GET / - User: dispatcher1
+2025-08-06 16:45:17,223 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:45:17] "[36mGET / HTTP/1.1[0m" 304 -
+2025-08-06 16:45:17,560 - __main__ - INFO - Request: GET /favicon.ico - User: dispatcher1
+2025-08-06 16:45:17,561 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:45:17] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-06 16:46:15,196 - werkzeug - INFO -  * Detected change in '/Users/huxiangyu/Documents/HBuilderProjects/智能停送电/app/mqtt_client.py', reloading
+2025-08-06 16:46:15,225 - werkzeug - INFO -  * Restarting with stat
+2025-08-06 16:46:20,412 - werkzeug - WARNING -  * Debugger is active!
+2025-08-06 16:46:20,418 - werkzeug - INFO -  * Debugger PIN: 261-303-135
+2025-08-06 16:46:21,611 - __main__ - INFO - Request: GET / - User: dispatcher1
+2025-08-06 16:46:21,615 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:46:21] "[36mGET / HTTP/1.1[0m" 304 -
+2025-08-06 16:46:22,407 - __main__ - INFO - Request: GET /favicon.ico - User: dispatcher1
+2025-08-06 16:46:22,409 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:46:22] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-06 16:47:13,516 - werkzeug - INFO -  * Detected change in '/Users/huxiangyu/Documents/HBuilderProjects/智能停送电/app/notifications.py', reloading
+2025-08-06 16:47:13,547 - werkzeug - INFO -  * Restarting with stat
+2025-08-06 16:47:18,819 - werkzeug - WARNING -  * Debugger is active!
+2025-08-06 16:47:18,825 - werkzeug - INFO -  * Debugger PIN: 261-303-135
+2025-08-06 16:47:20,002 - __main__ - INFO - Request: GET / - User: dispatcher1
+2025-08-06 16:47:20,005 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:47:20] "[36mGET / HTTP/1.1[0m" 304 -
+2025-08-06 16:47:20,400 - __main__ - INFO - Request: GET /favicon.ico - User: dispatcher1
+2025-08-06 16:47:20,401 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:47:20] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-06 16:48:09,852 - werkzeug - INFO -  * Detected change in '/Users/huxiangyu/Documents/HBuilderProjects/智能停送电/app/auth.py', reloading
+2025-08-06 16:48:09,881 - werkzeug - INFO -  * Restarting with stat
+2025-08-06 16:48:15,126 - werkzeug - WARNING -  * Debugger is active!
+2025-08-06 16:48:15,134 - werkzeug - INFO -  * Debugger PIN: 261-303-135
+2025-08-06 16:48:16,298 - __main__ - INFO - Request: GET / - User: dispatcher1
+2025-08-06 16:48:16,302 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:48:16] "[36mGET / HTTP/1.1[0m" 304 -
+2025-08-06 16:48:17,097 - __main__ - INFO - Request: GET /favicon.ico - User: dispatcher1
+2025-08-06 16:48:17,098 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:48:17] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-06 16:48:52,006 - werkzeug - INFO -  * Detected change in '/Users/huxiangyu/Documents/HBuilderProjects/智能停送电/app/routes/__init__.py', reloading
+2025-08-06 16:48:52,031 - werkzeug - INFO -  * Restarting with stat
+2025-08-06 16:48:57,276 - werkzeug - WARNING -  * Debugger is active!
+2025-08-06 16:48:57,283 - werkzeug - INFO -  * Debugger PIN: 261-303-135
+2025-08-06 16:48:58,432 - __main__ - INFO - Request: GET / - User: dispatcher1
+2025-08-06 16:48:58,435 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:48:58] "[36mGET / HTTP/1.1[0m" 304 -
+2025-08-06 16:48:58,755 - __main__ - INFO - Request: GET /favicon.ico - User: dispatcher1
+2025-08-06 16:48:58,756 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:48:58] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-06 16:49:39,234 - werkzeug - INFO -  * Detected change in '/Users/huxiangyu/Documents/HBuilderProjects/智能停送电/app/routes/auth.py', reloading
+2025-08-06 16:49:39,263 - werkzeug - INFO -  * Restarting with stat
+2025-08-06 16:49:44,500 - werkzeug - WARNING -  * Debugger is active!
+2025-08-06 16:49:44,507 - werkzeug - INFO -  * Debugger PIN: 261-303-135
+2025-08-06 16:49:45,688 - __main__ - INFO - Request: GET / - User: dispatcher1
+2025-08-06 16:49:45,692 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:49:45] "[36mGET / HTTP/1.1[0m" 304 -
+2025-08-06 16:49:46,894 - __main__ - INFO - Request: GET /favicon.ico - User: dispatcher1
+2025-08-06 16:49:46,895 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:49:46] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-06 16:50:32,689 - werkzeug - INFO -  * Detected change in '/Users/huxiangyu/Documents/HBuilderProjects/智能停送电/server_new.py', reloading
+2025-08-06 16:50:32,716 - werkzeug - INFO -  * Restarting with stat
+2025-08-06 16:50:37,958 - werkzeug - WARNING -  * Debugger is active!
+2025-08-06 16:50:37,966 - werkzeug - INFO -  * Debugger PIN: 261-303-135
+2025-08-06 16:50:39,127 - __main__ - INFO - Request: GET / - User: dispatcher1
+2025-08-06 16:50:39,130 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:50:39] "[36mGET / HTTP/1.1[0m" 304 -
+2025-08-06 16:50:39,449 - __main__ - INFO - Request: GET /favicon.ico - User: dispatcher1
+2025-08-06 16:50:39,450 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:50:39] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -
+2025-08-06 16:52:05,987 - werkzeug - INFO -  * Detected change in '/Users/huxiangyu/Documents/HBuilderProjects/智能停送电/app/mqtt_client.py', reloading
+2025-08-06 16:52:06,017 - werkzeug - INFO -  * Restarting with stat
+2025-08-06 16:52:11,490 - werkzeug - WARNING -  * Debugger is active!
+2025-08-06 16:52:11,504 - werkzeug - INFO -  * Debugger PIN: 261-303-135
+2025-08-06 16:52:12,703 - __main__ - INFO - Request: GET / - User: dispatcher1
+2025-08-06 16:52:12,707 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:52:12] "[36mGET / HTTP/1.1[0m" 304 -
+2025-08-06 16:52:13,848 - __main__ - INFO - Request: GET /favicon.ico - User: dispatcher1
+2025-08-06 16:52:13,850 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 16:52:13] "[31m[1mGET /favicon.ico HTTP/1.1[0m" 403 -

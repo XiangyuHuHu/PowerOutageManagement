@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>提交停电申请</title>
+  <script src="https://unpkg.com/vue@3"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body {
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+      margin: 0;
+    }
+    .apply-box {
+      background: rgba(16, 33, 47, 0.95);
+      padding: 38px 32px 24px 32px;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+      width: 400px;
+      color: #fff;
+      border: 1px solid rgba(64, 158, 255, 0.3);
+      position: relative;
+    }
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      margin-bottom: 12px;
+      gap: 12px;
+      min-height: 32px;
+    }
+    .user-name {
+      color: #a0d9ff;
+      font-size: 15px;
+      font-weight: bold;
+      letter-spacing: 1px;
+      background: linear-gradient(90deg, #53a7fd 30%, #fff 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      margin-right: 0;
+      white-space: nowrap;
+      max-width: 160px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: inline-block;
+    }
+    .logout-btn {
+      background: linear-gradient(135deg, #409eff, #2a6bc5);
+      border: none;
+      color: #fff;
+      padding: 6px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 15px;
+      transition: background 0.2s;
+    }
+    .logout-btn:hover {
+      background: linear-gradient(135deg, #2a6bc5, #409eff);
+    }
+    .apply-box h2 {
+      text-align: center;
+      margin-bottom: 24px;
+      background: linear-gradient(to right, #409eff, #a0d9ff);
+      -webkit-background-clip: text;
+      color: transparent;
+      font-size: 23px;
+    }
+    label {
+      display: block;
+      margin-top: 18px;
+      margin-bottom: 5px;
+      font-size: 15px;
+    }
+    input, select, textarea {
+      width: 100%;
+      padding: 12px;
+      font-size: 15px;
+      border-radius: 8px;
+      border: none;
+      background: rgba(255,255,255,0.08);
+      color: #fff;
+      box-sizing: border-box;
+      margin-bottom: 6px;
+    }
+    input[readonly] {
+      background: rgba(255,255,255,0.16);
+      color: #b4d8fc;
+      cursor: not-allowed;
+    }
+    select {
+      background: rgba(255,255,255,0.13);
+    }
+    button[type="submit"] {
+      margin-top: 28px;
+      width: 100%;
+      padding: 14px;
+      font-size: 16px;
+      background: linear-gradient(135deg, #409eff, #2a6bc5);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    button[type="submit"]:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(64,158,255,0.25);
+    }
+    .message {
+      margin-top: 16px;
+      color: #90e890;
+      min-height: 24px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div class="apply-box">
+      <div class="top-bar">
+        <span class="user-name" id="userName"></span>
+        <button class="logout-btn" @click="logout">退出登录</button>
+      </div>
+      <h2><i class="fas fa-file-signature"></i> 停电申请表</h2>
+
+      <label>申请人</label>
+      <input v-model="form.applicant" placeholder="自动填写" readonly />
+
+      <label>停电时间</label>
+      <input type="datetime-local" v-model="form.power_off_time" />
+
+      <label>设备编号</label>
+      <select v-model="form.deviceId">
+        <option disabled value="">请选择设备</option>
+        <option v-for="d in deviceOptions" :key="d" :value="d">{{ d }}</option>
+      </select>
+
+      <label>停电原因</label>
+      <select v-model="form.reason">
+        <option disabled value="">请选择原因</option>
+        <option v-for="r in reasonOptions" :key="r" :value="r">{{ r }}</option>
+      </select>
+
+      <label>操作任务描述</label>
+      <textarea v-model="form.operation_task" placeholder="如有操作任务请填写"></textarea>
+
+      <label>操作票模板</label>
+      <input v-model="form.ticket_template" placeholder="如有模板请填写" />
+
+      <button type="submit" @click="submitForm">提交申请</button>
+      <div class="message">{{ message }}</div>
+    </div>
+  </div>
+
+  <script>
+    // 登录校验
+    (function checkLogin() {
+      const realname = localStorage.getItem('user_realname');
+      const username = localStorage.getItem('user_username');
+      if (!realname && !username) {
+        window.location.href = '/login.html';
+      }
+    })();
+    axios.defaults.withCredentials = true;
+    // 退出登录
+    const logout = () => {
+      localStorage.clear();
+      window.location.href = '/login.html';
+    };
+    // 显示用户
+    window.onload = function() {
+      const name = localStorage.getItem('user_realname') || localStorage.getItem('user_username') || '';
+      const el = document.getElementById('userName');
+      if (el) el.textContent = name;
+    }
+
+    const { createApp, ref, onMounted } = Vue;
+    createApp({
+      setup() {
+        const form = ref({
+          applicant: '',
+          applicant_id: '',
+          power_off_time: '',
+          deviceId: '',
+          reason: '',
+          operation_task: '',
+          ticket_template: ''
+        });
+
+        const deviceOptions = ['配电柜A1', '配电柜A2', '配电柜B1'];
+        const reasonOptions = ['线路检修', '设备维护', '其他'];
+        const message = ref('');
+
+        onMounted(() => {
+          const realname = localStorage.getItem('user_realname');
+          const username = localStorage.getItem('user_username');
+          const user_id = localStorage.getItem('user_id');
+          form.value.applicant = realname || username || '';
+          form.value.applicant_id = user_id || '';
+        });
+
+        const submitForm = async () => {
+          if (!form.value.applicant || !form.value.applicant_id || !form.value.power_off_time || !form.value.deviceId || !form.value.reason) {
+            message.value = '请填写完整信息';
+            return;
+          }
+          try {
+            const res = await axios.post('/api/power-apply', form.value);
+            if (res.status === 200) {
+              message.value = '✅ 申请提交成功！';
+              const { applicant, applicant_id } = form.value;
+              form.value = { applicant, applicant_id, power_off_time: '', deviceId: '', reason: '', operation_task: '', ticket_template: '' };
+            } else {
+              message.value = '❌ 提交失败';
+            }
+          } catch (e) {
+            message.value = '❌ 网络错误或服务器故障';
+          }
+        };
+
+        return { form, deviceOptions, reasonOptions, submitForm, message, logout };
+      }
+    }).mount('#app');
+  </script>
+</body>
+</html>

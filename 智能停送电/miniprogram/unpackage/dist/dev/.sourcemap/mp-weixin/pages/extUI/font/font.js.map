@@ -1,0 +1,1 @@
+{"version":3,"file":"font.js","sources":["pages/extUI/font/font.nvue?type=page"],"sourcesContent":["import MiniProgramPage from '/Users/huxiangyu/Documents/HBuilderProjects/智能停送电/pages/extUI/font/font.nvue'\nwx.createPage(MiniProgramPage)"],"names":[],"mappings":";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AACA,GAAG,WAAW,eAAe;"}

@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>智能停送电 - 用户注册</title>
+  <script src="https://unpkg.com/vue@3"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body {
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .register-box {
+      background: rgba(16, 33, 47, 0.9);
+      padding: 40px;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+      width: 450px;
+      color: #fff;
+      border: 1px solid rgba(64, 158, 255, 0.3);
+    }
+
+    .register-box h2 {
+      text-align: center;
+      margin-bottom: 30px;
+      background: linear-gradient(to right, #67c23a, #a0d9ff);
+      -webkit-background-clip: text;
+      color: transparent;
+      font-size: 24px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      color: #a0d9ff;
+      font-weight: 500;
+    }
+
+    .register-box input,
+    .register-box select {
+      width: 100%;
+      padding: 14px;
+      font-size: 16px;
+      border-radius: 8px;
+      border: none;
+      background-color: rgba(255, 255, 255, 0.1);
+      color: #fff;
+      box-sizing: border-box;
+    }
+
+    .register-box input::placeholder {
+      color: #ccc;
+    }
+
+    .register-box select {
+      cursor: pointer;
+    }
+
+    .register-box select option {
+      background-color: #1a3a5f;
+      color: #fff;
+    }
+
+    .register-box button {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #67c23a, #4a8c2c);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 16px;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+      margin-bottom: 15px;
+    }
+
+    .register-box button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(103, 194, 58, 0.4);
+    }
+
+    .back-btn {
+      background: linear-gradient(135deg, #909399, #606266) !important;
+    }
+
+    .back-btn:hover {
+      background: linear-gradient(135deg, #606266, #909399) !important;
+      box-shadow: 0 6px 12px rgba(144, 147, 153, 0.4) !important;
+    }
+
+    .error {
+      color: #f56c6c;
+      margin-top: 10px;
+      text-align: center;
+    }
+
+    .success {
+      color: #67c23a;
+      margin-top: 10px;
+      text-align: center;
+    }
+
+    .role-description {
+      font-size: 12px;
+      color: #a0d9ff;
+      margin-top: 5px;
+      opacity: 0.8;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div class="register-box">
+      <h2><i class="fas fa-user-plus"></i> 用户注册</h2>
+      
+      <div class="form-group">
+        <label for="username">用户名</label>
+        <input 
+          id="username"
+          v-model="form.username" 
+          placeholder="请输入用户名" 
+          @input="validateUsername"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="password">密码</label>
+        <input 
+          id="password"
+          type="password" 
+          v-model="form.password" 
+          placeholder="请输入密码"
+          @input="validatePassword"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="confirmPassword">确认密码</label>
+        <input 
+          id="confirmPassword"
+          type="password" 
+          v-model="form.confirmPassword" 
+          placeholder="请再次输入密码"
+          @input="validateConfirmPassword"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="realname">真实姓名</label>
+        <input 
+          id="realname"
+          v-model="form.realname" 
+          placeholder="请输入真实姓名"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="role">角色</label>
+        <select id="role" v-model="form.role">
+          <option value="">请选择角色</option>
+          <option value="electrician">电工</option>
+          <option value="dispatcher">调度员</option>
+        </select>
+        <div class="role-description">
+          <div v-if="form.role === 'electrician'">
+            <i class="fas fa-tools"></i> 电工：可以提交申请、验电、检修操作
+          </div>
+          <div v-if="form.role === 'dispatcher'">
+            <i class="fas fa-clipboard-check"></i> 调度员：可以审批停电和送电申请
+          </div>
+        </div>
+      </div>
+
+      <button @click="register" :disabled="!isFormValid">
+        <i class="fas fa-user-plus"></i> 注册
+      </button>
+      
+      <button class="back-btn" @click="goBack">
+        <i class="fas fa-arrow-left"></i> 返回登录
+      </button>
+      
+      <div class="error" v-if="error">{{ error }}</div>
+      <div class="success" v-if="success">{{ success }}</div>
+    </div>
+  </div>
+
+  <script>
+    const { createApp, ref, computed } = Vue;
+    axios.defaults.withCredentials = true;
+    createApp({
+      setup() {
+        const form = ref({
+          username: '',
+          password: '',
+          confirmPassword: '',
+          realname: '',
+          role: ''
+        });
+        
+        const error = ref('');
+        const success = ref('');
+
+        const validateUsername = () => {
+          if (form.value.username.length < 3) {
+            error.value = "用户名至少需要3个字符";
+            return false;
+          }
+          error.value = '';
+          return true;
+        };
+
+        const validatePassword = () => {
+          if (form.value.password.length < 6) {
+            error.value = "密码至少需要6个字符";
+            return false;
+          }
+          error.value = '';
+          return true;
+        };
+
+        const validateConfirmPassword = () => {
+          if (form.value.password !== form.value.confirmPassword) {
+            error.value = "两次输入的密码不一致";
+            return false;
+          }
+          error.value = '';
+          return true;
+        };
+
+        const isFormValid = computed(() => {
+          return form.value.username && 
+                 form.value.password && 
+                 form.value.confirmPassword && 
+                 form.value.realname && 
+                 form.value.role &&
+                 form.value.password === form.value.confirmPassword;
+        });
+
+        const register = async () => {
+          error.value = '';
+          success.value = '';
+
+          // 验证表单
+          if (!validateUsername() || !validatePassword() || !validateConfirmPassword()) {
+            return;
+          }
+
+          if (!form.value.realname.trim()) {
+            error.value = "请输入真实姓名";
+            return;
+          }
+
+          if (!form.value.role) {
+            error.value = "请选择角色";
+            return;
+          }
+
+          try {
+            const res = await axios.post('/api/register', {
+              username: form.value.username,
+              password: form.value.password,
+              realname: form.value.realname,
+              role: form.value.role
+            });
+
+            if (res.status === 200) {
+              success.value = "注册成功！正在跳转到登录页面...";
+              setTimeout(() => {
+                window.location.href = 'login.html';
+              }, 2000);
+            } else {
+              error.value = "注册失败：" + (res.data?.msg || res.message);
+            }
+          } catch (err) {
+            error.value = "注册失败：" + (err.response?.data?.msg || err.message);
+          }
+        };
+
+        const goBack = () => {
+          window.location.href = 'login.html';
+        };
+
+        return { 
+          form, 
+          error, 
+          success, 
+          register, 
+          goBack, 
+          isFormValid,
+          validateUsername,
+          validatePassword,
+          validateConfirmPassword
+        };
+      }
+    }).mount('#app');
+  </script>
+</body>
+</html> 

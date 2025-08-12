@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>电工首页</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body { background: #203a43; color: #fff; min-height: 100vh; margin: 0; display: flex; align-items: center; justify-content: center; }
+    .main { background: rgba(16,33,47,0.95); border-radius: 16px; padding: 48px 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.4); width: 400px; }
+    h2 { text-align: center; margin-bottom: 32px; }
+    .btn-group { display: flex; flex-direction: column; gap: 24px; }
+    .main-btn {
+      display: flex; align-items: center; justify-content: center;
+      gap: 16px; font-size: 20px; font-weight: bold;
+      background: linear-gradient(135deg, #409eff, #2a6bc5);
+      color: #fff; border: none; border-radius: 10px; padding: 22px 0;
+      cursor: pointer; transition: background 0.2s, transform 0.2s;
+    }
+    .main-btn:hover { background: linear-gradient(135deg, #2a6bc5, #409eff); transform: translateY(-2px);}
+  </style>
+</head>
+<body>
+  <div class="main">
+    <h2><i class="fas fa-user-cog"></i> 电工操作首页</h2>
+    <div class="btn-group">
+      <button class="main-btn" onclick="location.href='apply.html'">
+        <i class="fas fa-file-signature"></i> 停电申请
+      </button>
+      <button class="main-btn" onclick="location.href='power_on_apply.html'">
+        <i class="fas fa-plug"></i> 送电申请
+      </button>
+      <button class="main-btn" onclick="location.href='repair.html'">
+        <i class="fas fa-tasks"></i> 检修/我的申请
+      </button>
+      <button class="main-btn" onclick="location.href='device_monitor.html'" style="background: linear-gradient(135deg, #9c27b0, #6a1b9a);">
+        <i class="fas fa-tachometer-alt"></i> 设备监控
+      </button>
+      <button class="main-btn" onclick="location.href='notifications.html'" style="background: linear-gradient(135deg, #ff9800, #f57c00);">
+        <i class="fas fa-bell"></i> 系统通知
+      </button>
+    </div>
+  </div>
+</body>
+</html> 
