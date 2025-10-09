@@ -355,9 +355,9 @@
       
       <el-table
         :data="users"
-        style="width: 100%;"
+        style="width: 100%"
         border
-        height="600"
+        height="500"
         v-loading="loading"
         element-loading-text="加载中..."
       >
@@ -469,19 +469,6 @@
     }
     
     axios.defaults.withCredentials = true;
-    
-    // 添加响应拦截器处理401错误
-    axios.interceptors.response.use(
-      response => response,
-      error => {
-        if (error.response && error.response.status === 401) {
-          // 清除本地存储并跳转到登录页
-          localStorage.clear();
-          window.location.href = '/login.html';
-        }
-        return Promise.reject(error);
-      }
-    );
     const { createApp, ref, onMounted } = Vue;
     createApp({
       setup() {

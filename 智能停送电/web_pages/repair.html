@@ -270,7 +270,7 @@
           </div>
           <div class="header-text">
             <h1>电工工作台</h1>
-            <p>我的申请管理 · 验电 · 检修 · 送电申请</p>
+            <p>我的申请 · 验电 · 检修 · 送电申请</p>
           </div>
         </div>
         <div class="stats-container">
@@ -288,9 +288,6 @@
           </div>
         </div>
         <div class="operator-user">
-          <button class="back-btn" @click="goBack" style="background: linear-gradient(135deg, #909399, #606266); color: #fff; border: none; border-radius: 6px; padding: 8px 16px; cursor: pointer; font-size: 14px; margin-right: 10px;">
-            <i class="fas fa-arrow-left"></i> 返回首页
-          </button>
           <i class="fas fa-user-cog"></i>
           操作员：{{ realname || username }}
           <button class="logout-btn" @click="logout">退出登录</button>
@@ -304,9 +301,9 @@
       </el-tabs>
       <el-table
         :data="filteredList"
-        style="width: 100%;"
+        style="width: 100%"
         border
-        height="600"
+        height="500"
         v-loading="loading"
         element-loading-text="加载中..."
       >
@@ -453,19 +450,6 @@
       window.location.href = '/login.html';
     }
     axios.defaults.withCredentials = true;
-    
-    // 添加响应拦截器处理401错误
-    axios.interceptors.response.use(
-      response => response,
-      error => {
-        if (error.response && error.response.status === 401) {
-          // 清除本地存储并跳转到登录页
-          localStorage.clear();
-          window.location.href = '/login.html';
-        }
-        return Promise.reject(error);
-      }
-    );
     const { createApp, ref, onMounted, computed } = Vue;
     createApp({
       setup() {
@@ -500,10 +484,6 @@
         const logout = () => {
           localStorage.clear();
           window.location.href = '/login.html';
-        };
-
-        const goBack = () => {
-          window.location.href = '/electrician_home.html';
         };
 
         const statusMap = {
@@ -709,16 +689,9 @@
         const confirmPowerOn = async () => {
           loading.value = true;
           try {
-            // 获取原始申请信息
-            const originalApp = applications.value.find(app => app.id === powerOnForm.value.id);
-            if (!originalApp) {
-              showNotification('找不到原始申请信息', 'error');
-              return;
-            }
-            
             await axios.post('/api/power-on-apply', {
-              deviceId: originalApp.deviceId,
-              reason: powerOnForm.value.power_on_reason || '检修完成，申请送电',
+              id: powerOnForm.value.id,
+              comment: powerOnForm.value.power_on_reason,
               power_on_time: powerOnForm.value.power_on_time
             });
             powerOnDialogVisible.value = false;
@@ -765,7 +738,6 @@
           realname,
           username,
           logout,
-          goBack,
           statusText,
           formatDateTime,
           fetchData,

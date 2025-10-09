@@ -1,0 +1,38 @@
+{
+  "pages": [
+    "pages/login/login",
+    "pages/register/register",
+    "pages/electrician_home/electrician_home",
+    "pages/dispatcher_home/dispatcher_home",
+    "pages/power_on_apply/power_on_apply",
+    "pages/approval/approval",
+    "pages/approval/history",
+    "pages/approval/detail",
+    "pages/apply/apply",
+    "pages/poweroff/verify",
+    "pages/poweroff/repair",
+    "pages/poweroff/restore",
+    "pages/admin/admin",
+    "pages/user_management/user_management",
+    "pages/user_management_simple/user_management_simple",
+    "pages/user_management_light/user_management_light",
+    "pages/stats/stats",
+    "pages/repair/repair",
+    "pages/index/index"
+  ],
+  "window": {
+    "pageOrientation": "portrait",
+    "navigationBarTitleText": "智能停送电",
+    "navigationBarTextStyle": "white",
+    "navigationBarBackgroundColor": "#007AFF",
+    "backgroundColor": "#F8F8F8",
+    "backgroundColorTop": "#F4F5F6",
+    "backgroundColorBottom": "#F4F5F6"
+  },
+  "permission": {
+    "scope.userLocation": {
+      "desc": "演示定位能力"
+    }
+  },
+  "usingComponents": {}
+}

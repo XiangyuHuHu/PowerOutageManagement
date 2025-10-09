@@ -19,12 +19,6 @@ services:
     networks:
       - power_network
     restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p$$MYSQL_ROOT_PASSWORD"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 30s
 
   # Flask后端服务
   flask-backend:
@@ -45,8 +39,7 @@ services:
       - LC_ALL=zh_CN.UTF-8
       - PYTHONIOENCODING=utf-8
     depends_on:
-      mysql:
-        condition: service_healthy
+      - mysql
     networks:
       - power_network
     restart: unless-stopped
