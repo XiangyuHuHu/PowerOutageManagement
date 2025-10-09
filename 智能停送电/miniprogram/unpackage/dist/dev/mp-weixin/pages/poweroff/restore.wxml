@@ -1,0 +1,1 @@
+<view class="container"><view class="title">电工送电流程</view><view class="card"><text>申请人：{{a}}</text><text>时间：{{b}}</text><text>设备编号：{{c}}</text><text>停电原因：{{d}}</text><text>当前状态：{{e}}</text></view><button type="primary" bindtap="{{f}}">送电完成</button></view>

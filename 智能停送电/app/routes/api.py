@@ -194,8 +194,8 @@ def mark_notification_read(notification_id):
     user_id = user.get('id')
     
     try:
-        from app.notifications import mark_notification_read as mark_read
-        success = mark_read(notification_id, user_id)
+        from app.notifications import mark_notification_read
+        success = mark_notification_read(notification_id, user_id)
         if success:
             return jsonify({"msg": "标记成功"}), 200
         else:
@@ -331,12 +331,12 @@ def power_on_apply():
             sql = """
                 INSERT INTO applications
                 (applicant, applicant_id, deviceId, reason, operation_task, ticket_template, 
-                 power_off_time, power_on_time, status)
+                 power_on_time, status, application_type)
                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
             """
             cursor.execute(sql, (
                 applicant, applicant_id, deviceId, reason, operation_task, ticket_template,
-                '待定', power_on_time, 'power_on_applied'
+                power_on_time, 'pending', 'power_on'
             ))
             application_id = cursor.lastrowid
             
@@ -410,81 +410,6 @@ def power_on_approve():
         print("审批操作异常：", e)
         return jsonify({"msg": "审批失败", "error": str(e)}), 500
 
-@bp.route('/api/batch-approve', methods=['POST'])
-@login_required(role="dispatcher")
-def batch_approve():
-    """批量审批"""
-    data = request.get_json()
-    app_ids = data.get('ids', [])
-    action = data.get('action')  # 'approve' or 'reject'
-    comment = data.get('comment', '')
-    
-    if not app_ids:
-        return jsonify({"msg": "请选择要审批的申请"}), 400
-    
-    user = g.user
-    approver = user.get('realname') or user.get('username')
-    approver_id = user.get('id')
-    
-    try:
-        with get_db_cursor() as cursor:
-            # 检查所有申请的状态
-            placeholders = ','.join(['%s'] * len(app_ids))
-            cursor.execute(f"SELECT id, status FROM applications WHERE id IN ({placeholders})", app_ids)
-            apps = cursor.fetchall()
-            
-            if len(apps) != len(app_ids):
-                return jsonify({"msg": "部分申请不存在"}), 404
-            
-            # 验证状态是否允许审批
-            for app in apps:
-                if app['status'] not in ['pending', 'power_on_applied']:
-                    return jsonify({"msg": f"申请 #{app['id']} 状态不允许审批"}), 400
-            
-            # 批量更新状态
-            new_status = 'approved' if action == 'approve' else 'rejected'
-            if action == 'approve':
-                # 对于送电申请，approved状态应该是completed
-                for app in apps:
-                    if app['status'] == 'power_on_applied':
-                        app_new_status = 'completed'
-                    else:
-                        app_new_status = new_status
-                    
-                    # 更新申请状态
-                    if app['status'] == 'power_on_applied':
-                        sql = """
-                            UPDATE applications 
-                            SET status = %s, power_on_approver = %s, power_on_approver_id = %s,
-                                power_on_approve_time = NOW(), power_on_approve_comment = %s
-                            WHERE id = %s
-                        """
-                        cursor.execute(sql, (app_new_status, approver, approver_id, comment, app['id']))
-                    else:
-                        sql = """
-                            UPDATE applications 
-                            SET status = %s, power_off_approver = %s, power_off_approver_id = %s,
-                                power_off_approve_time = NOW(), power_off_approve_comment = %s
-                            WHERE id = %s
-                        """
-                        cursor.execute(sql, (app_new_status, approver, approver_id, comment, app['id']))
-                    
-                    # 记录操作日志
-                    operation_type = 'power_on_approve' if app['status'] == 'power_on_applied' else 'power_off_approve'
-                    log_sql = """
-                        INSERT INTO application_logs
-                        (application_id, operator, operator_id, operation_type, operation_comment, old_status, new_status)
-                        VALUES (%s, %s, %s, %s, %s, %s, %s)
-                    """
-                    cursor.execute(log_sql, (
-                        app['id'], approver, approver_id, operation_type, comment, app['status'], app_new_status
-                    ))
-            
-        return jsonify({"msg": f"批量审批完成，共处理 {len(app_ids)} 个申请"}), 200
-    except Exception as e:
-        print("批量审批异常：", e)
-        return jsonify({"msg": "批量审批失败", "error": str(e)}), 500
-
 @bp.route('/api/application/<int:app_id>', methods=['GET'])
 @login_required()
 def get_application_detail(app_id):
@@ -518,12 +443,13 @@ def get_application_detail(app_id):
             cursor.execute("""
                 SELECT * FROM application_logs 
                 WHERE application_id = %s 
-                ORDER BY operation_time DESC
+                ORDER BY created_at DESC
             """, (app_id,))
             logs = cursor.fetchall()
             
+            application['logs'] = logs
             
-        return jsonify({"application": application, "logs": logs}), 200
+        return jsonify({"application": application}), 200
     except Exception as e:
         print("获取申请详情异常：", e)
         return jsonify({"msg": "获取详情失败", "error": str(e)}), 500

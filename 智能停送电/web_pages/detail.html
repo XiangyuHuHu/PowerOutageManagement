@@ -425,19 +425,6 @@
       window.location.href = '/login.html';
     }
     axios.defaults.withCredentials = true;
-    
-    // 添加401错误处理
-    axios.interceptors.response.use(
-      response => response,
-      error => {
-        if (error.response && error.response.status === 401) {
-          localStorage.removeItem('user_realname');
-          localStorage.removeItem('user_username');
-          window.location.href = '/login.html';
-        }
-        return Promise.reject(error);
-      }
-    );
     const { createApp, ref, onMounted } = Vue;
     createApp({
       setup() {
@@ -507,14 +494,7 @@
         };
 
         const goBack = () => {
-          // 检查是否是新窗口打开
-          if (window.opener && !window.opener.closed) {
-            // 如果是新窗口，直接关闭当前窗口
-            window.close();
-          } else {
-            // 如果不是新窗口，使用浏览器后退
-            window.history.back();
-          }
+          window.history.back();
         };
         const logout = () => {
           localStorage.clear();

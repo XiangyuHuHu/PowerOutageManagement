@@ -31,56 +31,53 @@
     <button style="position: absolute; top: 24px; right: 36px; z-index: 1000; background: linear-gradient(135deg, #409eff, #2a6bc5); color: #fff; border: none; border-radius: 8px; padding: 8px 20px; font-weight: bold; font-size: 15px; cursor: pointer;" @click="logout">
       <i class='fas fa-sign-out-alt'></i> 退出登录
     </button>
-    <button style="position: absolute; top: 24px; right: 140px; z-index: 1000; background: linear-gradient(135deg, #909399, #606266); color: #fff; border: none; border-radius: 8px; padding: 8px 20px; font-weight: bold; font-size: 15px; cursor: pointer;" @click="goBack">
-      <i class='fas fa-arrow-left'></i> 返回首页
-    </button>
     <h2><i class="fas fa-history"></i> 审批历史记录</h2>
     <div style="overflow-x: auto;">
       <el-table
         :data="historyList"
-        style="width: 100%;"
+        style="width: 100%; min-width: 1200px;"
         border
         height="600"
         v-loading="loading"
         element-loading-text="加载中..."
       >
-        <el-table-column prop="id" label="ID" min-width="80" align="center">
+        <el-table-column prop="id" label="ID" width="80">
           <template #default="{ row }">
             <div style="font-weight: bold;">#{{ row.id }}</div>
           </template>
         </el-table-column>
-        <el-table-column prop="applicant" label="申请人" min-width="120" align="center">
+        <el-table-column prop="applicant" label="申请人" width="120">
           <template #default="{ row }">
             <i class="fas fa-user-circle"></i>
             {{ row.applicant }}
           </template>
         </el-table-column>
-        <el-table-column prop="created_at" label="时间" min-width="180" align="center">
+        <el-table-column prop="created_at" label="时间" width="180">
           <template #default="{ row }">
             <i class="fas fa-clock"></i>
             {{ formatDateTime(row.created_at) }}
           </template>
         </el-table-column>
-        <el-table-column prop="deviceId" label="设备编号" min-width="120" align="center">
+        <el-table-column prop="deviceId" label="设备编号" width="120">
           <template #default="{ row }">
             <i class="fas fa-microchip"></i>
             {{ row.deviceId }}
           </template>
         </el-table-column>
-        <el-table-column prop="reason" label="停电原因" min-width="160" align="center">
+        <el-table-column prop="reason" label="停电原因" width="160">
           <template #default="{ row }">
             <i class="fas fa-comment-alt"></i>
             {{ row.reason }}
           </template>
         </el-table-column>
-        <el-table-column prop="status" label="当前状态" min-width="120" align="center">
+        <el-table-column prop="status" label="当前状态" width="120">
           <template #default="{ row }">
             <div :class="'status-' + row.status">
               <el-tag>{{ statusText(row.status) }}</el-tag>
             </div>
           </template>
         </el-table-column>
-        <el-table-column prop="status" label="审批类型" min-width="120" align="center">
+        <el-table-column prop="status" label="审批类型" width="120">
           <template #default="{ row }">
             <el-tag v-if="row.status === 'pending'" type="warning">停电审批</el-tag>
             <el-tag v-else-if="['approved', 'verified', 'repairing', 'repair_completed'].includes(row.status)" type="info">停电中</el-tag>
@@ -90,7 +87,7 @@
             <span v-else>-</span>
           </template>
         </el-table-column>
-        <el-table-column label="操作" min-width="120" align="center">
+        <el-table-column label="操作" width="120" fixed="right">
           <template #default="{ row }">
             <el-button type="primary" size="small" @click="viewDetail(row.id)">
               <i class="fas fa-eye"></i> 详情
@@ -102,19 +99,6 @@
   </div>
   <script>
     axios.defaults.withCredentials = true;
-    
-    // 添加响应拦截器处理401错误
-    axios.interceptors.response.use(
-      response => response,
-      error => {
-        if (error.response && error.response.status === 401) {
-          // 清除本地存储并跳转到登录页
-          localStorage.clear();
-          window.location.href = '/login.html';
-        }
-        return Promise.reject(error);
-      }
-    );
     const { createApp, ref, onMounted } = Vue;
     createApp({
       setup() {
@@ -148,7 +132,7 @@
           loading.value = true;
           try {
             const res = await axios.get('/api/list');
-            // 只排除"pending"和"power_on_applied"，其他都算历史
+            // 只排除“pending”和“power_on_applied”，其他都算历史
             historyList.value = res.data.filter(app => !['pending', 'power_on_applied'].includes(app.status));
           } catch (err) {
             historyList.value = [];
@@ -159,9 +143,6 @@
         const viewDetail = (id) => {
           window.open(`/detail.html?id=${id}`, '_blank');
         };
-        const goBack = () => {
-          window.location.href = '/dispatcher_home.html';
-        };
         const logout = () => {
           localStorage.clear();
           window.location.href = '/login.html';
@@ -169,7 +150,7 @@
         onMounted(() => {
           fetchHistory();
         });
-        return { historyList, loading, statusText, formatDateTime, viewDetail, goBack, logout };
+        return { historyList, loading, statusText, formatDateTime, viewDetail, logout };
       }
     }).use(ElementPlus).mount('#app')
   </script>
