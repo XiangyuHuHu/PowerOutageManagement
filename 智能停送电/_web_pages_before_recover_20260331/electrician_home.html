@@ -1,0 +1,268 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>鐢靛伐宸ヤ綔鍙?/title>
+  <link rel="stylesheet" href="/admin_theme.css">
+  <script src="/app_shell.js"></script>
+  <script src="/vendor/vue.global.prod.js"></script>
+  <script src="/vendor/axios.min.js"></script>
+  <link rel="stylesheet" href="/vendor/element-plus/index.css">
+  <script src="/vendor/element-plus/index.full.min.js"></script>
+  <style>
+    body { margin: 0; min-height: 100vh; padding: 22px; }
+    [v-cloak] { display: none; }
+    #app { max-width: 1420px; margin: 0 auto; border-radius: 24px; overflow: hidden; }
+    .header, .content { padding: 24px 28px; }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      flex-wrap: wrap;
+      background: linear-gradient(90deg, rgba(8, 29, 42, 0.96), rgba(26, 78, 97, 0.84));
+      border-bottom: 1px solid rgba(118, 200, 255, 0.12);
+    }
+    .header h1 { margin: 0; font-size: 30px; }
+    .header p { margin: 8px 0 0; max-width: 860px; line-height: 1.8; font-size: 14px; }
+    .header-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    .stats, .entry-grid, .focus-grid { display: grid; gap: 14px; }
+    .stats { grid-template-columns: repeat(4, minmax(180px, 1fr)); margin-bottom: 18px; }
+    .entry-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); margin-bottom: 18px; }
+    .focus-grid { grid-template-columns: 1fr 1fr; }
+    .stat, .entry, .panel, .focus-item { padding: 18px; border-radius: 20px; }
+    .stat, .entry, .panel { position: relative; overflow: hidden; }
+    .stat {
+      background:
+        radial-gradient(circle at top right, rgba(255,255,255,0.04), transparent 34%),
+        rgba(255,255,255,0.05);
+    }
+    .stat::before,
+    .entry::before,
+    .panel::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 4px;
+      border-radius: 20px 20px 0 0;
+      opacity: 0.96;
+    }
+    .stat::after,
+    .entry::after {
+      content: "";
+      position: absolute;
+      inset: auto -30px -30px auto;
+      width: 110px;
+      height: 110px;
+      border-radius: 50%;
+      opacity: 0.08;
+    }
+    .entry { cursor: pointer; transition: transform 0.18s ease, border-color 0.18s ease; }
+    .entry:hover { transform: translateY(-2px); border-color: rgba(118, 200, 255, 0.28); }
+    .entry { background: linear-gradient(180deg, rgba(255,255,255,0.045), rgba(255,255,255,0.025)), rgba(255,255,255,0.05); }
+    .entry-title { font-size: 18px; font-weight: 800; margin-bottom: 10px; }
+    .entry-desc { color: var(--admin-text-soft); line-height: 1.7; font-size: 13px; }
+    .section-title { margin: 0 0 16px; font-size: 20px; }
+    .stat-mine::before,
+    .entry-apply::before,
+    .panel-focus::before { background: linear-gradient(90deg, #4da8ff, #7fd6ff); }
+    .stat-mine::after,
+    .entry-apply::after { background: #3d95ff; }
+    .stat-verify::before,
+    .entry-repair::before { background: linear-gradient(90deg, #26d1b8, #7ce9d2); }
+    .stat-verify::after,
+    .entry-repair::after { background: #2bcfb4; }
+    .stat-repair::before,
+    .entry-monitor::before,
+    .panel-note::before { background: linear-gradient(90deg, #ffb14d, #ffd36d); }
+    .stat-repair::after,
+    .entry-monitor::after { background: #ffb347; }
+    .stat-power::before,
+    .entry-power::before { background: linear-gradient(90deg, #8d84ff, #b2adff); }
+    .stat-power::after,
+    .entry-power::after { background: #8f87ff; }
+    .focus-list { display: grid; gap: 12px; }
+    .focus-item { display: flex; justify-content: space-between; gap: 14px; align-items: center; }
+    .focus-main { display: grid; gap: 6px; }
+    .focus-main strong { font-size: 15px; }
+    .focus-main span { color: var(--admin-text-soft); font-size: 13px; line-height: 1.7; }
+    .pill-row { display: flex; gap: 8px; flex-wrap: wrap; }
+    .pill { padding: 5px 10px; border-radius: 999px; background: rgba(255,255,255,0.08); font-size: 12px; border: 1px solid rgba(255,255,255,0.06); }
+    .pill-blue { background: rgba(77, 168, 255, 0.14); color: #9ed6ff; border-color: rgba(77,168,255,0.22); }
+    .pill-cyan { background: rgba(41, 208, 196, 0.14); color: #92f2e8; border-color: rgba(41,208,196,0.22); }
+    .pill-amber { background: rgba(255, 177, 77, 0.14); color: #ffd596; border-color: rgba(255,177,77,0.22); }
+    .pill-violet { background: rgba(141, 132, 255, 0.14); color: #c9c5ff; border-color: rgba(141,132,255,0.22); }
+    .metric-label { margin-top: 8px; font-size: 13px; }
+    .empty { padding: 48px 16px; text-align: center; color: var(--admin-text-soft); }
+    .soft-empty {
+      display: grid;
+      place-items: center;
+      min-height: 190px;
+      border-radius: 18px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border: 1px dashed rgba(118, 200, 255, 0.16);
+    }
+    @media (max-width: 1100px) {
+      .entry-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .focus-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 760px) {
+      .stats, .entry-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div id="app" v-cloak>
+    <div class="header">
+      <div>
+        <h1>鐢靛伐宸ヤ綔鍙?/h1>
+        <p>杩欓噷鎶婂仠鐢电敵璇枫€佹淇鐞嗐€侀€佺數鐢宠鍜岃澶囩洃鎺ч泦涓埌涓€椤点€傜數宸ヤ紭鍏堢湅鍒拌嚜宸卞緟楠岀數銆佹淇腑鍜屽彲鍙戣捣閫佺數鐢宠鐨勫伐鍗曪紝鍐嶆寜璁惧瀹氫綅鐜板満鐘舵€併€?/p>
+      </div>
+      <div class="header-actions">
+        <el-button @click="fetchData">鍒锋柊</el-button>
+        <el-button type="primary" @click="logout">閫€鍑虹櫥褰?/el-button>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="stats">
+        <div class="stat card stat-mine"><div class="metric-num">{{ stats.myApplications }}</div><div class="metric-label">鎴戠殑鐩稿叧宸ュ崟</div></div>
+        <div class="stat card stat-verify"><div class="metric-num">{{ stats.needVerify }}</div><div class="metric-label">寰呴獙鐢?/div></div>
+        <div class="stat card stat-repair"><div class="metric-num">{{ stats.repairing }}</div><div class="metric-label">妫€淇腑</div></div>
+        <div class="stat card stat-power"><div class="metric-num metric-risk">{{ stats.readyPowerOn }}</div><div class="metric-label">鍙彂璧烽€佺數鐢宠</div></div>
+      </div>
+
+      <div class="entry-grid">
+        <div class="entry card entry-apply" @click="go('apply.html')">
+          <div class="entry-title">鍋滅數鐢宠</div>
+          <div class="entry-desc">鍙戣捣鏂扮殑鍋滅數鐢宠锛岄€夋嫨璁惧骞舵彁浜ゅ仠鐢靛師鍥犱笌璁″垝鏃堕棿銆?/div>
+          <div class="pill-row" style="margin-top:12px;"><span class="pill pill-blue">鏂板缓宸ュ崟</span></div>
+        </div>
+        <div class="entry card entry-repair" @click="go('repair.html')">
+          <div class="entry-title">妫€淇鐞?/div>
+          <div class="entry-desc">澶勭悊寰呴獙鐢点€佸紑濮嬫淇拰瀹屾垚妫€淇紝鎺ㄨ繘鐜板満鎵ц娴佺▼銆?/div>
+          <div class="pill-row" style="margin-top:12px;"><span class="pill pill-cyan">寰呴獙鐢?{{ stats.needVerify }}</span><span class="pill pill-amber">妫€淇腑 {{ stats.repairing }}</span></div>
+        </div>
+        <div class="entry card entry-power" @click="go('power_on_apply.html')">
+          <div class="entry-title">閫佺數鐢宠</div>
+          <div class="entry-desc">瀵瑰凡瀹屾垚妫€淇笖婊¤冻鏉′欢鐨勫伐鍗曞彂璧烽€佺數鐢宠銆?/div>
+          <div class="pill-row" style="margin-top:12px;"><span class="pill pill-violet">鍙敵璇?{{ stats.readyPowerOn }}</span></div>
+        </div>
+        <div class="entry card entry-monitor" @click="go('device_monitor.html')">
+          <div class="entry-title">璁惧鐩戞帶</div>
+          <div class="entry-desc">鏌ョ湅璁惧鍦ㄧ嚎銆佸甫鐢点€佹寕鐗岀姸鎬侊紝鏍稿宸ュ崟鍜岀幇鍦虹姸鎬佹槸鍚︿竴鑷淬€?/div>
+          <div class="pill-row" style="margin-top:12px;"><span class="pill pill-amber">鐩戞帶鑱斿姩</span></div>
+        </div>
+      </div>
+
+      <div class="focus-grid">
+        <section class="panel card panel-focus">
+          <h2 class="section-title">鎴戝綋鍓嶆渶璇ュ鐞嗙殑宸ュ崟</h2>
+          <div class="focus-list" v-if="priorityItems.length">
+            <div class="focus-item card" v-for="item in priorityItems" :key="item.id">
+              <div class="focus-main">
+                <strong>#{{ item.id }} / {{ item.device_name || item.deviceId }}</strong>
+                <span>{{ item.power_room || '鏈厤缃厤鐢靛' }} / {{ item.cabinet || '鏈厤缃煖鍙? }} / {{ statusText(item.status) }}</span>
+              </div>
+              <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                <el-button size="small" @click="openDetail(item)">璇︽儏</el-button>
+                <el-button size="small" type="warning" @click="openMonitor(item)">鐩戞帶</el-button>
+              </div>
+            </div>
+          </div>
+          <div class="soft-empty" v-else><div class="empty">褰撳墠娌℃湁闇€瑕佷綘澶勭悊鐨勫伐鍗?/div></div>
+        </section>
+
+        <section class="panel card panel-note">
+          <h2 class="section-title">鎴戠殑閫氱煡涓庢彁閱?/h2>
+          <div class="focus-list" v-if="focusNotifications.length">
+            <div class="focus-item card" v-for="item in focusNotifications" :key="item.id">
+              <div class="focus-main">
+                <strong>{{ item.title || '绯荤粺閫氱煡' }}</strong>
+                <span>{{ item.message || '鏆傛棤鍐呭' }}</span>
+              </div>
+              <el-tag :type="item.is_read ? 'info' : 'danger'">{{ item.is_read ? '宸茶' : '鏈' }}</el-tag>
+            </div>
+          </div>
+          <div class="soft-empty" v-else><div class="empty">褰撳墠娌℃湁閫氱煡</div></div>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    if (!localStorage.getItem('user_realname') && !localStorage.getItem('user_username')) {
+      window.location.href = '/login.html';
+    }
+    axios.defaults.withCredentials = true;
+    const { createApp, ref, computed, onMounted } = Vue;
+
+    createApp({
+      setup() {
+        const { ElMessage } = ElementPlus;
+        const applications = ref([]);
+        const notifications = ref([]);
+        const currentUser = localStorage.getItem('user_realname') || localStorage.getItem('user_username') || '';
+        const statusText = (status) => ({
+          pending: '寰呭仠鐢靛鎵?,
+          approved: '寰呴獙鐢?,
+          rejected: '鍋滅數瀹℃壒椹冲洖',
+          verified: '宸查獙鐢?,
+          repairing: '妫€淇腑',
+          repair_completed: '妫€淇畬鎴?,
+          power_on_applied: '寰呴€佺數瀹℃壒',
+          power_on_rejected: '閫佺數瀹℃壒椹冲洖',
+          completed: '娴佺▼瀹屾垚',
+        }[status] || status || '鏈煡鐘舵€?);
+        const myApplications = computed(() => applications.value.filter((item) => item.applicant === currentUser || item.repair_operator === currentUser));
+        const stats = computed(() => ({
+          myApplications: myApplications.value.length,
+          needVerify: applications.value.filter((item) => item.status === 'approved').length,
+          repairing: myApplications.value.filter((item) => item.status === 'repairing').length,
+          readyPowerOn: myApplications.value.filter((item) => item.status === 'repair_completed').length,
+        }));
+        const priorityWeight = { approved: 1, verified: 2, repairing: 3, repair_completed: 4 };
+        const priorityItems = computed(() => applications.value
+          .filter((item) => ['approved', 'verified', 'repairing', 'repair_completed'].includes(item.status))
+          .sort((a, b) => {
+            const aWeight = priorityWeight[a.status] || 99;
+            const bWeight = priorityWeight[b.status] || 99;
+            if (aWeight !== bWeight) return aWeight - bWeight;
+            return new Date(b.created_at || 0) - new Date(a.created_at || 0);
+          })
+          .slice(0, 6));
+        const focusNotifications = computed(() => notifications.value.slice(0, 6));
+        const fetchData = async () => {
+          try {
+            const [appsRes, notificationsRes] = await Promise.all([
+              axios.get('/api/list'),
+              axios.get('/api/notifications'),
+            ]);
+            applications.value = Array.isArray(appsRes.data) ? appsRes.data : [];
+            notifications.value = Array.isArray(notificationsRes.data) ? notificationsRes.data : [];
+          } catch (err) {
+            if (err?.response?.status === 401) return window.appShell.handleUnauthorized();
+            ElMessage.error(err?.response?.data?.msg || '鐢靛伐宸ヤ綔鍙板姞杞藉け璐?);
+          }
+        };
+        const go = (url) => { window.location.href = `/${url}`; };
+        const openDetail = (item) => { window.open(`/detail.html?id=${item.id}`, '_blank'); };
+        const openMonitor = (item) => {
+          const query = new URLSearchParams();
+          if (item.deviceId) query.set('device_id', item.deviceId);
+          if (item.power_room) query.set('power_room', item.power_room);
+          query.set('from', 'electrician_home');
+          window.open(`/device_monitor.html?${query.toString()}`, '_blank');
+        };
+        const logout = () => { window.appShell.logout(); };
+        onMounted(fetchData);
+        return { stats, priorityItems, focusNotifications, statusText, fetchData, go, openDetail, openMonitor, logout };
+      },
+    }).use(ElementPlus).mount('#app');
+  </script>
+</body>
+</html>
+

@@ -15,7 +15,7 @@ scrape_configs:
   # Flask应用监控
   - job_name: 'flask-app'
     static_configs:
-      - targets: ['flask-app:5050']
+      - targets: ['flask-backend:5050']
     metrics_path: '/metrics'
     scrape_interval: 5s
 

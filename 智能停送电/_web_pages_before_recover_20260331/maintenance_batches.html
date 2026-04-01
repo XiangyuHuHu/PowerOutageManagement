@@ -1,0 +1,403 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>澶ф淇壒娆?/title>
+  <link rel="stylesheet" href="/admin_theme.css">
+  <script src="/app_shell.js"></script>
+  <script src="/vendor/vue.global.prod.js"></script>
+  <script src="/vendor/axios.min.js"></script>
+  <link rel="stylesheet" href="/vendor/element-plus/index.css">
+  <script src="/vendor/element-plus/index.full.min.js"></script>
+  <style>
+    body { margin: 0; min-height: 100vh; padding: 22px; }
+    #app { max-width: 1560px; margin: 0 auto; border-radius: 26px; overflow: hidden; }
+    .header, .content { padding: 24px 28px; }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      background: linear-gradient(90deg, rgba(9, 28, 42, 0.98), rgba(28, 91, 113, 0.85));
+      border-bottom: 1px solid rgba(118, 200, 255, 0.14);
+    }
+    .header h1 { margin: 0; font-size: 32px; }
+    .header p { margin: 10px 0 0; max-width: 920px; line-height: 1.8; font-size: 14px; }
+    .header-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    .overview { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 14px; margin-bottom: 18px; }
+    .card, .panel { padding: 18px; border-radius: 18px; position: relative; overflow: hidden; }
+    .card::before, .panel::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 4px;
+      border-radius: 18px 18px 0 0;
+      opacity: 0.95;
+    }
+    .metric-batches::before, .panel-create::before { background: linear-gradient(90deg, #4da8ff, #7fd6ff); }
+    .metric-generated::before, .panel-workbench::before { background: linear-gradient(90deg, #29d0c4, #7ce9d2); }
+    .metric-devices::before { background: linear-gradient(90deg, #8d84ff, #b2adff); }
+    .metric-pending::before { background: linear-gradient(90deg, #ffb14d, #ffd36d); }
+    .metric-progress::before { background: linear-gradient(90deg, #4ed29c, #8df0c1); }
+    .metric-risk-card::before { background: linear-gradient(90deg, #ff8d5b, #ffbf73); }
+    .metric-warn { color: #ffcf73; }
+    .workspace { display: grid; grid-template-columns: 460px minmax(0, 1fr); gap: 16px; }
+    .panel h2 { margin: 0 0 14px; font-size: 28px; }
+    .panel-desc { margin-bottom: 14px; font-size: 13px; line-height: 1.8; }
+    .note, .warn {
+      margin-bottom: 14px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      font-size: 13px;
+      line-height: 1.7;
+    }
+    .note { background: rgba(84, 176, 255, 0.08); border: 1px solid rgba(84, 176, 255, 0.18); color: #cdeeff; }
+    .warn { background: rgba(255, 145, 107, 0.12); border: 1px solid rgba(255, 145, 107, 0.2); color: #ffd3c3; }
+    .toolbar { display: grid; grid-template-columns: 1.1fr 0.8fr 0.8fr auto; gap: 10px; margin-bottom: 16px; align-items: center; }
+    .quick-filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+    .device-box {
+      max-height: 320px;
+      overflow: auto;
+      padding: 12px;
+      border-radius: 14px;
+      background: rgba(7, 17, 27, 0.62);
+      border: 1px solid rgba(118, 200, 255, 0.12);
+    }
+    .device-summary { margin-bottom: 12px; display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; font-size: 12px; color: #b8e5ff; }
+    .device-row { padding: 10px 12px; border-radius: 12px; background: rgba(255, 255, 255, 0.04); margin-bottom: 10px; }
+    .device-row:hover { background: rgba(78, 163, 255, 0.1); }
+    .device-row:last-child { margin-bottom: 0; }
+    .device-meta { margin-top: 6px; font-size: 12px; line-height: 1.7; color: #abdfff; }
+    .batch-tags { display: flex; gap: 8px; flex-wrap: wrap; }
+    .batch-tag { padding: 4px 10px; border-radius: 999px; font-size: 12px; background: rgba(255, 255, 255, 0.08); color: #e5f5ff; }
+    .status-chip { display: inline-flex; align-items: center; padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; }
+    .status-generated { background: rgba(103, 194, 58, 0.16); color: #9ae96d; }
+    .status-draft { background: rgba(230, 162, 60, 0.16); color: #ffd38b; }
+    .status-in-progress { background: rgba(64, 158, 255, 0.16); color: #8fd0ff; }
+    .status-completed { background: rgba(180, 127, 255, 0.16); color: #d6bbff; }
+    .status-other { background: rgba(144, 147, 153, 0.16); color: #d4d7dd; }
+    .risk-text { color: #ffcf73; font-weight: 600; }
+    .table-top { display: flex; justify-content: space-between; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 12px; }
+    @media (max-width: 1260px) {
+      .overview { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .workspace { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 760px) {
+      .overview { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .toolbar { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div class="header">
+      <div>
+        <h1>澶ф淇壒娆?/h1>
+        <p>杩欓噷缁熶竴绠＄悊鎸夐厤鐢靛寤虹珛鐨勫ぇ妫€淇换鍔°€傚乏渚ц礋璐ｆ壒娆″缓鍗曪紝鍙充晶璐熻矗鎵规绛涢€夈€侀闄╄瘑鍒拰鐪嬫澘鍏ュ彛銆?/p>
+      </div>
+      <div class="header-actions">
+        <el-button @click="fetchData">鍒锋柊</el-button>
+        <el-button type="primary" @click="goBack">杩斿洖</el-button>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="overview">
+        <div class="card metric-batches"><div class="metric-num">{{ summary.total_batches || 0 }}</div><div class="metric-label">鎵规鎬绘暟</div></div>
+        <div class="card metric-generated"><div class="metric-num">{{ summary.generated_batches || 0 }}</div><div class="metric-label">宸茬敓鎴愭壒娆?/div></div>
+        <div class="card metric-devices"><div class="metric-num">{{ summary.device_count || 0 }}</div><div class="metric-label">鎵规璁惧鎬绘暟</div></div>
+        <div class="card metric-pending"><div class="metric-num">{{ summary.pending_count || 0 }}</div><div class="metric-label">寰呭仠鐢靛鎵硅澶?/div></div>
+        <div class="card metric-progress"><div class="metric-num">{{ summary.in_progress_count || 0 }}</div><div class="metric-label">澶勭悊涓澶?/div></div>
+        <div class="card metric-risk-card"><div class="metric-num metric-warn">{{ summary.risk_count || 0 }}</div><div class="metric-label">鎸傜墝椋庨櫓璁惧</div></div>
+      </div>
+
+      <div class="workspace">
+        <section class="panel card panel-create">
+          <h2>鍒涘缓鎵规</h2>
+          <div class="panel-desc">寤鸿鍏堟寜閰嶇數瀹ょ粍缁囪澶囷紝鍐嶄竴娆℃€х敓鎴愬仠鐢靛伐鍗曘€傚悗缁鎵广€佹寕鐗屻€侀€佺數鍜岀湅鏉跨粺璁￠兘浼氳嚜鍔ㄤ覆鍒板悓涓€鎵规銆?/div>
+          <div v-if="errorMessage" class="warn">{{ errorMessage }}</div>
+          <div class="note">褰撳墠浼氫负閫変腑鐨勬瘡鍙拌澶囩敓鎴愪竴寮犲緟鍋滅數瀹℃壒宸ュ崟锛屽苟鍦ㄥ鎵硅褰曚腑淇濈暀鈥滄壒娆″缓鍗曗€濊建杩广€?/div>
+
+          <el-form label-width="98px">
+            <el-form-item label="鎵规鍚嶇О">
+              <el-input v-model="form.batch_name" placeholder="渚嬪锛氫竴鍙烽厤鐢靛 4 鏈堝ぇ妫€淇? />
+            </el-form-item>
+            <el-form-item label="閰嶇數瀹?>
+              <el-select v-model="form.power_room" style="width:100%" @change="onRoomChange" placeholder="璇烽€夋嫨閰嶇數瀹?>
+                <el-option v-for="room in roomOptions" :key="room" :label="room" :value="room" />
+              </el-select>
+            </el-form-item>
+            <el-form-item label="璁″垝寮€濮?>
+              <el-input v-model="form.planned_start_time" placeholder="渚嬪锛?026-03-25 08:00" />
+            </el-form-item>
+            <el-form-item label="璁″垝缁撴潫">
+              <el-input v-model="form.planned_end_time" placeholder="渚嬪锛?026-03-25 18:00" />
+            </el-form-item>
+            <el-form-item label="鍋滅數鍘熷洜">
+              <el-input v-model="form.reason" type="textarea" :rows="3" placeholder="渚嬪锛氶珮鍘嬫煖妫€淇€佹瘝绾挎竻鎵€佷繚鎶よ瘯楠? />
+            </el-form-item>
+            <el-form-item label="鎵规璇存槑">
+              <el-input v-model="form.description" type="textarea" :rows="3" placeholder="琛ュ厖妫€淇寖鍥淬€佺彮缁勩€侀闄╄鏄? />
+            </el-form-item>
+            <el-form-item label="鎵规璁惧">
+              <div class="device-box" style="width:100%">
+                <div class="device-summary">
+                  <span>褰撳墠閰嶇數瀹よ澶囷細{{ filteredDevices.length }}</span>
+                  <span>宸查€夋嫨锛歿{ form.device_ids.length }}</span>
+                </div>
+                <el-checkbox-group v-model="form.device_ids" style="width:100%">
+                  <div class="device-row" v-for="device in filteredDevices" :key="device.device_id">
+                    <el-checkbox :label="device.device_id">{{ device.device_name || device.device_id }}</el-checkbox>
+                    <div class="device-meta">{{ device.device_id }} / {{ device.cabinet || '鏈厤缃煖鍙? }} / {{ device.line_name || '鏈厤缃嚎璺? }}</div>
+                  </div>
+                </el-checkbox-group>
+                <div v-if="!filteredDevices.length" class="device-meta">褰撳墠閰嶇數瀹や笅鏆傛棤鍙€夎澶囥€?/div>
+              </div>
+            </el-form-item>
+            <el-form-item>
+              <el-button type="primary" @click="createBatch">鍒涘缓鎵规骞剁敓鎴愬伐鍗?/el-button>
+            </el-form-item>
+          </el-form>
+        </section>
+
+        <section class="panel card panel-workbench">
+          <div class="table-top">
+            <div>
+              <h2 style="margin-bottom:6px;">鎵规宸ヤ綔鍙?/h2>
+              <div class="panel-desc" style="margin:0;">鏀寔鎸夐厤鐢靛銆佺姸鎬佸拰鍏抽敭璇嶇瓫閫夋壒娆★紝浼樺厛璇嗗埆椋庨櫓鎵规鍜屽緟澶勭悊鎵规銆?/div>
+            </div>
+            <div class="batch-tags">
+              <span class="batch-tag">宸插畬鎴?{{ summary.completed_count || 0 }}</span>
+              <span class="batch-tag">寰呭鐞?{{ summary.pending_count || 0 }}</span>
+              <span class="batch-tag">椋庨櫓 {{ summary.risk_count || 0 }}</span>
+            </div>
+          </div>
+
+          <div class="toolbar">
+            <el-input v-model="filters.keyword" placeholder="鎼滅储鎵规鍚嶇О鎴栬鏄? clearable @keyup.enter="fetchData" />
+            <el-select v-model="filters.power_room" placeholder="鍏ㄩ儴閰嶇數瀹? clearable>
+              <el-option v-for="room in roomOptions" :key="room" :label="room" :value="room" />
+            </el-select>
+            <el-select v-model="filters.batch_status" placeholder="鍏ㄩ儴鐘舵€? clearable>
+              <el-option label="鑽夌" value="draft" />
+              <el-option label="宸茬敓鎴? value="generated" />
+              <el-option label="鎵ц涓? value="in_progress" />
+              <el-option label="宸插畬鎴? value="completed" />
+            </el-select>
+            <el-button type="primary" @click="fetchData">鏌ヨ</el-button>
+          </div>
+
+          <div class="quick-filters">
+            <el-button size="small" @click="applyQuickFilter('all')">鍏ㄩ儴鎵规</el-button>
+            <el-button size="small" type="warning" @click="applyQuickFilter('pending')">鍙湅寰呭鐞?/el-button>
+            <el-button size="small" type="danger" @click="applyQuickFilter('risk')">鍙湅鏈夐闄?/el-button>
+            <el-button size="small" type="success" @click="applyQuickFilter('completed')">鍙湅宸插畬鎴?/el-button>
+          </div>
+
+          <div v-if="summary.risk_count > 0" class="warn">褰撳墠绛涢€夌粨鏋滀笅鏈?{{ summary.risk_count }} 鍙拌澶囧瓨鍦ㄦ寕鐗岄闄╋紝閫佺數鍓嶉渶瑕侀噸鐐圭‘璁ゃ€?/div>
+          <div v-else class="note">褰撳墠绛涢€夌粨鏋滀笅娌℃湁鎸傜墝椋庨櫓璁惧锛屽彲浠ヤ紭鍏堝鐞嗗緟鍋滅數瀹℃壒鍜屽鐞嗕腑鎵规銆?/div>
+
+          <el-table :data="batches" border height="620" v-loading="loading" empty-text="褰撳墠娌℃湁鎵规璁板綍">
+            <el-table-column prop="batch_name" label="鎵规" min-width="240">
+              <template #default="{ row }">
+                <div>{{ row.batch_name }}</div>
+                <div class="device-meta">{{ row.power_room || '鏈厤缃厤鐢靛' }} / {{ formatDateTime(row.created_at) }}</div>
+              </template>
+            </el-table-column>
+            <el-table-column label="鐘舵€? width="120">
+              <template #default="{ row }">
+                <span class="status-chip" :class="statusClass(row.batch_status)">{{ batchStatusText(row.batch_status) }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column label="璁惧/宸ュ崟" min-width="180">
+              <template #default="{ row }">
+                <div>{{ row.generated_count || 0 }} / {{ row.device_count || 0 }}</div>
+                <div class="device-meta">宸茬敓鎴愬伐鍗?/ 鎵规璁惧</div>
+              </template>
+            </el-table-column>
+            <el-table-column label="娴佺▼杩涘害" min-width="220">
+              <template #default="{ row }">
+                <div>寰呭 {{ row.pending_count || 0 }} / 澶勭悊涓?{{ row.in_progress_count || 0 }} / 瀹屾垚 {{ row.completed_count || 0 }}</div>
+                <div class="device-meta">椹冲洖 {{ row.rejected_count || 0 }}</div>
+              </template>
+            </el-table-column>
+            <el-table-column label="椋庨櫓" width="120">
+              <template #default="{ row }">
+                <span :class="{ 'risk-text': Number(row.risk_count || 0) > 0 }">{{ row.risk_count || 0 }} 鍙?/span>
+              </template>
+            </el-table-column>
+            <el-table-column label="鎿嶄綔" width="180" fixed="right">
+              <template #default="{ row }">
+                <el-button size="small" type="primary" @click="openBatch(row.id)">鐪嬫澘</el-button>
+                <el-button size="small" @click="fillFormFromBatch(row)">澶嶇敤</el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    if (!localStorage.getItem('user_realname') && !localStorage.getItem('user_username')) {
+      window.appShell.handleUnauthorized();
+    }
+
+    axios.defaults.withCredentials = true;
+    const { createApp, ref, computed, onMounted } = Vue;
+
+    createApp({
+      setup() {
+        const { ElMessage } = ElementPlus;
+        const loading = ref(false);
+        const devices = ref([]);
+        const batches = ref([]);
+        const rawBatches = ref([]);
+        const summary = ref({});
+        const errorMessage = ref('');
+        const filters = ref({ keyword: '', power_room: '', batch_status: '' });
+        const form = ref({
+          batch_name: '',
+          power_room: '',
+          planned_start_time: '',
+          planned_end_time: '',
+          reason: '',
+          description: '',
+          device_ids: [],
+        });
+
+        const roomOptions = computed(() => [...new Set(devices.value.map(item => item.power_room).filter(Boolean))]);
+        const filteredDevices = computed(() => devices.value.filter(item => item.power_room === form.value.power_room));
+
+        const statusClass = (status) => {
+          if (status === 'generated') return 'status-generated';
+          if (status === 'draft') return 'status-draft';
+          if (status === 'in_progress') return 'status-in-progress';
+          if (status === 'completed') return 'status-completed';
+          return 'status-other';
+        };
+
+        const batchStatusText = (status) => ({
+          draft: '鑽夌',
+          generated: '宸茬敓鎴?,
+          in_progress: '鎵ц涓?,
+          completed: '宸插畬鎴?,
+        }[status] || (status || '鏈煡'));
+
+        const formatDateTime = (value) => {
+          if (!value) return '-';
+          const date = new Date(value);
+          return Number.isNaN(date.getTime()) ? value : date.toLocaleString('zh-CN');
+        };
+
+        const onRoomChange = () => { form.value.device_ids = []; };
+
+        const fetchData = async () => {
+          loading.value = true;
+          errorMessage.value = '';
+          try {
+            const [deviceRes, batchRes] = await Promise.all([
+              axios.get('/api/devices'),
+              axios.get('/api/maintenance-batches', { params: filters.value }),
+            ]);
+            devices.value = Array.isArray(deviceRes.data) ? deviceRes.data : [];
+            rawBatches.value = Array.isArray(batchRes.data?.items) ? batchRes.data.items : [];
+            batches.value = rawBatches.value;
+            summary.value = batchRes.data?.summary || {};
+          } catch (error) {
+            devices.value = [];
+            rawBatches.value = [];
+            batches.value = [];
+            summary.value = {};
+            if (error?.response?.status === 401) {
+              errorMessage.value = '鐧诲綍鎬佸凡澶辨晥锛岃閲嶆柊鐧诲綍鍚庡啀鏌ョ湅鎴栧垱寤烘壒娆°€?;
+              window.appShell.handleUnauthorized(errorMessage.value, 800);
+              return;
+            }
+            errorMessage.value = error?.response?.data?.msg || '鎵规鏁版嵁鍔犺浇澶辫触';
+            ElMessage.error(errorMessage.value);
+          } finally {
+            loading.value = false;
+          }
+        };
+
+        const createBatch = async () => {
+          if (!form.value.batch_name.trim() || !form.value.power_room || !form.value.reason.trim() || !form.value.device_ids.length) {
+            ElMessage.warning('璇峰～鍐欐壒娆″悕绉般€侀厤鐢靛銆佸仠鐢靛師鍥犲苟閫夋嫨璁惧');
+            return;
+          }
+          try {
+            await axios.post('/api/maintenance-batches', form.value);
+            ElMessage.success('澶ф淇壒娆″凡鍒涘缓');
+            form.value = {
+              batch_name: '',
+              power_room: '',
+              planned_start_time: '',
+              planned_end_time: '',
+              reason: '',
+              description: '',
+              device_ids: [],
+            };
+            await fetchData();
+          } catch (error) {
+            ElMessage.error(error?.response?.data?.msg || '鍒涘缓鎵规澶辫触');
+          }
+        };
+
+        const applyQuickFilter = (type) => {
+          let list = [...rawBatches.value];
+          if (type === 'pending') {
+            list = list.filter((row) => Number(row.pending_count || 0) > 0 || Number(row.in_progress_count || 0) > 0);
+          } else if (type === 'risk') {
+            list = list.filter((row) => Number(row.risk_count || 0) > 0);
+          } else if (type === 'completed') {
+            list = list.filter((row) => row.batch_status === 'completed');
+          }
+          batches.value = list;
+        };
+
+        const openBatch = (id) => window.open(`/maintenance_batch_detail.html?id=${id}`, '_blank');
+
+        const fillFormFromBatch = (row) => {
+          form.value.batch_name = `${row.batch_name}-澶嶅埗`;
+          form.value.power_room = row.power_room || '';
+          form.value.device_ids = [];
+          ElMessage.success('宸插皢鎵规淇℃伅甯﹀洖宸︿晶琛ㄥ崟锛屽彲缁х画琛ュ厖璁惧鍚庡垱寤烘柊鎵规');
+        };
+
+        const goBack = () => window.appShell.goBackOrHome();
+
+        onMounted(fetchData);
+
+        return {
+          loading,
+          devices,
+          batches,
+          rawBatches,
+          summary,
+          errorMessage,
+          filters,
+          form,
+          roomOptions,
+          filteredDevices,
+          statusClass,
+          batchStatusText,
+          formatDateTime,
+          onRoomChange,
+          fetchData,
+          createBatch,
+          applyQuickFilter,
+          openBatch,
+          fillFormFromBatch,
+          goBack,
+        };
+      },
+    }).use(ElementPlus).mount('#app');
+  </script>
+</body>
+</html>
+

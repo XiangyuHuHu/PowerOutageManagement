@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>大检修批次</title>
+  <script src="https://unpkg.com/vue@3"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/element-plus/dist/index.css">
+  <script src="https://cdn.jsdelivr.net/npm/element-plus"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      padding: 22px;
+      background: linear-gradient(135deg, #0e1d2a, #21405a 58%, #2b6a7e);
+      color: #eef9ff;
+      font-family: "Segoe UI", "Microsoft YaHei", sans-serif;
+    }
+    #app {
+      max-width: 1480px;
+      margin: 0 auto;
+      background: rgba(10, 24, 36, 0.9);
+      border-radius: 24px;
+      border: 1px solid rgba(118, 200, 255, 0.16);
+      overflow: hidden;
+      box-shadow: 0 24px 50px rgba(0,0,0,0.34);
+    }
+    .header, .content { padding: 24px 28px; }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      background: linear-gradient(90deg, rgba(8, 29, 42, 0.96), rgba(26, 78, 97, 0.84));
+      border-bottom: 1px solid rgba(118, 200, 255, 0.12);
+    }
+    .header h1 { margin: 0; font-size: 30px; }
+    .header p { margin: 8px 0 0; color: #abdfff; line-height: 1.8; font-size: 14px; max-width: 900px; }
+    .panel {
+      padding: 18px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(118, 200, 255, 0.12);
+      margin-bottom: 16px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 16px;
+    }
+    .tag-list { display:flex; flex-wrap:wrap; gap:8px; }
+    .el-table {
+      background: rgba(8,18,28,0.78) !important;
+      border-radius: 18px !important;
+      border: 1px solid rgba(118,200,255,0.12) !important;
+    }
+    .el-table th { background: rgba(22,66,88,0.92) !important; color: #eef9ff !important; border: none !important; }
+    .el-table tr { background: rgba(12,31,46,0.72) !important; }
+    .el-table td { color: #edf8ff !important; border-bottom: 1px solid rgba(118,200,255,0.08) !important; }
+    @media (max-width: 980px) { .grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div class="header">
+      <div>
+        <h1>大检修批次</h1>
+        <p>管理员可以按配电室选设备，批量生成停电工单。每个批次都可以进入批次看板，查看设备、工单状态和挂牌风险。</p>
+      </div>
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <el-button @click="fetchData">刷新</el-button>
+        <el-button type="primary" @click="goBack">返回</el-button>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="grid">
+        <section class="panel">
+          <h2 style="margin-top:0;">创建批次</h2>
+          <el-form label-width="110px">
+            <el-form-item label="批次名称">
+              <el-input v-model="form.batch_name" placeholder="例如：一号配电室 4月大检修" />
+            </el-form-item>
+            <el-form-item label="配电室">
+              <el-select v-model="form.power_room" style="width:100%;" @change="onRoomChange">
+                <el-option v-for="room in roomOptions" :key="room" :label="room" :value="room" />
+              </el-select>
+            </el-form-item>
+            <el-form-item label="计划开始">
+              <el-input v-model="form.planned_start_time" placeholder="例如：2026-03-25 08:00" />
+            </el-form-item>
+            <el-form-item label="计划结束">
+              <el-input v-model="form.planned_end_time" placeholder="例如：2026-03-25 18:00" />
+            </el-form-item>
+            <el-form-item label="停电原因">
+              <el-input v-model="form.reason" type="textarea" :rows="3" />
+            </el-form-item>
+            <el-form-item label="批次说明">
+              <el-input v-model="form.description" type="textarea" :rows="3" />
+            </el-form-item>
+            <el-form-item label="批次设备">
+              <el-checkbox-group v-model="form.device_ids">
+                <div class="tag-list">
+                  <el-checkbox v-for="device in filteredDevices" :key="device.device_id" :label="device.device_id">
+                    {{ device.device_name }} ({{ device.cabinet || device.device_id }})
+                  </el-checkbox>
+                </div>
+              </el-checkbox-group>
+            </el-form-item>
+            <el-form-item>
+              <el-button type="primary" @click="createBatch">创建批次并生成工单</el-button>
+            </el-form-item>
+          </el-form>
+        </section>
+
+        <section class="panel">
+          <h2 style="margin-top:0;">已创建批次</h2>
+          <el-table :data="batches" border height="520" v-loading="loading">
+            <el-table-column prop="batch_name" label="批次名称" min-width="220" />
+            <el-table-column prop="power_room" label="配电室" width="160" />
+            <el-table-column prop="batch_status" label="状态" width="120" />
+            <el-table-column prop="device_count" label="设备数" width="90" />
+            <el-table-column prop="generated_count" label="已建单" width="90" />
+            <el-table-column label="操作" width="120" fixed="right">
+              <template #default="{ row }">
+                <el-button size="small" type="primary" @click="openBatch(row.id)">看板</el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    if (!localStorage.getItem('user_realname') && !localStorage.getItem('user_username')) {
+      window.location.href = '/login.html';
+    }
+    axios.defaults.withCredentials = true;
+    const { createApp, ref, computed, onMounted } = Vue;
+    createApp({
+      setup() {
+        const { ElMessage } = ElementPlus;
+        const loading = ref(false);
+        const devices = ref([]);
+        const batches = ref([]);
+        const form = ref({
+          batch_name: '',
+          power_room: '',
+          planned_start_time: '',
+          planned_end_time: '',
+          reason: '',
+          description: '',
+          device_ids: [],
+        });
+
+        const roomOptions = computed(() => [...new Set(devices.value.map((item) => item.power_room).filter(Boolean))]);
+        const filteredDevices = computed(() => devices.value.filter((item) => item.power_room === form.value.power_room));
+
+        const onRoomChange = () => { form.value.device_ids = []; };
+
+        const fetchData = async () => {
+          loading.value = true;
+          try {
+            const [deviceRes, batchRes] = await Promise.all([
+              axios.get('/api/devices'),
+              axios.get('/api/maintenance-batches'),
+            ]);
+            devices.value = Array.isArray(deviceRes.data) ? deviceRes.data : [];
+            batches.value = Array.isArray(batchRes.data) ? batchRes.data : [];
+          } catch (error) {
+            ElMessage.error(error?.response?.data?.msg || '批次数据加载失败');
+          } finally {
+            loading.value = false;
+          }
+        };
+
+        const createBatch = async () => {
+          if (!form.value.batch_name.trim() || !form.value.power_room || !form.value.reason.trim() || !form.value.device_ids.length) {
+            ElMessage.warning('请填写批次名称、配电室、停电原因并选择设备');
+            return;
+          }
+          try {
+            await axios.post('/api/maintenance-batches', form.value);
+            ElMessage.success('大检修批次已创建');
+            form.value = {
+              batch_name: '',
+              power_room: '',
+              planned_start_time: '',
+              planned_end_time: '',
+              reason: '',
+              description: '',
+              device_ids: [],
+            };
+            await fetchData();
+          } catch (error) {
+            ElMessage.error(error?.response?.data?.msg || '创建批次失败');
+          }
+        };
+
+        const openBatch = (id) => {
+          window.open(`/maintenance_batch_detail.html?id=${id}`, '_blank');
+        };
+
+        const goBack = () => window.history.back();
+        onMounted(fetchData);
+        return { loading, devices, batches, form, roomOptions, filteredDevices, onRoomChange, fetchData, createBatch, openBatch, goBack };
+      },
+    }).use(ElementPlus).mount('#app');
+  </script>
+</body>
+</html>

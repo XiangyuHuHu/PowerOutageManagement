@@ -1,0 +1,499 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>鎵规鐪嬫澘</title>
+  <link rel="stylesheet" href="/admin_theme.css">
+  <script src="/app_shell.js"></script>
+  <script src="/vendor/vue.global.prod.js"></script>
+  <script src="/vendor/axios.min.js"></script>
+  <link rel="stylesheet" href="/vendor/element-plus/index.css">
+  <script src="/vendor/element-plus/index.full.min.js"></script>
+  <style>
+    body { margin: 0; min-height: 100vh; padding: 22px; }
+    #app { max-width: 1560px; margin: 0 auto; border-radius: 26px; overflow: hidden; }
+    .header, .content { padding: 24px 28px; }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      background: linear-gradient(90deg, rgba(7, 25, 39, 0.98), rgba(30, 88, 108, 0.86));
+      border-bottom: 1px solid rgba(118, 200, 255, 0.14);
+    }
+    .header h1 { margin: 0; font-size: 32px; }
+    .header p { margin: 10px 0 0; max-width: 920px; line-height: 1.8; font-size: 14px; }
+    .header-actions, .batch-actions, .quick-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    .batch-actions, .quick-actions { margin-bottom: 14px; }
+    .stats { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 14px; margin-bottom: 18px; }
+    .card, .panel { padding: 18px; border-radius: 20px; position: relative; overflow: hidden; }
+    .stats .card::before, .panel::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 4px;
+      border-radius: 20px 20px 0 0;
+      opacity: 0.95;
+    }
+    .metric-total::before, .panel-summary::before { background: linear-gradient(90deg, #4da8ff, #7fd6ff); }
+    .metric-generated::before, .panel-devices::before { background: linear-gradient(90deg, #29d0c4, #7ce9d2); }
+    .metric-pending::before { background: linear-gradient(90deg, #ffb14d, #ffd36d); }
+    .metric-progress::before { background: linear-gradient(90deg, #4ed29c, #8df0c1); }
+    .metric-completed::before { background: linear-gradient(90deg, #8d84ff, #b2adff); }
+    .metric-risk-card::before { background: linear-gradient(90deg, #ffb14d, #ffd36d); }
+    .metric-block::before { background: linear-gradient(90deg, #ff8d5b, #ffbf73); }
+    .metric-risk { color: #ffcf73; }
+    .metric-danger { color: #ff8f8f; }
+    .layout { display: grid; grid-template-columns: 380px minmax(0, 1fr); gap: 16px; }
+    .panel h2 { margin: 0 0 14px; font-size: 26px; }
+    .meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
+    .meta-item { padding: 14px; border-radius: 14px; background: rgba(255, 255, 255, 0.04); }
+    .meta-label { font-size: 12px; color: #abdfff; margin-bottom: 8px; }
+    .meta-value { font-weight: 700; line-height: 1.7; }
+    .full-row { grid-column: 1 / -1; }
+    .focus-block { margin-bottom: 12px; padding: 14px; border-radius: 16px; border: 1px solid rgba(118, 200, 255, 0.14); background: rgba(7, 16, 25, 0.5); }
+    .focus-block h3 { margin: 0 0 8px; font-size: 16px; }
+    .focus-warn { border-color: rgba(255, 187, 92, 0.2); background: rgba(255, 187, 92, 0.1); }
+    .focus-danger { border-color: rgba(255, 122, 122, 0.22); background: rgba(255, 122, 122, 0.1); }
+    .focus-list { display: grid; gap: 8px; max-height: 220px; overflow: auto; }
+    .focus-item { padding: 10px 12px; border-radius: 12px; background: rgba(255, 255, 255, 0.05); }
+    .focus-title { font-weight: 700; }
+    .focus-meta, .device-meta { margin-top: 4px; color: #abdfff; font-size: 12px; line-height: 1.7; }
+    .note { margin-bottom: 14px; padding: 12px 14px; border-radius: 14px; font-size: 13px; line-height: 1.7; background: rgba(84, 176, 255, 0.08); border: 1px solid rgba(84, 176, 255, 0.18); color: #cfeeff; }
+    .toolbar { display: grid; grid-template-columns: 1fr 210px 190px auto; gap: 10px; margin-bottom: 14px; align-items: center; }
+    .tag-list { display: flex; gap: 6px; flex-wrap: wrap; }
+    .tag-pill { padding: 4px 10px; border-radius: 999px; font-size: 12px; background: rgba(255, 255, 255, 0.08); }
+    .status-text-risk { color: #ffcf73; }
+    .status-text-block { color: #ff9b9b; }
+    .row-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    @media (max-width: 1320px) {
+      .stats { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+      .layout { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 820px) {
+      .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .toolbar, .meta-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div class="header">
+      <div>
+        <h1>{{ batch.batch_name || '鎵规鐪嬫澘' }}</h1>
+        <p>杩欓噷鎸夋壒娆￠泦涓煡鐪嬭澶囧伐鍗曠姸鎬併€佹寕鐗岄闄╁拰閫佺數闃诲鎯呭喌銆傚乏渚х敤浜庡揩閫熻瘑鍒噸鐐归棶棰橈紝鍙充晶鐢ㄤ簬绛涢€夊拰澶勭悊璁惧鏄庣粏銆?/p>
+      </div>
+      <div class="header-actions">
+        <el-button type="success" @click="exportBatch">瀵煎嚭 CSV</el-button>
+        <el-button @click="refreshBatchStatus">鍒锋柊鎵规鐘舵€?/el-button>
+        <el-button type="warning" :disabled="!canManageBatch" @click="completeBatch">瀹屾垚鎵规</el-button>
+        <el-button @click="fetchDetail">鍒锋柊</el-button>
+        <el-button type="primary" @click="goBack">杩斿洖</el-button>
+      </div>
+    </div>
+
+    <div class="content" v-loading="loading">
+      <div class="stats">
+        <div class="card metric-total"><div class="metric-num">{{ summary.total_devices || 0 }}</div><div class="metric-label">鎵规璁惧</div></div>
+        <div class="card metric-generated"><div class="metric-num">{{ summary.generated_count || 0 }}</div><div class="metric-label">宸茬敓鎴愬伐鍗?/div></div>
+        <div class="card metric-pending"><div class="metric-num">{{ summary.pending_approval_count || 0 }}</div><div class="metric-label">寰呭仠鐢靛鎵?/div></div>
+        <div class="card metric-progress"><div class="metric-num">{{ summary.in_progress_count || 0 }}</div><div class="metric-label">澶勭悊涓?/div></div>
+        <div class="card metric-completed"><div class="metric-num">{{ summary.completed_count || 0 }}</div><div class="metric-label">宸插畬鎴?/div></div>
+        <div class="card metric-risk-card"><div class="metric-num metric-risk">{{ summary.risk_count || 0 }}</div><div class="metric-label">鎸傜墝椋庨櫓</div></div>
+        <div class="card metric-block"><div class="metric-num metric-danger">{{ summary.blocked_count || 0 }}</div><div class="metric-label">閫佺數闃诲</div></div>
+      </div>
+
+      <div class="layout">
+        <section class="panel card panel-summary">
+          <h2>鎵规鎽樿</h2>
+          <div class="meta-grid">
+            <div class="meta-item"><div class="meta-label">閰嶇數瀹?/div><div class="meta-value">{{ batch.power_room || '-' }}</div></div>
+            <div class="meta-item"><div class="meta-label">鎵规鐘舵€?/div><div class="meta-value">{{ batchStatusText(batch.batch_status) }}</div></div>
+            <div class="meta-item"><div class="meta-label">璁″垝寮€濮?/div><div class="meta-value">{{ formatDateTime(batch.planned_start_time) }}</div></div>
+            <div class="meta-item"><div class="meta-label">璁″垝缁撴潫</div><div class="meta-value">{{ formatDateTime(batch.planned_end_time) }}</div></div>
+            <div class="meta-item"><div class="meta-label">鍒涘缓浜?/div><div class="meta-value">{{ batch.created_by_name || '-' }}</div></div>
+            <div class="meta-item"><div class="meta-label">鍒涘缓鏃堕棿</div><div class="meta-value">{{ formatDateTime(batch.created_at) }}</div></div>
+            <div class="meta-item full-row"><div class="meta-label">鎵规璇存槑</div><div class="meta-value">{{ batch.description || '鏃? }}</div></div>
+          </div>
+
+          <div class="note">鐐瑰嚮璁惧鐩戞帶浼氳嚜鍔ㄥ畾浣嶅埌瀵瑰簲閰嶇數瀹ゅ拰鐩爣璁惧锛岀偣鍑诲伐鍗曡鎯呭彲浠ョ户缁拷瀹℃壒鏃ュ織鍜屾寕鐗岃褰曘€?/div>
+          <div class="note" v-if="summary.can_complete">褰撳墠鎵规宸叉弧瓒冲畬鎴愭潯浠讹細鍏ㄩ儴璁惧宸ュ崟宸茶繘鍏ョ粓鎬侊紝涓旀病鏈夊墿浣欐寕鐗屻€?/div>
+
+          <div class="focus-block" v-if="blockerReasons.length">
+            <h3>褰撳墠闃诲鍘熷洜</h3>
+            <div class="focus-list">
+              <div class="focus-item" v-for="reason in blockerReasons" :key="reason">
+                <div class="focus-title">{{ reason }}</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="batch-actions">
+            <el-button type="primary" :disabled="!canBatchApprove || !summary.pending_approval_count" @click="approveBatch('power_off', true)">鎵规鍋滅數閫氳繃</el-button>
+            <el-button type="danger" :disabled="!canBatchApprove || !summary.pending_approval_count" @click="approveBatch('power_off', false)">鎵规鍋滅數椹冲洖</el-button>
+            <el-button type="success" :disabled="!canBatchApprove || !powerOnPendingCount" @click="approveBatch('power_on', true)">鎵规閫佺數閫氳繃</el-button>
+            <el-button type="warning" :disabled="!canBatchApprove || !powerOnPendingCount" @click="approveBatch('power_on', false)">鎵规閫佺數椹冲洖</el-button>
+          </div>
+
+          <div class="focus-block focus-danger" v-if="blockedItems.length">
+            <h3>閫佺數闃诲璁惧</h3>
+            <div class="focus-list">
+              <div class="focus-item" v-for="row in blockedItems" :key="`blocked-${row.device_id}`">
+                <div class="focus-title">{{ row.device_name || row.device_id }}</div>
+                <div class="focus-meta">{{ statusText(row.application_status) }} / 鍓╀綑鎸傜墝 {{ row.active_tag_count || 0 }}</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="focus-block focus-warn" v-if="riskItems.length">
+            <h3>鎸傜墝椋庨櫓璁惧</h3>
+            <div class="focus-list">
+              <div class="focus-item" v-for="row in riskItems" :key="`risk-${row.device_id}`">
+                <div class="focus-title">{{ row.device_name || row.device_id }}</div>
+                <div class="focus-meta">{{ (row.active_tag_names || []).join('銆?) || '瀛樺湪鏈夋晥鎸傜墝' }}</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="focus-block" v-if="pendingItems.length">
+            <h3>寰呭鐞嗚澶?/h3>
+            <div class="focus-list">
+              <div class="focus-item" v-for="row in pendingItems" :key="`pending-${row.device_id}`">
+                <div class="focus-title">{{ row.device_name || row.device_id }}</div>
+                <div class="focus-meta">{{ statusText(row.application_status) }}</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel card panel-devices">
+          <h2>璁惧鏄庣粏</h2>
+          <div class="quick-actions">
+            <el-button size="small" @click="setFocus('all')">鍏ㄩ儴璁惧</el-button>
+            <el-button size="small" type="warning" @click="setFocus('risk')">鍙湅鎸傜墝椋庨櫓</el-button>
+            <el-button size="small" type="danger" @click="setFocus('blocked')">鍙湅閫佺數闃诲</el-button>
+            <el-button size="small" type="primary" @click="setFocus('pending')">鍙湅寰呭鐞?/el-button>
+          </div>
+          <div class="toolbar">
+            <el-input v-model="filters.keyword" placeholder="鎼滅储璁惧鍚嶇О銆佽澶囩紪鍙锋垨鍘熷洜" clearable />
+            <el-select v-model="filters.status" placeholder="鍏ㄩ儴鐘舵€? clearable>
+              <el-option v-for="option in statusOptions" :key="option.value" :label="option.label" :value="option.value" />
+            </el-select>
+            <el-select v-model="filters.focus" placeholder="鍏ㄩ儴璁惧">
+              <el-option label="鍏ㄩ儴璁惧" value="all" />
+              <el-option label="閫佺數闃诲" value="blocked" />
+              <el-option label="鎸傜墝椋庨櫓" value="risk" />
+              <el-option label="寰呭鐞? value="pending" />
+            </el-select>
+            <el-button type="primary" @click="resetFilters">閲嶇疆</el-button>
+          </div>
+
+          <el-table :data="filteredItems" border height="680" empty-text="褰撳墠绛涢€変笅娌℃湁璁惧">
+            <el-table-column label="璁惧" min-width="240">
+              <template #default="{ row }">
+                <div>{{ row.device_name || row.device_id }}</div>
+                <div class="device-meta">{{ row.device_id }} / {{ row.power_room || '鏈厤缃厤鐢靛' }} / {{ row.cabinet || '鏈厤缃煖鍙? }}</div>
+              </template>
+            </el-table-column>
+            <el-table-column label="宸ュ崟" width="100">
+              <template #default="{ row }"><span v-if="row.application_id">#{{ row.application_id }}</span><span v-else>-</span></template>
+            </el-table-column>
+            <el-table-column label="娴佺▼鐘舵€? width="150">
+              <template #default="{ row }">
+                <span :class="{ 'status-text-risk': row.active_tag_count > 0, 'status-text-block': row.is_blocked }">{{ statusText(row.application_status) }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column label="鎸傜墝" width="120">
+              <template #default="{ row }">
+                <el-tag :type="row.active_tag_count ? 'danger' : 'success'">{{ row.active_tag_count || 0 }}</el-tag>
+              </template>
+            </el-table-column>
+            <el-table-column label="鎸傜墝浜哄憳" min-width="180">
+              <template #default="{ row }">
+                <div class="tag-list" v-if="row.active_tag_names && row.active_tag_names.length">
+                  <span class="tag-pill" v-for="name in row.active_tag_names" :key="name">{{ name }}</span>
+                </div>
+                <span v-else>鏃?/span>
+              </template>
+            </el-table-column>
+            <el-table-column prop="reason" label="鍋滅數鍘熷洜" min-width="200" show-overflow-tooltip />
+            <el-table-column label="鎿嶄綔" width="220" fixed="right">
+              <template #default="{ row }">
+                <div class="row-actions">
+                  <el-button v-if="row.application_id" size="small" type="primary" @click="openDetail(row.application_id)">宸ュ崟璇︽儏</el-button>
+                  <el-button size="small" @click="openMonitor(row)">璁惧鐩戞帶</el-button>
+                </div>
+              </template>
+            </el-table-column>
+          </el-table>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    if (!localStorage.getItem('user_realname') && !localStorage.getItem('user_username')) {
+      window.appShell.handleUnauthorized();
+    }
+
+    axios.defaults.withCredentials = true;
+    const { createApp, ref, computed, onMounted } = Vue;
+
+    createApp({
+      setup() {
+        const { ElMessage } = ElementPlus;
+        const loading = ref(false);
+        const batch = ref({});
+        const summary = ref({});
+        const items = ref([]);
+        const filters = ref({ keyword: '', status: '', focus: 'all' });
+        const role = localStorage.getItem('user_role') || '';
+        const functionPermissions = JSON.parse(localStorage.getItem('function_permissions') || '[]');
+        const canBatchApprove = role === 'admin' || functionPermissions.includes('batch_approval');
+        const canManageBatch = role === 'admin' || functionPermissions.includes('batch_management');
+
+        const statusOptions = [
+          { value: 'pending', label: '寰呭仠鐢靛鎵? },
+          { value: 'approved', label: '鍋滅數瀹℃壒閫氳繃' },
+          { value: 'verified', label: '宸查獙鐢? },
+          { value: 'repairing', label: '妫€淇腑' },
+          { value: 'repair_completed', label: '妫€淇畬鎴? },
+          { value: 'power_on_applied', label: '寰呴€佺數瀹℃壒' },
+          { value: 'completed', label: '宸插畬鎴? },
+          { value: 'rejected', label: '鍋滅數瀹℃壒椹冲洖' },
+          { value: 'power_on_rejected', label: '閫佺數瀹℃壒椹冲洖' },
+        ];
+
+        const statusMap = {
+          pending: '寰呭仠鐢靛鎵?,
+          approved: '鍋滅數瀹℃壒閫氳繃',
+          rejected: '鍋滅數瀹℃壒椹冲洖',
+          verified: '宸查獙鐢?,
+          repairing: '妫€淇腑',
+          repair_completed: '妫€淇畬鎴?,
+          power_on_applied: '寰呴€佺數瀹℃壒',
+          power_on_rejected: '閫佺數瀹℃壒椹冲洖',
+          completed: '娴佺▼瀹屾垚',
+        };
+
+        const statusText = (status) => statusMap[status] || status || '鏈敓鎴愬伐鍗?;
+        const batchStatusText = (status) => ({
+          draft: '鑽夌',
+          generated: '宸茬敓鎴?,
+          in_progress: '鎵ц涓?,
+          completed: '宸插畬鎴?,
+        }[status] || (status || '鏈煡'));
+
+        const formatDateTime = (value) => {
+          if (!value) return '-';
+          const date = new Date(value);
+          return Number.isNaN(date.getTime()) ? value : date.toLocaleString('zh-CN');
+        };
+
+        const riskItems = computed(() => items.value.filter(item => Number(item.active_tag_count || 0) > 0));
+        const blockedItems = computed(() => items.value.filter(item => item.is_blocked));
+        const pendingItems = computed(() => items.value.filter(item => ['pending', 'approved', 'verified', 'repairing', 'repair_completed', 'power_on_applied'].includes(item.application_status)));
+        const powerOnPendingCount = computed(() => items.value.filter(item => item.application_status === 'power_on_applied').length);
+
+        const blockerReasons = computed(() => {
+          const reasons = [];
+          if (summary.value.ungenerated_count > 0) reasons.push(`杩樻湁 ${summary.value.ungenerated_count} 鍙拌澶囨湭鐢熸垚宸ュ崟`);
+          if (summary.value.pending_approval_count > 0) reasons.push(`杩樻湁 ${summary.value.pending_approval_count} 鏉″伐鍗曞緟鍋滅數瀹℃壒`);
+          if (summary.value.in_progress_count > 0) reasons.push(`杩樻湁 ${summary.value.in_progress_count} 鏉″伐鍗曞浜庢墽琛屼腑鎴栧緟閫佺數瀹℃壒`);
+          if (summary.value.risk_count > 0) reasons.push(`杩樻湁 ${summary.value.risk_count} 鍙拌澶囧瓨鍦ㄦ湁鏁堟寕鐗宍);
+          if (summary.value.rejected_count > 0) reasons.push(`褰撳墠鏈?${summary.value.rejected_count} 鏉″伐鍗曞浜庨┏鍥炴€侊紝闇€瑕侀噸鏂板鐞哷);
+          return reasons;
+        });
+
+        const filteredItems = computed(() => {
+          return items.value.filter((item) => {
+            const keyword = filters.value.keyword.trim().toLowerCase();
+            if (keyword) {
+              const text = [item.device_name, item.device_id, item.reason, item.application_id].filter(Boolean).join(' ').toLowerCase();
+              if (!text.includes(keyword)) return false;
+            }
+            if (filters.value.status && item.application_status !== filters.value.status) return false;
+            if (filters.value.focus === 'blocked' && !item.is_blocked) return false;
+            if (filters.value.focus === 'risk' && Number(item.active_tag_count || 0) <= 0) return false;
+            if (filters.value.focus === 'pending' && !['pending', 'approved', 'verified', 'repairing', 'repair_completed', 'power_on_applied'].includes(item.application_status)) return false;
+            return true;
+          });
+        });
+
+        const currentBatchId = () => new URLSearchParams(window.location.search).get('id');
+
+        const fetchDetail = async () => {
+          const id = currentBatchId();
+          if (!id) {
+            ElMessage.error('缂哄皯鎵规 ID');
+            return;
+          }
+          loading.value = true;
+          try {
+            const res = await axios.get(`/api/maintenance-batches/${id}`);
+            batch.value = res.data.batch || {};
+            summary.value = res.data.summary || {};
+            items.value = Array.isArray(res.data.items) ? res.data.items : [];
+          } catch (error) {
+            if (error?.response?.status === 401) {
+              ElMessage.warning('鐧诲綍鎬佸凡澶辨晥锛岃閲嶆柊鐧诲綍鍚庡啀鏌ョ湅鎵规鐪嬫澘銆?);
+              window.appShell.handleUnauthorized('鐧诲綍鎬佸凡澶辨晥锛岃閲嶆柊鐧诲綍鍚庡啀鏌ョ湅鎵规鐪嬫澘銆?, 800);
+              return;
+            }
+            ElMessage.error(error?.response?.data?.msg || '鎵规璇︽儏鍔犺浇澶辫触');
+          } finally {
+            loading.value = false;
+          }
+        };
+
+        const resetFilters = () => { filters.value = { keyword: '', status: '', focus: 'all' }; };
+        const setFocus = (focus) => { filters.value.focus = focus; };
+        const openDetail = (id) => window.open(`/detail.html?id=${id}`, '_blank');
+
+        const promptComment = async (title, pass) => {
+          try {
+            const { value } = await ElementPlus.ElMessageBox.prompt(
+              pass ? '瀹℃壒鎰忚鍙€夊～鍐? : '椹冲洖鏃跺繀椤诲～鍐欏鎵规剰瑙?,
+              title,
+              {
+                confirmButtonText: '纭',
+                cancelButtonText: '鍙栨秷',
+                inputType: 'textarea',
+                inputPlaceholder: pass ? '鍙～鍐欐壒閲忓鎵硅鏄? : '璇疯緭鍏ラ┏鍥炲師鍥?,
+                inputValue: '',
+              }
+            );
+            return (value || '').trim();
+          } catch {
+            return null;
+          }
+        };
+
+        const approveBatch = async (stage, pass) => {
+          const id = currentBatchId();
+          if (!id) {
+            ElMessage.error('缂哄皯鎵规 ID');
+            return;
+          }
+          const title = `${batch.value.batch_name || '褰撳墠鎵规'} - ${stage === 'power_off' ? '鍋滅數' : '閫佺數'}鎵归噺瀹℃壒`;
+          const comment = await promptComment(title, pass);
+          if (comment === null) return;
+          if (!pass && !comment) {
+            ElMessage.warning('鎵归噺椹冲洖鏃跺繀椤诲～鍐欏鎵规剰瑙?);
+            return;
+          }
+          try {
+            const res = await axios.post(`/api/maintenance-batches/${id}/approve`, {
+              stage,
+              action: pass ? 'approve' : 'reject',
+              comment,
+            });
+            const skipped = res.data?.skipped || [];
+            if (skipped.length) {
+              ElMessage.warning(`${res.data.msg}銆傝烦杩囧伐鍗曪細${skipped.map((item) => '#' + item.id).join('銆?)}`);
+            } else {
+              ElMessage.success(res.data?.msg || '鎵规鎵归噺瀹℃壒瀹屾垚');
+            }
+            await fetchDetail();
+          } catch (error) {
+            ElMessage.error(error?.response?.data?.msg || '鎵规鎵归噺瀹℃壒澶辫触');
+          }
+        };
+
+        const exportBatch = () => {
+          const id = currentBatchId();
+          if (!id) {
+            ElMessage.error('缂哄皯鎵规 ID');
+            return;
+          }
+          window.open(`/api/maintenance-batches/${id}/export`, '_blank');
+        };
+
+        const refreshBatchStatus = async () => {
+          await fetchDetail();
+          ElMessage.success(`鎵规鐘舵€佸凡鍒锋柊涓猴細${batchStatusText(batch.value.batch_status)}`);
+        };
+
+        const completeBatch = async () => {
+          const id = currentBatchId();
+          if (!id) {
+            ElMessage.error('缂哄皯鎵规 ID');
+            return;
+          }
+          try {
+            await ElementPlus.ElMessageBox.confirm(
+              '绯荤粺浼氬厛鏍￠獙褰撳墠鎵规鏄惁宸茬粡鍏ㄩ儴杩涘叆缁堟€侊紝涓斾笉瀛樺湪鍓╀綑鎸傜墝銆傛弧瓒虫潯浠跺悗鎵嶄細瀹屾垚鎵规銆?,
+              '瀹屾垚鎵规',
+              {
+                confirmButtonText: '纭瀹屾垚',
+                cancelButtonText: '鍙栨秷',
+                type: 'warning',
+              }
+            );
+          } catch {
+            return;
+          }
+          try {
+            const res = await axios.post(`/api/maintenance-batches/${id}/close`);
+            ElMessage.success(res.data?.msg || '鎵规宸插畬鎴?);
+            await fetchDetail();
+          } catch (error) {
+            const data = error?.response?.data;
+            if (Array.isArray(data?.blockers) && data.blockers.length) {
+              ElMessage.warning(`${data.msg}锛?{data.blockers.join('锛?)}`);
+            } else {
+              ElMessage.error(data?.msg || '瀹屾垚鎵规澶辫触');
+            }
+          }
+        };
+
+        const openMonitor = (row) => {
+          const params = new URLSearchParams();
+          if (row.device_id) params.set('device_id', row.device_id);
+          if (row.power_room || batch.value.power_room) params.set('power_room', row.power_room || batch.value.power_room);
+          params.set('from', 'maintenance_batch');
+          window.open(`/device_monitor.html?${params.toString()}`, '_blank');
+        };
+
+        const goBack = () => window.appShell.goBackOrHome();
+
+        onMounted(fetchDetail);
+
+        return {
+          loading,
+          batch,
+          summary,
+          items,
+          filters,
+          statusOptions,
+          riskItems,
+          blockedItems,
+          pendingItems,
+          powerOnPendingCount,
+          blockerReasons,
+          filteredItems,
+          canBatchApprove,
+          canManageBatch,
+          statusText,
+          batchStatusText,
+          formatDateTime,
+          fetchDetail,
+          resetFilters,
+          setFocus,
+          approveBatch,
+          exportBatch,
+          refreshBatchStatus,
+          completeBatch,
+          openDetail,
+          openMonitor,
+          goBack,
+        };
+      },
+    }).use(ElementPlus).mount('#app');
+  </script>
+</body>
+</html>
+

@@ -3,344 +3,217 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>系统统计 - 智能停送电系统</title>
-  <script src="https://unpkg.com/vue@3"></script>
-  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/element-plus/dist/index.css">
-  <script src="https://cdn.jsdelivr.net/npm/element-plus"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <title>系统统计</title>
+  <link rel="stylesheet" href="/admin_theme.css">
+  <script src="/app_shell.js"></script>
+  <script src="/vendor/vue.global.prod.js"></script>
+  <script src="/vendor/axios.min.js"></script>
+  <link rel="stylesheet" href="/vendor/element-plus/index.css">
+  <script src="/vendor/element-plus/index.full.min.js"></script>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
-    }
-    body {
-      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-      color: #fff;
-      min-height: 100vh;
-      padding: 20px;
-    }
-    #app {
-      max-width: 1400px;
-      margin: 0 auto;
-      background: rgba(16, 33, 47, 0.8);
-      border-radius: 16px;
-      overflow: hidden;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-      border: 1px solid rgba(64, 158, 255, 0.2);
-    }
-    .app-header {
-      background: linear-gradient(to right, #0c1d2c, #1a3a5f);
-      padding: 25px 40px;
+    body { margin: 0; min-height: 100vh; padding: 22px; }
+    #app { max-width: 1480px; margin: 0 auto; border-radius: 24px; overflow: hidden; }
+    .header, .content { padding: 24px 28px; }
+    .header {
       display: flex;
-      align-items: center;
       justify-content: space-between;
-      border-bottom: 2px solid #409eff;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      background: linear-gradient(90deg, rgba(8, 27, 42, 0.96), rgba(24, 79, 103, 0.84));
+      border-bottom: 1px solid rgba(114, 197, 255, 0.14);
     }
-    .header-content {
-      display: flex;
-      align-items: center;
-      gap: 20px;
-    }
-    .logo-icon {
-      width: 50px;
-      height: 50px;
-      background: linear-gradient(135deg, #409eff, #1e3a8a);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 0 20px rgba(64, 158, 255, 0.5);
-    }
-    .logo-icon i {
-      font-size: 24px;
-      color: #fff;
-    }
-    .header-text h1 {
-      font-size: 24px;
-      font-weight: 700;
-      letter-spacing: 1px;
-      margin-bottom: 5px;
-      background: linear-gradient(to right, #409eff, #a0d9ff);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-    }
-    .header-text p {
-      font-size: 14px;
-      color: #a0d9ff;
-    }
-    .back-btn {
-      background: linear-gradient(135deg, #409eff, #2a6bc5);
-      border: none;
-      color: #fff;
-      padding: 10px 20px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: bold;
-      font-size: 14px;
-      transition: all 0.3s ease;
-    }
-    .back-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 12px rgba(64, 158, 255, 0.3);
-    }
-    .app-container {
-      padding: 30px 40px;
-    }
+    .header h1 { margin: 0; font-size: 30px; }
+    .header p { margin: 8px 0 0; line-height: 1.8; font-size: 14px; max-width: 920px; color: #bfe8ff; }
     .stats-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 20px;
-      margin-bottom: 30px;
+      grid-template-columns: repeat(4, minmax(180px, 1fr));
+      gap: 14px;
+      margin-bottom: 18px;
     }
-    .stat-card {
-      background: rgba(12, 28, 44, 0.7);
-      border-radius: 12px;
-      padding: 25px;
-      text-align: center;
-      border: 1px solid rgba(64, 158, 255, 0.2);
-      transition: all 0.3s ease;
+    .stat-card, .panel {
+      padding: 18px;
+      border-radius: 18px;
+      position: relative;
+      overflow: hidden;
     }
-    .stat-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 10px 25px rgba(64, 158, 255, 0.2);
+    .stat-card::before, .panel::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 4px;
+      border-radius: 18px 18px 0 0;
+      opacity: 0.95;
     }
-    .stat-icon {
-      font-size: 40px;
-      margin-bottom: 15px;
-      opacity: 0.8;
+    .stat-total::before { background: linear-gradient(90deg, #4da8ff, #7fd6ff); }
+    .stat-approved::before { background: linear-gradient(90deg, #29d0c4, #7ce9d2); }
+    .stat-pending::before { background: linear-gradient(90deg, #ffb14d, #ffd36d); }
+    .stat-users::before { background: linear-gradient(90deg, #8d84ff, #b2adff); }
+    .panel-distribution::before { background: linear-gradient(90deg, #4da8ff, #7fd6ff); }
+    .panel-roles::before { background: linear-gradient(90deg, #8d84ff, #b2adff); }
+    .panel-activity::before { background: linear-gradient(90deg, #29d0c4, #7ce9d2); }
+    .metric-num { font-size: 34px; font-weight: 800; margin-bottom: 8px; }
+    .metric-label { font-size: 15px; }
+    .metric-trend { margin-top: 8px; font-size: 13px; color: #bfe8ff; }
+    .charts {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
     }
-    .stat-value {
-      font-size: 36px;
-      font-weight: bold;
-      margin-bottom: 8px;
-    }
-    .stat-label {
-      color: #a0d9ff;
-      font-size: 16px;
-      font-weight: 500;
-    }
-    .stat-trend {
-      font-size: 14px;
-      margin-top: 8px;
-    }
-    .trend-up {
-      color: #67c23a;
-    }
-    .trend-down {
-      color: #f56c6c;
-    }
-    .chart-container {
-      background: rgba(12, 28, 44, 0.7);
-      border-radius: 12px;
-      padding: 25px;
-      margin-bottom: 20px;
-      border: 1px solid rgba(64, 158, 255, 0.2);
-    }
-    .chart-title {
-      font-size: 18px;
-      font-weight: 600;
-      margin-bottom: 20px;
-      color: #e6f7ff;
+    .panel h2 {
+      margin: 0 0 14px;
+      font-size: 22px;
       display: flex;
       align-items: center;
       gap: 10px;
     }
-    .chart-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 20px;
+    .summary-box {
+      min-height: 220px;
+      border-radius: 16px;
+      border: 1px solid rgba(114, 197, 255, 0.14);
+      background: rgba(255, 255, 255, 0.04);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 20px;
     }
-    .recent-activity {
-      background: rgba(12, 28, 44, 0.7);
-      border-radius: 12px;
-      padding: 25px;
-      border: 1px solid rgba(64, 158, 255, 0.2);
+    .summary-box .icon {
+      font-size: 38px;
+      margin-bottom: 12px;
+      color: #8ecfff;
+      font-weight: 800;
     }
+    .summary-box .line { margin-top: 8px; color: #bfe8ff; }
     .activity-item {
       display: flex;
       align-items: center;
-      gap: 15px;
-      padding: 12px 0;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      gap: 14px;
+      padding: 14px 0;
+      border-bottom: 1px solid rgba(114, 197, 255, 0.1);
     }
-    .activity-item:last-child {
-      border-bottom: none;
-    }
+    .activity-item:last-child { border-bottom: none; }
     .activity-icon {
-      width: 40px;
-      height: 40px;
+      width: 42px;
+      height: 42px;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 16px;
+      color: #fff;
+      flex: none;
+      font-weight: 700;
     }
-    .activity-content {
-      flex: 1;
-    }
-    .activity-title {
-      font-weight: 600;
-      margin-bottom: 4px;
-    }
-    .activity-time {
-      font-size: 12px;
-      color: #a0d9ff;
-    }
-    .loading {
-      text-align: center;
-      padding: 40px;
-      color: #a0d9ff;
-    }
+    .activity-title { font-weight: 700; margin-bottom: 4px; }
+    .activity-time { font-size: 12px; color: #abdfff; }
+    .empty-state { padding: 36px 12px; text-align: center; color: #abdfff; }
+    .loading { padding: 50px 12px; text-align: center; color: #abdfff; }
+    @media (max-width: 980px) { .stats-grid, .charts { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 720px) { .stats-grid, .charts { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
   <div id="app">
-    <div class="app-header">
-      <div class="header-content">
-        <div class="logo-icon">
-          <i class="fas fa-chart-bar"></i>
-        </div>
-        <div class="header-text">
-          <h1>系统统计</h1>
-          <p>智能停送电系统数据分析</p>
-        </div>
+    <div class="header">
+      <div>
+        <h1>系统统计</h1>
+        <p>集中展示停送电审批平台的工单数量、审批效率、用户角色分布和最近活动，便于管理员快速了解系统运行情况。</p>
       </div>
-      <button class="back-btn" @click="goBack">
-        <i class="fas fa-arrow-left"></i> 返回
-      </button>
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <el-button @click="fetchStats">刷新</el-button>
+        <el-button type="primary" @click="goBack">返回</el-button>
+      </div>
     </div>
-    
-    <div class="app-container">
+
+    <div class="content">
       <div v-if="loading" class="loading">
-        <i class="fas fa-spinner fa-spin" style="font-size: 24px; margin-bottom: 10px;"></i>
-        <div>加载统计数据...</div>
+        <div style="font-size: 24px; margin-bottom: 10px;">加载中</div>
+        <div>正在加载统计数据...</div>
       </div>
-      
-      <div v-else>
-        <!-- 统计卡片 -->
+
+      <template v-else>
         <div class="stats-grid">
-          <div class="stat-card">
-            <div class="stat-icon" style="color: #409eff;">
-              <i class="fas fa-file-signature"></i>
-            </div>
-            <div class="stat-value">{{ stats.totalApplications }}</div>
-            <div class="stat-label">总申请数</div>
-            <div class="stat-trend trend-up">
-              <i class="fas fa-arrow-up"></i> +{{ stats.newApplications }} 今日新增
-            </div>
+          <div class="stat-card card stat-total">
+            <div class="metric-num">{{ stats.totalApplications }}</div>
+            <div class="metric-label">总申请数</div>
+            <div class="metric-trend">今日新增 {{ stats.newApplications }}</div>
           </div>
-          
-          <div class="stat-card">
-            <div class="stat-icon" style="color: #67c23a;">
-              <i class="fas fa-check-circle"></i>
-            </div>
-            <div class="stat-value">{{ stats.approvedApplications }}</div>
-            <div class="stat-label">已审批</div>
-            <div class="stat-trend trend-up">
-              <i class="fas fa-arrow-up"></i> {{ stats.approvalRate }}% 审批率
-            </div>
+          <div class="stat-card card stat-approved">
+            <div class="metric-num">{{ stats.approvedApplications }}</div>
+            <div class="metric-label">已审批</div>
+            <div class="metric-trend">审批率 {{ stats.approvalRate }}%</div>
           </div>
-          
-          <div class="stat-card">
-            <div class="stat-icon" style="color: #e6a23c;">
-              <i class="fas fa-clock"></i>
-            </div>
-            <div class="stat-value">{{ stats.pendingApplications }}</div>
-            <div class="stat-label">待审批</div>
-            <div class="stat-trend trend-down">
-              <i class="fas fa-arrow-down"></i> 需要处理
-            </div>
+          <div class="stat-card card stat-pending">
+            <div class="metric-num">{{ stats.pendingApplications }}</div>
+            <div class="metric-label">待审批</div>
+            <div class="metric-trend">需要重点关注</div>
           </div>
-          
-          <div class="stat-card">
-            <div class="stat-icon" style="color: #f56c6c;">
-              <i class="fas fa-users"></i>
-            </div>
-            <div class="stat-value">{{ stats.totalUsers }}</div>
-            <div class="stat-label">注册用户</div>
-            <div class="stat-trend trend-up">
-              <i class="fas fa-arrow-up"></i> +{{ stats.activeUsers }} 活跃用户
-            </div>
+          <div class="stat-card card stat-users">
+            <div class="metric-num">{{ stats.totalUsers }}</div>
+            <div class="metric-label">注册用户</div>
+            <div class="metric-trend">当前系统账号总数</div>
           </div>
         </div>
-        
-        <!-- 图表区域 -->
-        <div class="chart-grid">
-          <div class="chart-container">
-            <div class="chart-title">
-              <i class="fas fa-chart-pie"></i>
-              申请状态分布
-            </div>
-            <div style="height: 200px; display: flex; align-items: center; justify-content: center; color: #a0d9ff;">
-              <div style="text-align: center;">
-                <div style="font-size: 48px; margin-bottom: 10px;">📊</div>
-                <div>已审批: {{ stats.approvedApplications }}</div>
-                <div>待审批: {{ stats.pendingApplications }}</div>
-                <div>已拒绝: {{ stats.rejectedApplications }}</div>
+
+        <div class="charts">
+          <section class="panel card panel-distribution">
+            <h2>申请状态分布</h2>
+            <div class="summary-box">
+              <div>
+                <div class="icon">单</div>
+                <div class="line">已审批：{{ stats.approvedApplications }}</div>
+                <div class="line">待审批：{{ stats.pendingApplications }}</div>
+                <div class="line">已驳回：{{ stats.rejectedApplications }}</div>
               </div>
             </div>
-          </div>
-          
-          <div class="chart-container">
-            <div class="chart-title">
-              <i class="fas fa-chart-line"></i>
-              用户角色分布
-            </div>
-            <div style="height: 200px; display: flex; align-items: center; justify-content: center; color: #a0d9ff;">
-              <div style="text-align: center;">
-                <div style="font-size: 48px; margin-bottom: 10px;">👥</div>
-                <div>管理员: {{ stats.adminUsers }}</div>
-                <div>调度员: {{ stats.dispatcherUsers }}</div>
-                <div>电工: {{ stats.electricianUsers }}</div>
+          </section>
+
+          <section class="panel card panel-roles">
+            <h2>用户角色分布</h2>
+            <div class="summary-box">
+              <div>
+                <div class="icon">人</div>
+                <div class="line">管理员：{{ stats.adminUsers }}</div>
+                <div class="line">调度员：{{ stats.dispatcherUsers }}</div>
+                <div class="line">电工：{{ stats.electricianUsers }}</div>
               </div>
             </div>
-          </div>
+          </section>
         </div>
-        
-        <!-- 最近活动 -->
-        <div class="recent-activity">
-          <div class="chart-title">
-            <i class="fas fa-history"></i>
-            最近活动
-          </div>
-          <div v-if="recentActivities.length === 0" style="text-align: center; color: #a0d9ff; padding: 20px;">
-            暂无活动记录
-          </div>
+
+        <section class="panel card panel-activity">
+          <h2>最近活动</h2>
+          <div v-if="recentActivities.length === 0" class="empty-state">当前没有最近活动记录</div>
           <div v-else>
             <div v-for="activity in recentActivities" :key="activity.id" class="activity-item">
               <div class="activity-icon" :style="{ background: getActivityColor(activity.type) }">
-                <i :class="getActivityIcon(activity.type)"></i>
+                {{ getActivityMark(activity.type) }}
               </div>
-              <div class="activity-content">
+              <div>
                 <div class="activity-title">{{ activity.title }}</div>
                 <div class="activity-time">{{ formatDateTime(activity.time) }}</div>
               </div>
             </div>
           </div>
-        </div>
-      </div>
+        </section>
+      </template>
     </div>
   </div>
 
   <script>
-    // 检查登录状态
     if (!localStorage.getItem('user_realname') && !localStorage.getItem('user_username')) {
-      window.location.href = '/login.html';
+      window.appShell.handleUnauthorized();
     }
-    
-    // 检查管理员权限
-    const userRole = localStorage.getItem('user_role');
-    if (userRole !== 'admin') {
-      alert('只有管理员可以访问统计页面');
-      window.location.href = '/login.html';
+    if (localStorage.getItem('user_role') !== 'admin') {
+      window.appShell.handleUnauthorized('只有管理员可以查看系统统计。', 400);
     }
-    
+
     axios.defaults.withCredentials = true;
     const { createApp, ref, onMounted } = Vue;
+
     createApp({
       setup() {
         const loading = ref(true);
@@ -352,113 +225,97 @@
           newApplications: 0,
           approvalRate: 0,
           totalUsers: 0,
-          activeUsers: 0,
           adminUsers: 0,
           dispatcherUsers: 0,
-          electricianUsers: 0
+          electricianUsers: 0,
         });
         const recentActivities = ref([]);
 
         const formatDateTime = (timestamp) => {
-          if (!timestamp) return '';
+          if (!timestamp) return '-';
           const date = new Date(timestamp);
-          return date.toLocaleString('zh-CN', {
-            month: '2-digit',
-            day: '2-digit',
-            hour: '2-digit',
-            minute: '2-digit'
-          });
+          return Number.isNaN(date.getTime()) ? timestamp : date.toLocaleString('zh-CN');
         };
 
-        const getActivityColor = (type) => {
-          const colors = {
-            'apply': 'linear-gradient(135deg, #409eff, #2a6bc5)',
-            'approve': 'linear-gradient(135deg, #67c23a, #4a8c2c)',
-            'reject': 'linear-gradient(135deg, #f56c6c, #c45656)',
-            'user': 'linear-gradient(135deg, #e6a23c, #b88230)'
-          };
-          return colors[type] || colors['apply'];
-        };
+        const getActivityColor = (type) => ({
+          apply: 'linear-gradient(135deg, #4da8ff, #2f7de0)',
+          approve: 'linear-gradient(135deg, #29d0c4, #1cae9e)',
+          reject: 'linear-gradient(135deg, #f56c6c, #d64c4c)',
+          user: 'linear-gradient(135deg, #ffb14d, #d58d2f)',
+        }[type] || 'linear-gradient(135deg, #4da8ff, #2f7de0)');
 
-        const getActivityIcon = (type) => {
-          const icons = {
-            'apply': 'fas fa-file-signature',
-            'approve': 'fas fa-check-circle',
-            'reject': 'fas fa-times-circle',
-            'user': 'fas fa-user-plus'
-          };
-          return icons[type] || 'fas fa-info-circle';
-        };
+        const getActivityMark = (type) => ({
+          apply: '申',
+          approve: '审',
+          reject: '驳',
+          user: '人',
+        }[type] || '记');
 
         const fetchStats = async () => {
+          loading.value = true;
           try {
-            // 获取申请统计
-            const applicationsRes = await axios.get('/api/list');
-            const applications = applicationsRes.data;
-            
-            // 获取用户统计
-            const usersRes = await axios.get('/api/users');
-            const users = usersRes.data;
-            
-            // 计算统计数据
+            const [applicationsRes, usersRes] = await Promise.all([
+              axios.get('/api/list'),
+              axios.get('/api/users'),
+            ]);
+            const applications = Array.isArray(applicationsRes.data) ? applicationsRes.data : [];
+            const users = Array.isArray(usersRes.data) ? usersRes.data : [];
+
             stats.value.totalApplications = applications.length;
-            stats.value.approvedApplications = applications.filter(app => app.status === 'approved').length;
-            stats.value.pendingApplications = applications.filter(app => app.status === 'pending').length;
-            stats.value.rejectedApplications = applications.filter(app => app.status === 'rejected').length;
-            
-            // 计算审批率
-            const totalProcessed = stats.value.approvedApplications + stats.value.rejectedApplications;
-            stats.value.approvalRate = totalProcessed > 0 ? Math.round((stats.value.approvedApplications / totalProcessed) * 100) : 0;
-            
-            // 今日新增申请（简化计算）
-            const today = new Date();
-            const todayApplications = applications.filter(app => {
-              const appDate = new Date(app.created_at);
-              return appDate.toDateString() === today.toDateString();
-            });
-            stats.value.newApplications = todayApplications.length;
-            
-            // 用户统计
+            stats.value.approvedApplications = applications.filter((item) => ['approved', 'verified', 'repairing', 'repair_completed', 'power_on_applied', 'completed'].includes(item.status)).length;
+            stats.value.pendingApplications = applications.filter((item) => ['pending', 'power_on_applied'].includes(item.status)).length;
+            stats.value.rejectedApplications = applications.filter((item) => ['rejected', 'power_on_rejected'].includes(item.status)).length;
+            stats.value.newApplications = applications.filter((item) => {
+              if (!item.created_at) return false;
+              const created = new Date(item.created_at);
+              const today = new Date();
+              return created.toDateString() === today.toDateString();
+            }).length;
+            stats.value.approvalRate = stats.value.totalApplications
+              ? Math.round((stats.value.approvedApplications / stats.value.totalApplications) * 100)
+              : 0;
             stats.value.totalUsers = users.length;
-            stats.value.adminUsers = users.filter(u => u.role === 'admin').length;
-            stats.value.dispatcherUsers = users.filter(u => u.role === 'dispatcher').length;
-            stats.value.electricianUsers = users.filter(u => u.role === 'electrician').length;
-            stats.value.activeUsers = users.length; // 简化计算
-            
-            // 生成最近活动（基于申请数据）
-            recentActivities.value = applications.slice(0, 5).map(app => ({
-              id: app.id,
-              type: app.status === 'approved' ? 'approve' : app.status === 'rejected' ? 'reject' : 'apply',
-              title: `${app.applicant || '未知用户'} 提交了${app.type === 'power_off' ? '停电' : '送电'}申请`,
-              time: app.created_at
+            stats.value.adminUsers = users.filter((item) => item.role === 'admin').length;
+            stats.value.dispatcherUsers = users.filter((item) => item.role === 'dispatcher').length;
+            stats.value.electricianUsers = users.filter((item) => item.role === 'electrician').length;
+
+            recentActivities.value = applications.slice(0, 8).map((item) => ({
+              id: item.id,
+              type: item.status === 'rejected' || item.status === 'power_on_rejected'
+                ? 'reject'
+                : item.status === 'pending'
+                  ? 'apply'
+                  : 'approve',
+              title: `工单 #${item.id} - ${item.device_name || item.deviceId || '未知设备'} - ${item.reason || '无原因说明'}`,
+              time: item.updated_at || item.created_at,
             }));
-            
-          } catch (err) {
-            console.error("获取统计数据失败：", err);
+          } catch (error) {
+            if (error?.response?.status === 401) {
+              window.appShell.handleUnauthorized();
+              return;
+            }
+            window.appShell.toast(error?.response?.data?.msg || '统计数据加载失败', 'error');
           } finally {
             loading.value = false;
           }
         };
 
-        const goBack = () => {
-          window.history.back();
-        };
+        const goBack = () => window.appShell.goBackOrHome();
 
-        onMounted(() => {
-          fetchStats();
-        });
+        onMounted(fetchStats);
 
         return {
           loading,
           stats,
           recentActivities,
+          fetchStats,
+          goBack,
           formatDateTime,
           getActivityColor,
-          getActivityIcon,
-          goBack
+          getActivityMark,
         };
-      }
-    }).use(ElementPlus).mount('#app')
+      },
+    }).use(ElementPlus).mount('#app');
   </script>
 </body>
-</html> 
+</html>

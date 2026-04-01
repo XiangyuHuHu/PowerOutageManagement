@@ -3,763 +3,512 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>智能停送电 - 调度审批后台</title>
-  <script src="https://unpkg.com/vue@3"></script>
-  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/element-plus/dist/index.css">
-  <script src="https://cdn.jsdelivr.net/npm/element-plus"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <title>审批中心</title>
+  <script src="/app_shell.js"></script>
+  <script src="/vendor/vue.global.prod.js"></script>
+  <script src="/vendor/axios.min.js"></script>
+  <link rel="stylesheet" href="/vendor/element-plus/index.css">
+  <script src="/vendor/element-plus/index.full.min.js"></script>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
-    }
+    * { box-sizing: border-box; }
     body {
-      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-      color: #fff;
+      margin: 0;
       min-height: 100vh;
-      padding: 20px;
+      padding: 22px;
+      background: linear-gradient(135deg, rgba(13, 49, 74, 0.96), rgba(8, 19, 31, 0.98));
+      color: #ecf8ff;
+      font-family: "Segoe UI", "Microsoft YaHei", sans-serif;
     }
     #app {
-      max-width: 1400px;
+      max-width: 1520px;
       margin: 0 auto;
-      background: rgba(16, 33, 47, 0.8);
-      border-radius: 16px;
+      background: rgba(8, 22, 33, 0.86);
+      border: 1px solid rgba(116, 192, 255, 0.15);
+      border-radius: 24px;
       overflow: hidden;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-      border: 1px solid rgba(64, 158, 255, 0.2);
+      box-shadow: 0 24px 50px rgba(0, 0, 0, 0.35);
     }
-    .app-header {
-      background: linear-gradient(to right, #0c1d2c, #1a3a5f);
-      padding: 25px 40px;
+    .header, .page-body { padding: 24px 28px; }
+    .header {
       display: flex;
-      align-items: center;
-      border-bottom: 2px solid #409eff;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      background: linear-gradient(90deg, rgba(10, 32, 48, 0.95), rgba(18, 61, 89, 0.85));
+      border-bottom: 1px solid rgba(116, 192, 255, 0.12);
+    }
+    .header h1 { margin: 0; font-size: 30px; }
+    .header p { margin: 10px 0 0; color: #a7dbff; font-size: 14px; line-height: 1.8; max-width: 860px; }
+    .header-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+    .pill {
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.08);
+      font-size: 13px;
+    }
+    .stats, .room-grid { display: grid; gap: 14px; }
+    .stats {
+      grid-template-columns: repeat(4, minmax(180px, 1fr));
+      margin-bottom: 16px;
+    }
+    .stat, .room-card {
+      padding: 16px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(116,192,255,0.12);
       position: relative;
       overflow: hidden;
     }
-    .app-header::before {
+    .stat::before, .room-card::before {
       content: "";
       position: absolute;
-      top: -50%;
-      left: -50%;
-      width: 200%;
-      height: 200%;
-      background: radial-gradient(circle, rgba(64, 158, 255, 0.1) 0%, transparent 70%);
-      z-index: 0;
-    }
-    .header-content {
-      position: relative;
-      z-index: 1;
-      display: flex;
-      align-items: center;
+      left: 0;
+      top: 0;
       width: 100%;
-      justify-content: space-between;
+      height: 4px;
+      border-radius: 18px 18px 0 0;
+      opacity: 0.95;
     }
-    .logo-container {
+    .stat-pending-off::before, .room-off::before { background: linear-gradient(90deg, #4da8ff, #7fd6ff); }
+    .stat-pending-on::before, .room-on::before { background: linear-gradient(90deg, #29d0c4, #7ce9d2); }
+    .stat-risk::before, .room-risk::before { background: linear-gradient(90deg, #ffb14d, #ffd36d); }
+    .stat-rooms::before { background: linear-gradient(90deg, #8d84ff, #b2adff); }
+    .stat .num { font-size: 30px; font-weight: 800; color: #6ec0ff; }
+    .stat .label { margin-top: 8px; color: #abdfff; font-size: 13px; }
+    .warning-strip {
+      margin-bottom: 16px;
+      padding: 14px 16px;
+      border-radius: 16px;
+      border: 1px solid rgba(255, 195, 88, 0.3);
+      background: rgba(255, 195, 88, 0.12);
+      color: #ffe8b0;
+      line-height: 1.7;
+      font-size: 14px;
+    }
+    .toolbar {
       display: flex;
-      align-items: center;
-      gap: 20px;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
     }
-    .logo-icon {
-      width: 60px;
-      height: 60px;
-      background: linear-gradient(135deg, #409eff, #1e3a8a);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 0 20px rgba(64, 158, 255, 0.5);
-    }
-    .logo-icon i {
-      font-size: 28px;
-      color: #fff;
-    }
-    .header-text h1 {
-      font-size: 28px;
-      font-weight: 700;
-      letter-spacing: 1px;
-      margin-bottom: 8px;
-      background: linear-gradient(to right, #409eff, #a0d9ff);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-    }
-    .header-text p {
-      font-size: 16px;
-      color: #a0d9ff;
-    }
-    .stats-container {
-      display: flex;
-      gap: 30px;
-      background: rgba(0, 30, 60, 0.5);
-      padding: 15px 25px;
+    .toolbar input, .toolbar select {
+      min-width: 220px;
+      padding: 12px 14px;
       border-radius: 12px;
-      border: 1px solid rgba(64, 158, 255, 0.3);
+      border: 1px solid rgba(116,192,255,0.14);
+      background: rgba(255,255,255,0.05);
+      color: #eef9ff;
     }
-    
-    .notification-badge {
-      position: relative;
-      cursor: pointer;
+    .room-grid {
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      margin-bottom: 18px;
     }
-    
-    .notification-icon {
-      font-size: 24px;
-      color: #a0d9ff;
-      transition: color 0.3s;
+    .room-card h3 { margin: 0 0 10px; font-size: 18px; }
+    .room-lines {
+      display: grid;
+      gap: 6px;
+      color: #cbeaff;
+      font-size: 13px;
+      margin-bottom: 12px;
     }
-    
-    .notification-icon:hover {
-      color: #409eff;
-    }
-    
-    .notification-count {
-      position: absolute;
-      top: -8px;
-      right: -8px;
-      background: #f56c6c;
-      color: white;
-      border-radius: 50%;
-      width: 20px;
-      height: 20px;
-      font-size: 12px;
-      display: flex;
+    .room-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .risk-badge {
+      display: inline-flex;
       align-items: center;
       justify-content: center;
-      font-weight: bold;
-    }
-    
-    .notification-panel {
-      position: absolute;
-      top: 100%;
-      right: 0;
-      width: 400px;
-      max-height: 500px;
-      background: white;
-      border-radius: 8px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-      z-index: 1000;
-      overflow: hidden;
-      display: none;
-    }
-    
-    .notification-panel.show {
-      display: block;
-    }
-    
-    .notification-header {
-      background: #409eff;
-      color: white;
-      padding: 15px 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    
-    .notification-list {
-      max-height: 400px;
-      overflow-y: auto;
-    }
-    
-    .notification-item {
-      padding: 15px 20px;
-      border-bottom: 1px solid #f0f0f0;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
-    
-    .notification-item:hover {
-      background: #f8f9fa;
-    }
-    
-    .notification-item.unread {
-      background: #f0f9ff;
-      border-left: 3px solid #409eff;
-    }
-    
-    .notification-title {
-      font-weight: bold;
-      color: #333;
-      margin-bottom: 5px;
-    }
-    
-    .notification-content {
-      font-size: 14px;
-      color: #666;
-      margin-bottom: 5px;
-    }
-    
-    .notification-time {
+      padding: 5px 10px;
+      border-radius: 999px;
       font-size: 12px;
-      color: #999;
-    }
-    .stat-item {
-      text-align: center;
-      min-width: 100px;
-    }
-    .stat-value {
-      font-size: 24px;
       font-weight: 700;
-      color: #409eff;
     }
-    .stat-label {
-      font-size: 14px;
-      color: #a0d9ff;
-      margin-top: 5px;
-    }
-    .app-container {
-      padding: 30px 40px;
-    }
-    .approval-user {
-      margin-left: 40px;
-      font-size: 17px;
+    .risk-badge.warn { background: rgba(255,177,77,0.16); color: #ffd596; }
+    .risk-badge.safe { background: rgba(41,208,196,0.14); color: #9bf1df; }
+    .risk-cell {
       display: flex;
-      align-items: center;
-      gap: 8px;
-      color: #a0d9ff;
+      flex-direction: column;
+      gap: 6px;
+      align-items: flex-start;
     }
-    .logout-btn {
-      background: linear-gradient(135deg, #409eff, #2a6bc5);
-      border: none;
-      color: #fff;
-      padding: 6px 20px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: bold;
-      font-size: 15px;
-      margin-left: 32px;
-      margin-right: 8px;
-      transition: background 0.2s;
+    .risk-sub {
+      color: #abdfff;
+      font-size: 12px;
+      line-height: 1.6;
+      word-break: break-word;
+      white-space: normal;
     }
-    .logout-btn:hover {
-      background: linear-gradient(135deg, #2a6bc5, #409eff);
+    .device-cell {
+      display: grid;
+      gap: 4px;
+    }
+    .device-name {
+      font-weight: 800;
+      color: #eef9ff;
+    }
+    .sub {
+      color: #abdfff;
+      font-size: 12px;
+      line-height: 1.6;
     }
     .el-table {
-      background: rgba(12, 28, 44, 0.7) !important;
-      border-radius: 12px !important;
+      --el-table-bg-color: rgba(255,255,255,0.03);
+      --el-table-tr-bg-color: rgba(255,255,255,0.03);
+      --el-table-expanded-cell-bg-color: rgba(255,255,255,0.03);
+      --el-table-header-bg-color: rgba(16, 52, 74, 0.82);
+      --el-table-fixed-box-shadow: none;
+      --el-table-border-color: rgba(116,192,255,0.12);
+      --el-table-row-hover-bg-color: rgba(77,168,255,0.10);
+      color: #eaf7ff;
+      border-radius: 18px;
       overflow: hidden;
-      border: 1px solid rgba(64, 158, 255, 0.2) !important;
+      background: rgba(255,255,255,0.03);
     }
-    .el-table th {
-      background: linear-gradient(to bottom, #0d2b46, #143a5f) !important;
-      color: #e6f7ff !important;
-      font-weight: 600 !important;
-      border: none !important;
+    .el-table th.el-table__cell,
+    .el-table tr,
+    .el-table td.el-table__cell {
+      background: transparent;
+      color: #eaf7ff;
     }
-    .el-table tr {
-      background: rgba(16, 33, 47, 0.5) !important;
-      transition: all 0.3s ease;
+    .el-table th.el-table__cell {
+      color: #d7eeff;
+      font-weight: 800;
     }
-    .el-table tr:hover {
-      background: rgba(30, 60, 90, 0.7) !important;
-      transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    .el-table__inner-wrapper::before,
+    .el-table__border-left-patch {
+      background: rgba(116,192,255,0.12) !important;
     }
-    .el-table td {
-      border-bottom: 1px solid rgba(64, 158, 255, 0.1) !important;
-      color: #e6f7ff !important;
+    .el-table__empty-block,
+    .el-table__empty-text,
+    .el-scrollbar__view,
+    .el-table__body-wrapper,
+    .el-table__header-wrapper,
+    .el-table__fixed,
+    .el-table__fixed-right,
+    .el-table__fixed-header-wrapper,
+    .el-table__fixed-body-wrapper,
+    .el-table__fixed-right-patch {
+      background: transparent !important;
+      color: #abdfff;
     }
-    .el-tag {
-      font-weight: 600 !important;
-      border: none !important;
+    .el-table__header-wrapper th,
+    .el-table__fixed-header-wrapper th,
+    .el-table__fixed-right-patch {
+      background: rgba(16, 52, 74, 0.82) !important;
     }
-    .status-pending .el-tag {
-      background: linear-gradient(135deg, #e6a23c, #b88230) !important;
-      color: #fff !important;
+    .el-table__body-wrapper td,
+    .el-table__fixed-body-wrapper td {
+      background: rgba(255,255,255,0.03) !important;
     }
-    .status-approved .el-tag {
-      background: linear-gradient(135deg, #67c23a, #4a8c2c) !important;
-      color: #fff !important;
+    @media (max-width: 980px) {
+      .stats { grid-template-columns: repeat(2, minmax(180px, 1fr)); }
     }
-    .status-rejected .el-tag {
-      background: linear-gradient(135deg, #f56c6c, #c45656) !important;
-      color: #fff !important;
-    }
-    .status-verified .el-tag {
-      background: linear-gradient(135deg, #409eff, #2a6bc5) !important;
-      color: #fff !important;
-    }
-    .status-power_on_applied .el-tag {
-      background: linear-gradient(135deg, #e6a23c, #b88230) !important;
-      color: #fff !important;
-    }
-    .el-button-group {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-    .el-button {
-      border: none !important;
-      font-weight: 600 !important;
-      transition: all 0.3s ease !important;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
-    }
-    .el-button--success {
-      background: linear-gradient(135deg, #67c23a, #4a8c2c) !important;
-    }
-    .el-button--danger {
-      background: linear-gradient(135deg, #f56c6c, #c45656) !important;
-    }
-    .el-button--success:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 6px 12px rgba(103, 194, 58, 0.3) !important;
-    }
-    .el-button--danger:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 6px 12px rgba(245, 108, 108, 0.3) !important;
-    }
-    .notification {
-      position: fixed;
-      top: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      padding: 15px 25px;
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      z-index: 10000;
-      opacity: 0;
-      animation: fadeIn 0.3s forwards;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-    }
-    @keyframes fadeIn {
-      to { opacity: 1; top: 30px; }
-    }
-    .notification-success {
-      background: linear-gradient(135deg, #67c23a, #4a8c2c);
-      color: white;
-    }
-    .notification-error {
-      background: linear-gradient(135deg, #f56c6c, #c45656);
-      color: white;
-    }
-    .notification-warning {
-      background: linear-gradient(135deg, #e6a23c, #b88230);
-      color: white;
-    }
-    .notification-loading {
-      background: linear-gradient(135deg, #409eff, #2a6bc5);
-      color: white;
-    }
-    .notification-icon {
-      font-size: 20px;
+    @media (max-width: 720px) {
+      .stats { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
   <div id="app">
-    <div class="app-header">
-      <div class="header-content">
-        <div class="logo-container">
-          <div class="logo-icon">
-            <i class="fas fa-bolt"></i>
+    <div class="header">
+      <div>
+        <h1>审批中心</h1>
+        <p>集中处理待停电审批和待送电审批。审批中心默认只显示当前进行中的审批工单；当前已存在挂牌、因此跳过停电审批的工单不会进入这里。</p>
+      </div>
+      <div class="header-actions">
+        <span class="pill">当前用户：{{ currentUser }}</span>
+        <el-button @click="fetchData">刷新</el-button>
+        <el-button @click="goBack">返回</el-button>
+        <el-button type="primary" @click="logout">退出登录</el-button>
+      </div>
+    </div>
+
+    <div class="page-body">
+      <div class="stats">
+        <div class="stat stat-pending-off"><div class="num">{{ stats.pendingPowerOff }}</div><div class="label">待停电审批</div></div>
+        <div class="stat stat-pending-on"><div class="num">{{ stats.pendingPowerOn }}</div><div class="label">待送电审批</div></div>
+        <div class="stat stat-risk"><div class="num">{{ stats.riskItems }}</div><div class="label">挂牌风险工单</div></div>
+        <div class="stat stat-rooms"><div class="num">{{ stats.rooms }}</div><div class="label">涉及配电室</div></div>
+      </div>
+
+      <div class="warning-strip">调度员审批前请优先查看挂牌风险。若工单属于“已有挂牌免停电审批”路径，不会在此页显示为待停电审批。</div>
+
+      <div class="toolbar">
+        <input v-model="keyword" placeholder="按配电室、柜号、设备、申请人、原因搜索">
+        <select v-model="statusFilter">
+          <option value="">全部状态</option>
+          <option value="pending">待停电审批</option>
+          <option value="power_on_applied">待送电审批</option>
+        </select>
+      </div>
+
+      <div class="room-grid" v-if="roomGroups.length">
+        <div class="room-card" :class="room.riskItems > 0 ? 'room-risk' : (room.pendingPowerOn > 0 ? 'room-on' : 'room-off')" v-for="room in roomGroups" :key="room.name">
+          <h3>{{ room.name }}</h3>
+          <div class="room-lines">
+            <div>工单总数：{{ room.total }}</div>
+            <div>待停电审批：{{ room.pendingPowerOff }}</div>
+            <div>待送电审批：{{ room.pendingPowerOn }}</div>
+            <div>挂牌风险：{{ room.riskItems }}</div>
           </div>
-          <div class="header-text">
-            <h1>智能停送电调度系统</h1>
-            <p>安全 · 高效 · 智能化的电力调度管理平台</p>
-          </div>
-        </div>
-        <div class="stats-container">
-          <div class="stat-item">
-            <div class="stat-value">{{ stats.total }}</div>
-            <div class="stat-label">今日申请</div>
-          </div>
-          <div class="stat-item">
-            <div class="stat-value">{{ stats.pending }}</div>
-            <div class="stat-label">待审批</div>
-          </div>
-          <div class="stat-item">
-            <div class="stat-value">{{ stats.completed }}</div>
-            <div class="stat-label">已完成</div>
-          </div>
-        </div>
-        <div class="approval-user">
-          <div class="notification-badge" @click="toggleNotifications">
-            <i class="fas fa-bell notification-icon"></i>
-            <span v-if="unreadNotifications > 0" class="notification-count">{{ unreadNotifications }}</span>
-          </div>
-          <i class="fas fa-user-check"></i>
-          审批人：{{ realname || username }}
-          <button class="logout-btn" @click="logout">退出登录</button>
-          
-          <!-- 通知面板 -->
-          <div class="notification-panel" :class="{ show: showNotifications }">
-            <div class="notification-header">
-              <span>系统通知</span>
-              <button @click="toggleNotifications" style="background: none; border: none; color: white; cursor: pointer;">
-                <i class="fas fa-times"></i>
-              </button>
-            </div>
-            <div class="notification-list">
-              <div v-if="notifications.length === 0" style="padding: 20px; text-align: center; color: #999;">
-                暂无通知
-              </div>
-              <div v-else>
-                <div v-for="notification in notifications" :key="notification.id" 
-                     class="notification-item" :class="{ unread: !notification.is_read }"
-                     @click="viewNotification(notification)">
-                  <div class="notification-title">{{ notification.title }}</div>
-                  <div class="notification-content">{{ notification.content }}</div>
-                  <div class="notification-time">{{ formatNotificationTime(notification.created_at) }}</div>
-                </div>
-              </div>
-            </div>
+          <div class="room-actions" v-if="canBatchApprove">
+            <el-button size="small" type="success" :disabled="room.pendingPowerOff === 0" @click="batchApprove(room, 'power_off', true)">停电通过</el-button>
+            <el-button size="small" type="danger" :disabled="room.pendingPowerOff === 0" @click="batchApprove(room, 'power_off', false)">停电驳回</el-button>
+            <el-button size="small" type="success" :disabled="room.pendingPowerOn === 0" @click="batchApprove(room, 'power_on', true)">送电通过</el-button>
+            <el-button size="small" type="danger" :disabled="room.pendingPowerOn === 0" @click="batchApprove(room, 'power_on', false)">送电驳回</el-button>
           </div>
         </div>
       </div>
+
+      <el-table :data="filteredList" v-loading="loading" border style="width:100%;">
+        <el-table-column prop="id" label="工单" width="90" />
+        <el-table-column label="设备" min-width="260">
+          <template #default="{ row }">
+            <div class="device-cell">
+              <span class="device-name">{{ row.device_name || row.deviceId }}</span>
+              <span class="sub">{{ row.power_room || '未配置配电室' }} / {{ row.cabinet || '未配置柜号' }}</span>
+              <span class="sub">{{ row.deviceId }}</span>
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column label="申请人" min-width="120" show-overflow-tooltip>
+          <template #default="{ row }">
+            {{ displayApplicant(row) }}
+          </template>
+        </el-table-column>
+        <el-table-column label="停电原因" min-width="220" show-overflow-tooltip>
+          <template #default="{ row }">
+            {{ displayReason(row) }}
+          </template>
+        </el-table-column>
+        <el-table-column label="当前状态" width="140">
+          <template #default="{ row }">
+            <el-tag :type="statusTagType(row.status)">{{ statusText(row.status) }}</el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column label="挂牌风险" min-width="220">
+          <template #default="{ row }">
+            <div class="risk-cell">
+              <span class="risk-badge" :class="(row.active_tag_count || 0) > 0 ? 'warn' : 'safe'">
+                {{ (row.active_tag_count || 0) > 0 ? `剩余挂牌 ${row.active_tag_count}` : '无剩余挂牌' }}
+              </span>
+              <span class="risk-sub">{{ (row.active_tags || []).map((tag) => tag.electrician_name).join('、') || '当前无有效挂牌' }}</span>
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column label="审批操作" min-width="220">
+          <template #default="{ row }">
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+              <template v-if="row.status === 'pending'">
+                <el-button type="success" size="small" @click="approve(row, true)">通过</el-button>
+                <el-button type="danger" size="small" @click="approve(row, false)">驳回</el-button>
+              </template>
+              <template v-else-if="row.status === 'power_on_applied'">
+                <el-button type="success" size="small" @click="approve(row, true)">允许送电</el-button>
+                <el-button type="danger" size="small" @click="approve(row, false)">驳回送电</el-button>
+              </template>
+              <el-button size="small" @click="viewDetail(row.id)">详情</el-button>
+            </div>
+          </template>
+        </el-table-column>
+      </el-table>
     </div>
-    <div class="app-container">
-      <div style="overflow-x: auto;">
-        <el-table
-          :data="applications"
-          style="width: 100%; min-width: 1200px;"
-          border
-          height="500"
-          v-loading="loading"
-          element-loading-text="加载中..."
-        >
-          <el-table-column prop="id" label="ID" width="80">
-            <template #default="{ row }">
-              <div style="font-weight: bold;">#{{ row.id }}</div>
-            </template>
-          </el-table-column>
-          <el-table-column prop="applicant" label="申请人" width="120">
-            <template #default="{ row }">
-              <i class="fas fa-user-circle"></i>
-              {{ row.applicant }}
-            </template>
-          </el-table-column>
-          <el-table-column prop="created_at" label="时间" width="180">
-            <template #default="{ row }">
-              <i class="fas fa-clock"></i>
-              {{ formatDateTime(row.created_at) }}
-            </template>
-          </el-table-column>
-          <el-table-column prop="deviceId" label="设备编号" width="120">
-            <template #default="{ row }">
-              <i class="fas fa-microchip"></i>
-              {{ row.deviceId }}
-            </template>
-          </el-table-column>
-          <el-table-column prop="reason" label="停电原因" width="160">
-            <template #default="{ row }">
-              <i class="fas fa-comment-alt"></i>
-              {{ row.reason }}
-            </template>
-          </el-table-column>
-          <el-table-column prop="status" label="当前状态" width="120">
-            <template #default="{ row }">
-              <div :class="'status-' + row.status">
-                <el-tag>{{ statusText(row.status) }}</el-tag>
-              </div>
-            </template>
-          </el-table-column>
-          <el-table-column prop="step" label="审批类型" width="120">
-            <template #default="{ row }">
-              <el-tag v-if="row.status === 'pending'" type="warning">停电审批</el-tag>
-              <el-tag v-else-if="['approved', 'verified', 'repairing', 'repair_completed'].includes(row.status)" type="info">停电中</el-tag>
-              <el-tag v-else-if="row.status === 'power_on_applied'" type="success">送电审批</el-tag>
-              <el-tag v-else-if="row.status === 'completed'" type="success">完成</el-tag>
-              <el-tag v-else-if="['rejected', 'power_on_rejected'].includes(row.status)" type="danger">已驳回</el-tag>
-              <span v-else>-</span>
-            </template>
-          </el-table-column>
-          <el-table-column label="调度审批操作" width="260" fixed="right">
-            <template #default="{ row }">
-              <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                <template v-if="row.status === 'pending'">
-                  <el-button type="success" size="small" @click="approve(row.id, 'approved')">
-                    <i class="fas fa-check"></i> 通过
-                  </el-button>
-                  <el-button type="danger" size="small" @click="approve(row.id, 'rejected')">
-                    <i class="fas fa-times"></i> 驳回
-                  </el-button>
-                </template>
-                <template v-else-if="row.status === 'power_on_applied'">
-                  <el-button type="success" size="small" @click="approve(row.id, 'completed')">
-                    <i class="fas fa-plug"></i> 允许送电
-                  </el-button>
-                  <el-button type="danger" size="small" @click="approve(row.id, 'power_on_rejected')">
-                    <i class="fas fa-ban"></i> 驳回送电
-                  </el-button>
-                </template>
-                <el-button type="primary" size="small" @click="viewDetail(row.id)">
-                  <i class="fas fa-eye"></i> 详情
-                </el-button>
-              </div>
-            </template>
-          </el-table-column>
-        </el-table>
-      </div>
-    </div>
-    <!-- 可选 footer ... -->
   </div>
+
   <script>
-    // 检查登录状态
     if (!localStorage.getItem('user_realname') && !localStorage.getItem('user_username')) {
-      window.location.href = '/login.html';
+      window.appShell.handleUnauthorized();
     }
     axios.defaults.withCredentials = true;
-    const { createApp, ref, onMounted } = Vue;
+    const { createApp, ref, computed, onMounted } = Vue;
+
     createApp({
       setup() {
-        const applications = ref([]);
+        const { ElMessage, ElMessageBox } = ElementPlus;
         const loading = ref(false);
-        const currentTime = ref('');
-        const stats = ref({
-          total: 0,
-          pending: 0,
-          completed: 0
-        });
-        const notifications = ref([]);
-        const showNotifications = ref(false);
-        const unreadNotifications = ref(0);
-
-        // 当前审批人
-        const realname = localStorage.getItem('user_realname') || '';
-        const username = localStorage.getItem('user_username') || '';
-
-        const logout = () => {
-          localStorage.clear();
-          window.location.href = '/login.html';
-        };
+        const applications = ref([]);
+        const keyword = ref('');
+        const statusFilter = ref('');
+        const currentUser = localStorage.getItem('user_realname') || localStorage.getItem('user_username') || '未知用户';
+        const functionPermissions = JSON.parse(localStorage.getItem('user_function_permissions') || '[]');
+        const canBatchApprove = functionPermissions.includes('batch_approval') || localStorage.getItem('user_role') === 'admin';
 
         const statusMap = {
-          pending: "待审批",
-          approved: "审批通过",
-          rejected: "审批驳回",
-          verified: "已验电",
-          "verify-rejected": "验电驳回",
-          repairing: "检修中",
-          "repair_completed": "检修完成",
-          "power_on_applied": "送电申请",
-          completed: "已完成",
-          "power_on_rejected": "送电驳回"
+          pending: '待停电审批',
+          approved: '停电审批通过',
+          rejected: '停电审批驳回',
+          verified: '已验电',
+          repairing: '检修中',
+          repair_completed: '检修完成',
+          power_on_applied: '待送电审批',
+          power_on_rejected: '送电审批驳回',
+          completed: '流程完成',
         };
 
         const statusText = (status) => statusMap[status] || status;
+        const statusTagType = (status) => {
+          if (status === 'pending' || status === 'power_on_applied') return 'warning';
+          if (status === 'rejected' || status === 'power_on_rejected') return 'danger';
+          if (status === 'completed') return 'success';
+          return 'info';
+        };
+        const displayApplicant = (row) => {
+          if (!row) return '-';
+          if (row.status === 'power_on_applied') {
+            const value = row.power_on_applicant || row.applicant;
+            return value ? String(value) : '-';
+          }
+          return row.applicant ? String(row.applicant) : '-';
+        };
+        const displayReason = (row) => {
+          if (!row || row.reason == null || String(row.reason).trim() === '') return '-';
+          return String(row.reason);
+        };
 
-        const formatDateTime = (timestamp) => {
-          if (!timestamp) return '';
-          const date = new Date(timestamp);
-          return date.toLocaleString('zh-CN', {
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit',
-            hour: '2-digit',
-            minute: '2-digit'
+        const filteredList = computed(() => {
+          let list = applications.value.filter((item) => ['pending', 'power_on_applied'].includes(item.status));
+          if (statusFilter.value) list = list.filter((item) => item.status === statusFilter.value);
+          const kw = keyword.value.trim().toLowerCase();
+          if (kw) {
+            list = list.filter((item) =>
+              String(item.power_room || '').toLowerCase().includes(kw) ||
+              String(item.cabinet || '').toLowerCase().includes(kw) ||
+              String(item.device_name || '').toLowerCase().includes(kw) ||
+              String(item.deviceId || '').toLowerCase().includes(kw) ||
+              String(item.applicant || '').toLowerCase().includes(kw) ||
+              String(item.power_on_applicant || '').toLowerCase().includes(kw) ||
+              String(item.reason || '').toLowerCase().includes(kw)
+            );
+          }
+          return list;
+        });
+
+        const roomGroups = computed(() => {
+          const groups = {};
+          filteredList.value.forEach((item) => {
+            const roomName = item.power_room || '未配置配电室';
+            if (!groups[roomName]) {
+              groups[roomName] = { name: roomName, total: 0, pendingPowerOff: 0, pendingPowerOn: 0, riskItems: 0 };
+            }
+            groups[roomName].total += 1;
+            if (item.status === 'pending') groups[roomName].pendingPowerOff += 1;
+            if (item.status === 'power_on_applied') groups[roomName].pendingPowerOn += 1;
+            if (Number(item.active_tag_count || 0) > 0) groups[roomName].riskItems += 1;
           });
-        };
+          return Object.values(groups).sort((a, b) => a.name.localeCompare(b.name, 'zh-CN'));
+        });
 
-        const showNotification = (message, type) => {
-          const existingNote = document.querySelector('.notification');
-          if (existingNote) existingNote.remove();
-
-          const notification = document.createElement('div');
-          notification.className = `notification notification-${type}`;
-          notification.innerHTML = `
-            <i class="notification-icon ${getIcon(type)}"></i>
-            <span>${message}</span>
-          `;
-
-          document.body.appendChild(notification);
-
-          if (type !== 'loading') {
-            setTimeout(() => {
-              notification.style.opacity = '0';
-              setTimeout(() => {
-                if (notification.parentNode) {
-                  notification.parentNode.removeChild(notification);
-                }
-              }, 300);
-            }, 3000);
-          }
-        };
-
-        const getIcon = (type) => {
-          switch(type) {
-            case 'success': return 'fas fa-check-circle';
-            case 'error': return 'fas fa-exclamation-circle';
-            case 'warning': return 'fas fa-exclamation-triangle';
-            case 'loading': return 'fas fa-spinner fa-spin';
-            default: return 'fas fa-info-circle';
-          }
-        };
+        const stats = computed(() => ({
+          pendingPowerOff: filteredList.value.filter((item) => item.status === 'pending').length,
+          pendingPowerOn: filteredList.value.filter((item) => item.status === 'power_on_applied').length,
+          riskItems: filteredList.value.filter((item) => Number(item.active_tag_count || 0) > 0).length,
+          rooms: roomGroups.value.length,
+        }));
 
         const fetchData = async () => {
           loading.value = true;
           try {
             const res = await axios.get('/api/list');
-            // 不做筛选，直接显示所有申请
-            applications.value = res.data;
-            updateStats();
-          } catch (err) {
-            showNotification('获取数据失败: ' + (err?.message || err), 'error');
-            console.error("发生错误：", err);
-          } finally {
-            loading.value = false;
-          }
-        };
-
-        const updateStats = () => {
-          stats.value.total = applications.value.length;
-          stats.value.pending = applications.value.filter(app =>
-            ['pending', 'approved', 'verified', 'repairing', 'repair_completed', 'power_on_applied'].includes(app.status)
-          ).length;
-          stats.value.completed = applications.value.filter(app =>
-            app.status === 'completed'
-          ).length;
-        };
-
-        // 审批操作，带审批人
-        const approve = async (id, newStatus) => {
-          loading.value = true;
-          try {
-            // 先查找当前申请的状态
-            const row = applications.value.find(app => app.id === id);
-            let url = '';
-            let action = '';
-            let comment = '';
-            if (row.status === 'pending') {
-              url = '/api/power-off-approve';
-              action = newStatus === 'approved' ? 'approve' : 'reject';
-              comment = prompt('请输入停电审批意见（可选）：', '');
-            } else if (row.status === 'power_on_applied') {
-              url = '/api/power-on-approve';
-              action = newStatus === 'completed' ? 'approve' : 'reject';
-              comment = prompt('请输入送电审批意见（可选）：', '');
-            } else {
-              showNotification('当前状态不支持此操作', 'warning');
-              loading.value = false;
+            applications.value = Array.isArray(res.data) ? res.data : [];
+          } catch (error) {
+            if (error?.response?.status === 401) {
+              window.appShell.handleUnauthorized();
               return;
             }
-            await axios.post(url, {
-              id,
-              action,
-              comment,
-            });
-            await fetchData();
-            showNotification('操作成功！状态已更新', 'success');
-          } catch (err) {
-            let errMsg = err?.response?.data?.msg || err?.message || err;
-            showNotification('操作失败: ' + errMsg, 'error');
-            console.error('发生错误：', err);
+            applications.value = [];
+            ElMessage.error(error?.response?.data?.msg || '审批列表加载失败');
           } finally {
             loading.value = false;
           }
         };
 
-        // 查看详情
-        const viewDetail = (id) => {
-          window.open(`/detail.html?id=${id}`, '_blank');
-        };
-        
-        // 通知相关方法
-        const fetchNotifications = async () => {
+        const promptComment = async (title, pass) => {
           try {
-            const response = await axios.get('/api/notifications');
-            notifications.value = response.data;
-            unreadNotifications.value = notifications.value.filter(n => !n.is_read).length;
-          } catch (err) {
-            console.error('获取通知失败:', err);
-          }
-        };
-        
-        const toggleNotifications = () => {
-          showNotifications.value = !showNotifications.value;
-          if (showNotifications.value) {
-            fetchNotifications();
-          }
-        };
-        
-        const viewNotification = (notification) => {
-          // 显示通知详情
-          ElMessageBox.alert(
-            notification.content,
-            notification.title,
-            {
-              confirmButtonText: '确定'
-            }
-          );
-          
-          // 如果未读，标记为已读
-          if (!notification.is_read) {
-            markAsRead(notification.id);
-          }
-        };
-        
-        const markAsRead = async (notificationId) => {
-          try {
-            await axios.put(`/api/notifications/${notificationId}/read`);
-            // 更新本地状态
-            const notification = notifications.value.find(n => n.id === notificationId);
-            if (notification) {
-              notification.is_read = true;
-              unreadNotifications.value = notifications.value.filter(n => !n.is_read).length;
-            }
-          } catch (err) {
-            console.error('标记已读失败:', err);
-          }
-        };
-        
-        const formatNotificationTime = (timestamp) => {
-          if (!timestamp) return '未知时间';
-          const date = new Date(timestamp);
-          const now = new Date();
-          const diff = now - date;
-          
-          if (diff < 60000) { // 1分钟内
-            return '刚刚';
-          } else if (diff < 3600000) { // 1小时内
-            return `${Math.floor(diff / 60000)}分钟前`;
-          } else if (diff < 86400000) { // 1天内
-            return `${Math.floor(diff / 3600000)}小时前`;
-          } else {
-            return date.toLocaleString('zh-CN');
+            const result = await ElMessageBox.prompt(
+              pass ? '审批意见可选填' : '驳回时必须填写审批意见',
+              title,
+              { inputType: 'textarea', confirmButtonText: '提交', cancelButtonText: '取消' }
+            );
+            return (result.value || '').trim();
+          } catch {
+            return null;
           }
         };
 
-        onMounted(() => {
-          fetchData();
-          fetchNotifications(); // 获取通知
-          // 监听送电申请事件，自动刷新
-          window.addEventListener('storage', (e) => {
-            if (e.key === 'power_on_apply_refresh') {
-              fetchData();
+        const approve = async (row, pass) => {
+          const isPowerOn = row.status === 'power_on_applied';
+          const comment = await promptComment(isPowerOn ? '送电审批意见' : '停电审批意见', pass);
+          if (comment === null) return;
+          if (!pass && !comment) {
+            ElMessage.warning('驳回时必须填写审批意见');
+            return;
+          }
+          try {
+            await axios.post(isPowerOn ? '/api/power-on-approve' : '/api/power-off-approve', {
+              id: row.id,
+              action: pass ? 'approve' : 'reject',
+              comment,
+            });
+            ElMessage.success('审批已提交');
+            await fetchData();
+          } catch (error) {
+            ElMessage.error(error?.response?.data?.msg || '审批失败');
+          }
+        };
+
+        const batchApprove = async (room, stage, pass) => {
+          const title = `${room.name} - ${stage === 'power_off' ? '停电' : '送电'}批量审批`;
+          const comment = await promptComment(title, pass);
+          if (comment === null) return;
+          if (!pass && !comment) {
+            ElMessage.warning('批量驳回时必须填写审批意见');
+            return;
+          }
+          try {
+            const res = await axios.post('/api/batch-approve-room', {
+              power_room: room.name,
+              stage,
+              action: pass ? 'approve' : 'reject',
+              comment,
+            });
+            const skipped = res.data?.skipped || [];
+            if (skipped.length) {
+              ElMessage.warning(`${res.data.msg}。跳过工单：${skipped.map((item) => '#' + item.id).join('、')}`);
+            } else {
+              ElMessage.success(res.data?.msg || '批量审批完成');
             }
-          });
-          
-          // 定期刷新通知
-          setInterval(() => {
-            fetchNotifications();
-          }, 30000); // 每30秒刷新一次
-        });
+            await fetchData();
+          } catch (error) {
+            ElMessage.error(error?.response?.data?.msg || '批量审批失败');
+          }
+        };
+
+        const viewDetail = (id) => window.open(`/detail.html?id=${id}`, '_blank');
+        const goBack = () => window.appShell.goBackOrHome();
+        const logout = () => window.appShell.logout();
+
+        onMounted(fetchData);
 
         return {
-          applications,
-          stats,
-          approve,
-          statusText,
-          formatDateTime,
           loading,
+          keyword,
+          statusFilter,
+          currentUser,
+          canBatchApprove,
+          filteredList,
+          roomGroups,
+          stats,
           fetchData,
-          currentTime,
-          realname,
-          username,
-          logout,
+          statusText,
+          statusTagType,
+          displayApplicant,
+          displayReason,
+          approve,
+          batchApprove,
           viewDetail,
-          notifications,
-          showNotifications,
-          unreadNotifications,
-          toggleNotifications,
-          viewNotification,
-          formatNotificationTime
+          goBack,
+          logout,
         };
-      }
-    }).use(ElementPlus).mount('#app')
+      },
+    }).use(ElementPlus).mount('#app');
   </script>
 </body>
 </html>

@@ -1,0 +1,475 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>閫佺數鐢宠</title>
+  <link rel="stylesheet" href="/admin_theme.css">
+  <script src="/app_shell.js"></script>
+  <script src="/vendor/vue.global.prod.js"></script>
+  <script src="/vendor/axios.min.js"></script>
+  <link rel="stylesheet" href="/vendor/element-plus/index.css">
+  <script src="/vendor/element-plus/index.full.min.js"></script>
+  <style>
+    body { margin: 0; min-height: 100vh; padding: 22px; }
+    #app { max-width: 1500px; margin: 0 auto; border-radius: 24px; overflow: hidden; }
+    .header, .content { padding: 24px 28px; }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      background: linear-gradient(90deg, rgba(8, 28, 41, 0.96), rgba(22, 74, 99, 0.86));
+      border-bottom: 1px solid rgba(128, 203, 255, 0.14);
+    }
+    .header h1 { margin: 0; font-size: 30px; }
+    .header p {
+      margin: 8px 0 0;
+      color: #abdfff;
+      line-height: 1.8;
+      font-size: 14px;
+      max-width: 920px;
+    }
+    .header-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .chip { padding: 8px 14px; border-radius: 999px; background: rgba(255, 255, 255, 0.08); color: #eff9ff; font-size: 13px; }
+    .warning-box {
+      margin-bottom: 16px;
+      border-radius: 16px;
+      padding: 14px 16px;
+      background: rgba(255, 192, 76, 0.12);
+      border: 1px solid rgba(255, 192, 76, 0.26);
+      color: #ffe4a2;
+      line-height: 1.8;
+    }
+    .stats { display: grid; grid-template-columns: repeat(4, minmax(180px, 1fr)); gap: 14px; margin-bottom: 16px; }
+    .stat, .panel {
+      padding: 18px;
+      border-radius: 18px;
+      position: relative;
+      overflow: hidden;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(118,200,255,0.12);
+    }
+    .stat::before, .panel::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 4px;
+      border-radius: 18px 18px 0 0;
+      opacity: 0.95;
+    }
+    .stat-ready::before { background: linear-gradient(90deg, #29d0c4, #7ce9d2); }
+    .stat-review::before { background: linear-gradient(90deg, #4da8ff, #7fd6ff); }
+    .stat-tag::before { background: linear-gradient(90deg, #ffb14d, #ffd36d); }
+    .stat-room::before { background: linear-gradient(90deg, #8d84ff, #b2adff); }
+    .panel-list::before { background: linear-gradient(90deg, #4da8ff, #7fd6ff); }
+    .toolbar { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+    .toolbar .grow { flex: 1; min-width: 260px; }
+    .device-cell { display: grid; gap: 4px; line-height: 1.6; }
+    .device-cell .sub { color: #a7dbff; font-size: 12px; }
+    .tag-count {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(255, 192, 76, 0.14);
+      color: #ffd67b;
+      font-weight: 700;
+      font-size: 12px;
+    }
+    .tag-count.safe { background: rgba(41, 208, 196, 0.14); color: #8df0df; }
+    .tag-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+    .tag-item { padding: 4px 10px; border-radius: 999px; background: rgba(255, 255, 255, 0.08); color: #d5efff; font-size: 12px; }
+    .tag-item.blocked { background: rgba(245, 108, 108, 0.16); color: #ffc0c0; }
+    .table-note { color: #abdfff; font-size: 13px; line-height: 1.8; margin-bottom: 12px; }
+    .reason-cell { display: grid; gap: 4px; line-height: 1.6; }
+    .reason-cell .sub { color: #a7dbff; font-size: 12px; }
+    .blocked-reason { color: #ffcc8c; font-size: 12px; line-height: 1.7; margin-top: 8px; }
+    .op-cell { display: flex; justify-content: center; align-items: center; min-height: 44px; }
+    .op-cell .el-button { width: 118px; padding-left: 0; padding-right: 0; }
+    .dialog-note {
+      margin-bottom: 10px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: #eef6ff;
+      border: 1px solid #c8def6;
+      color: #244766;
+      font-size: 13px;
+      line-height: 1.7;
+    }
+    .el-dialog {
+      --el-dialog-bg-color: #f7fbff;
+      border: 1px solid #d8e6f3;
+      box-shadow: 0 18px 48px rgba(5, 19, 30, 0.32);
+    }
+    .el-dialog__header {
+      margin-right: 0;
+      padding: 18px 20px 12px;
+      border-bottom: 1px solid #e7f0f8;
+    }
+    .el-dialog__title {
+      color: #17344a;
+      font-weight: 800;
+    }
+    .el-dialog__headerbtn .el-dialog__close {
+      color: #6f8293;
+    }
+    .el-dialog__body {
+      padding: 18px 20px 12px;
+      color: #284255;
+    }
+    .el-dialog .el-form-item__label {
+      color: #214056 !important;
+      font-weight: 700;
+    }
+    .el-dialog .el-textarea__inner,
+    .el-dialog .el-input__inner,
+    .el-dialog .el-date-editor.el-input,
+    .el-dialog .el-date-editor .el-input__wrapper {
+      background: #f4f8fb !important;
+      color: #173042 !important;
+      border-color: #c9dcec !important;
+      box-shadow: none !important;
+    }
+    .el-dialog .el-textarea__inner::placeholder,
+    .el-dialog .el-input__inner::placeholder,
+    .el-dialog .el-input__wrapper input::placeholder {
+      color: #7d93a6 !important;
+    }
+    .el-dialog .el-input.is-disabled .el-input__wrapper,
+    .el-dialog .el-textarea.is-disabled .el-textarea__inner {
+      background: #eaf1f7 !important;
+      color: #42586b !important;
+    }
+    .el-dialog .el-button--default {
+      color: #365268;
+      border-color: #cddcea;
+      background: #f7fbff;
+    }
+    .el-dialog .el-button--default:hover {
+      color: #214056;
+      border-color: #9fc0da;
+      background: #edf5fc;
+    }
+    @media (max-width: 980px) { .stats { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 680px) { .stats { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div class="header">
+      <div>
+        <h1>閫佺數鐢宠</h1>
+        <p>閫佺數鐢宠椤典細浼樺厛灞曠ず褰撳墠璁惧鐨勯厤鐢靛銆佹煖鍙枫€佸墿浣欐寕鐗屽拰闃诲鍘熷洜銆傜‘璁ゆ棤鍓╀綑鎸傜墝鍚庯紝鍐嶆彁浜ら€佺數鐢宠銆?/p>
+      </div>
+      <div class="header-actions">
+        <span class="chip">{{ currentUser }}</span>
+        <el-button @click="goBack">杩斿洖</el-button>
+        <el-button type="primary" @click="logout">閫€鍑虹櫥褰?/el-button>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="warning-box">
+        绯荤粺浼氬厛瑙ｉ櫎鈥滄湰浜烘寕鐗屸€濄€傚鏋滃悓涓€璁惧浠嶅瓨鍦ㄥ叾浠栨湁鏁堟寕鐗岋紝宸ュ崟涓嶄細杩涘叆閫佺數瀹℃壒锛岃€屾槸缁х画淇濈暀鍦ㄥ綋鍓嶉〉闈㈠苟鎻愮ず鏈В鐗屼汉鍛樸€?      </div>
+
+      <div class="stats">
+        <div class="stat stat-ready"><div class="metric-num">{{ repairCompletedCount }}</div><div class="metric-label">寰呭彂璧烽€佺數鐢宠</div></div>
+        <div class="stat stat-review"><div class="metric-num">{{ powerOnAppliedCount }}</div><div class="metric-label">宸茶繘鍏ラ€佺數瀹℃壒</div></div>
+        <div class="stat stat-tag"><div class="metric-num">{{ totalActiveTagCount }}</div><div class="metric-label">褰撳墠鍓╀綑鎸傜墝鎬绘暟</div></div>
+        <div class="stat stat-room"><div class="metric-num">{{ roomCount }}</div><div class="metric-label">娑夊強閰嶇數瀹ゆ暟閲?/div></div>
+      </div>
+
+      <section class="panel panel-list">
+        <div class="table-note">浼樺厛鍏虫敞鈥滃墿浣欐寕鐗屸€濆拰鈥滈樆濉炲師鍥犫€濄€傝繖涓や釜瀛楁鍐冲畾褰撳墠宸ュ崟鑳藉惁鐪熸杩涘叆閫佺數瀹℃壒銆?/div>
+
+        <div class="toolbar">
+          <el-input v-model="keyword" class="grow" clearable placeholder="鎼滅储閰嶇數瀹?/ 鏌滃彿 / 璁惧 / 鐢宠浜?/ 鍘熷洜" />
+          <el-select v-model="statusFilter" placeholder="鐘舵€佺瓫閫? style="width: 200px;">
+            <el-option label="鍏ㄩ儴" value="" />
+            <el-option label="妫€淇畬鎴? value="repair_completed" />
+            <el-option label="閫佺數瀹℃壒涓? value="power_on_applied" />
+          </el-select>
+          <el-button type="primary" @click="fetchList">鍒锋柊</el-button>
+        </div>
+
+        <el-table :data="filteredList" border v-loading="loading" height="580" empty-text="褰撳墠娌℃湁鍙鐞嗙殑閫佺數宸ュ崟">
+          <el-table-column prop="id" label="宸ュ崟" width="90">
+            <template #default="{ row }">#{{ row.id }}</template>
+          </el-table-column>
+
+          <el-table-column label="璁惧" min-width="250">
+            <template #default="{ row }">
+              <div class="device-cell">
+                <strong>{{ row.device_name || row.deviceId }}</strong>
+                <span class="sub">{{ row.deviceId }}</span>
+              </div>
+            </template>
+          </el-table-column>
+
+          <el-table-column label="閰嶇數瀹?/ 鏌滃彿" min-width="200">
+            <template #default="{ row }">
+              <div class="device-cell">
+                <strong>{{ row.power_room || '鏈厤缃厤鐢靛' }}</strong>
+                <span class="sub">{{ row.cabinet || '鏈厤缃煖鍙? }}</span>
+              </div>
+            </template>
+          </el-table-column>
+
+          <el-table-column prop="status" label="褰撳墠鐘舵€? width="140">
+            <template #default="{ row }">
+              <el-tag :type="row.status === 'repair_completed' ? 'success' : 'warning'">
+                {{ statusText(row.status) }}
+              </el-tag>
+            </template>
+          </el-table-column>
+
+          <el-table-column label="鍓╀綑鎸傜墝" width="220">
+            <template #default="{ row }">
+              <div>
+                <span class="tag-count" :class="{ safe: !(row.active_tag_count > 0) }">{{ row.active_tag_count || 0 }} 涓?/span>
+                <div class="tag-list" v-if="row.active_tags && row.active_tags.length">
+                  <span class="tag-item blocked" v-for="tag in row.active_tags" :key="tag.id">{{ tag.electrician_name }}</span>
+                </div>
+                <div v-else class="blocked-reason">褰撳墠鏃犳湁鏁堟寕鐗?/div>
+              </div>
+            </template>
+          </el-table-column>
+
+          <el-table-column label="鐢宠浜?/ 鍘熷洜" min-width="260">
+            <template #default="{ row }">
+              <div class="reason-cell">
+                <strong>{{ row.applicant || '-' }}</strong>
+                <span class="sub">{{ row.reason || '-' }}</span>
+              </div>
+            </template>
+          </el-table-column>
+
+          <el-table-column label="闃诲鍘熷洜" min-width="210">
+            <template #default="{ row }">
+              <div v-if="row.status !== 'repair_completed'" class="blocked-reason">褰撳墠娴佺▼鏈埌閫佺數鐢宠闃舵</div>
+              <div v-else-if="row.active_tag_count > 0" class="blocked-reason">浠嶆湁鍓╀綑鎸傜墝锛岄渶瑕佸厛瀹屾垚瑙ｇ墝</div>
+              <div v-else class="blocked-reason" style="color:#9fe8d8;">褰撳墠鍙彂璧烽€佺數鐢宠</div>
+            </template>
+          </el-table-column>
+
+          <el-table-column label="鎿嶄綔" width="150" fixed="right">
+            <template #default="{ row }">
+              <div class="op-cell">
+                <el-button
+                  type="primary"
+                  size="small"
+                  :disabled="row.status !== 'repair_completed'"
+                  @click="showDialog(row)"
+                >
+                  鍙戣捣閫佺數鐢宠
+                </el-button>
+              </div>
+            </template>
+          </el-table-column>
+        </el-table>
+      </section>
+    </div>
+
+    <el-dialog v-model="dialogVisible" title="鎻愪氦閫佺數鐢宠" width="560px" :close-on-click-modal="false">
+      <div class="dialog-note">鎻愪氦鍚庯紝绯荤粺浼氬厛灏濊瘯瑙ｉ櫎褰撳墠鐢靛伐鏈汉鎸傜墝锛屽啀妫€鏌ユ槸鍚﹁繕鏈夊墿浣欐寕鐗屻€?/div>
+      <el-form label-width="110px">
+        <el-form-item label="宸ュ崟缂栧彿">
+          <el-input :model-value="'#' + dialogForm.id" disabled />
+        </el-form-item>
+        <el-form-item label="璁惧">
+          <el-input :model-value="dialogDeviceText" disabled />
+        </el-form-item>
+        <el-form-item label="褰撳墠鎸傜墝鏁伴噺">
+          <el-input :model-value="String(dialogForm.active_tag_count || 0)" disabled />
+        </el-form-item>
+        <el-form-item label="褰撳墠鎸傜墝浜? v-if="dialogForm.active_tags && dialogForm.active_tags.length">
+          <div class="tag-list">
+            <span class="tag-item blocked" v-for="tag in dialogForm.active_tags" :key="tag.id">{{ tag.electrician_name }}</span>
+          </div>
+        </el-form-item>
+        <el-form-item label="閫佺數鍘熷洜">
+          <el-input v-model="dialogForm.comment" type="textarea" :rows="3" maxlength="200" show-word-limit />
+        </el-form-item>
+        <el-form-item label="璁″垝閫佺數鏃堕棿">
+          <el-date-picker
+            v-model="dialogForm.power_on_time"
+            type="datetime"
+            value-format="YYYY-MM-DD HH:mm:ss"
+            placeholder="璇烽€夋嫨璁″垝閫佺數鏃堕棿"
+            style="width: 100%;"
+          />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="dialogVisible = false">鍙栨秷</el-button>
+        <el-button type="primary" @click="submitPowerOn">鎻愪氦鐢宠</el-button>
+      </template>
+    </el-dialog>
+  </div>
+
+  <script>
+    if (!localStorage.getItem('user_realname') && !localStorage.getItem('user_username')) {
+      window.appShell.handleUnauthorized();
+    }
+
+    axios.defaults.withCredentials = true;
+    const { createApp, ref, computed, onMounted } = Vue;
+
+    createApp({
+      setup() {
+        const { ElMessage } = ElementPlus;
+        const loading = ref(false);
+        const list = ref([]);
+        const keyword = ref('');
+        const statusFilter = ref('');
+        const dialogVisible = ref(false);
+        const dialogForm = ref({
+          id: null,
+          deviceId: '',
+          device_name: '',
+          power_room: '',
+          cabinet: '',
+          active_tag_count: 0,
+          active_tags: [],
+          comment: '',
+          power_on_time: '',
+        });
+        const currentUser = localStorage.getItem('user_realname') || localStorage.getItem('user_username') || '鏈煡鐢ㄦ埛';
+
+        const statusMap = {
+          repair_completed: '妫€淇畬鎴?,
+          power_on_applied: '閫佺數瀹℃壒涓?,
+        };
+        const statusText = (status) => statusMap[status] || status;
+
+        const filteredList = computed(() => {
+          let data = list.value.filter((item) => ['repair_completed', 'power_on_applied'].includes(item.status));
+          if (statusFilter.value) {
+            data = data.filter((item) => item.status === statusFilter.value);
+          }
+          const kw = keyword.value.trim().toLowerCase();
+          if (kw) {
+            data = data.filter((item) =>
+              String(item.power_room || '').toLowerCase().includes(kw) ||
+              String(item.cabinet || '').toLowerCase().includes(kw) ||
+              String(item.device_name || '').toLowerCase().includes(kw) ||
+              String(item.deviceId || '').toLowerCase().includes(kw) ||
+              String(item.applicant || '').toLowerCase().includes(kw) ||
+              String(item.reason || '').toLowerCase().includes(kw)
+            );
+          }
+          return data;
+        });
+
+        const repairCompletedCount = computed(() => filteredList.value.filter((item) => item.status === 'repair_completed').length);
+        const powerOnAppliedCount = computed(() => filteredList.value.filter((item) => item.status === 'power_on_applied').length);
+        const totalActiveTagCount = computed(() => filteredList.value.reduce((sum, item) => sum + Number(item.active_tag_count || 0), 0));
+        const roomCount = computed(() => new Set(filteredList.value.map((item) => item.power_room).filter(Boolean)).size);
+
+        const dialogDeviceText = computed(() => {
+          if (!dialogForm.value.id) return '';
+          return `${dialogForm.value.power_room || '鏈厤缃厤鐢靛'} / ${dialogForm.value.cabinet || '鏈厤缃煖鍙?} / ${dialogForm.value.device_name || dialogForm.value.deviceId}`;
+        });
+
+        const currentDateTimeInput = () => {
+          const now = new Date();
+          const pad = (value) => String(value).padStart(2, '0');
+          return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+        };
+
+        const fetchList = async () => {
+          loading.value = true;
+          try {
+            const res = await axios.get('/api/list');
+            list.value = Array.isArray(res.data) ? res.data : [];
+          } catch (error) {
+            if (error?.response?.status === 401) {
+              window.appShell.handleUnauthorized();
+              return;
+            }
+            list.value = [];
+            ElMessage.error(error?.response?.data?.msg || '閫佺數鐢宠鍒楄〃鍔犺浇澶辫触');
+          } finally {
+            loading.value = false;
+          }
+        };
+
+        const showDialog = (row) => {
+          dialogForm.value = {
+            id: row.id,
+            deviceId: row.deviceId,
+            device_name: row.device_name,
+            power_room: row.power_room,
+            cabinet: row.cabinet,
+            active_tag_count: row.active_tag_count || 0,
+            active_tags: row.active_tags || [],
+            comment: '',
+            power_on_time: currentDateTimeInput(),
+          };
+          dialogVisible.value = true;
+        };
+
+        const submitPowerOn = async () => {
+          const payload = dialogForm.value;
+          if (!payload.comment.trim()) {
+            ElMessage.warning('璇峰～鍐欓€佺數鍘熷洜');
+            return;
+          }
+          if (!payload.power_on_time) {
+            ElMessage.warning('璇烽€夋嫨璁″垝閫佺數鏃堕棿');
+            return;
+          }
+
+          loading.value = true;
+          try {
+            const res = await axios.post('/api/power-on-apply', {
+              id: payload.id,
+              comment: payload.comment.trim(),
+              power_on_time: payload.power_on_time,
+            });
+            dialogVisible.value = false;
+            ElMessage.success(res.data?.msg || '閫佺數鐢宠宸叉彁浜?);
+            await fetchList();
+          } catch (error) {
+            ElMessage.error(error?.response?.data?.msg || '閫佺數鐢宠澶辫触');
+          } finally {
+            loading.value = false;
+          }
+        };
+
+        const logout = () => window.appShell.logout();
+        const goBack = () => window.appShell.goBackOrHome();
+
+        onMounted(fetchList);
+
+        return {
+          loading,
+          keyword,
+          statusFilter,
+          dialogVisible,
+          dialogForm,
+          dialogDeviceText,
+          currentUser,
+          filteredList,
+          repairCompletedCount,
+          powerOnAppliedCount,
+          totalActiveTagCount,
+          roomCount,
+          statusText,
+          fetchList,
+          showDialog,
+          submitPowerOn,
+          logout,
+          goBack,
+        };
+      },
+    }).use(ElementPlus).mount('#app');
+  </script>
+</body>
+</html>
+

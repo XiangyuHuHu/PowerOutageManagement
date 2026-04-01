@@ -1,0 +1,378 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>鐢ㄦ埛涓庢潈闄愮鐞?/title>
+  <link rel="stylesheet" href="/admin_theme.css">
+  <script src="/app_shell.js"></script>
+  <script src="/vendor/vue.global.prod.js"></script>
+  <script src="/vendor/axios.min.js"></script>
+  <link rel="stylesheet" href="/vendor/element-plus/index.css">
+  <script src="/vendor/element-plus/index.full.min.js"></script>
+  <style>
+    body { margin: 0; min-height: 100vh; padding: 22px; }
+    #app { max-width: 1520px; margin: 0 auto; border-radius: 24px; overflow: hidden; }
+    .header, .content { padding: 24px 28px; }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      background: linear-gradient(90deg, rgba(9, 31, 45, 0.96), rgba(30, 82, 103, 0.84));
+      border-bottom: 1px solid rgba(114, 197, 255, 0.12);
+    }
+    .header h1 { margin: 0; font-size: 30px; }
+    .header p { margin: 8px 0 0; line-height: 1.8; font-size: 14px; max-width: 900px; }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(180px, 1fr));
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+    .stat, .panel {
+      padding: 18px;
+      border-radius: 18px;
+      position: relative;
+      overflow: hidden;
+    }
+    .stat::before, .panel::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 4px;
+      border-radius: 18px 18px 0 0;
+      opacity: 0.95;
+    }
+    .stat-total::before, .panel-users::before { background: linear-gradient(90deg, #4da8ff, #7fd6ff); }
+    .stat-admin::before { background: linear-gradient(90deg, #ffb14d, #ffd36d); }
+    .stat-dispatcher::before { background: linear-gradient(90deg, #8d84ff, #b2adff); }
+    .stat-electrician::before { background: linear-gradient(90deg, #29d0c4, #7ce9d2); }
+    .panel-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+    .panel-head h2 { margin: 0; font-size: 22px; }
+    .panel-head span { color: #abdfff; font-size: 13px; }
+    .table-wrap {
+      border-radius: 18px;
+      overflow: hidden;
+      border: 1px solid rgba(114, 197, 255, 0.18);
+    }
+    .user-main {
+      display: grid;
+      gap: 4px;
+      line-height: 1.5;
+    }
+    .user-main .sub {
+      font-size: 12px;
+      color: #abdfff;
+    }
+    .tag-list { display: flex; flex-wrap: wrap; gap: 6px; }
+    .tag-item {
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+      color: #eaf7ff;
+      font-size: 12px;
+    }
+    .role-tag {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 64px;
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 12px;
+    }
+    .role-admin { background: rgba(230, 162, 60, 0.2); color: #ffd28b; }
+    .role-dispatcher { background: rgba(64, 158, 255, 0.2); color: #86c8ff; }
+    .role-electrician { background: rgba(103, 194, 58, 0.2); color: #b7ee96; }
+    .role-user { background: rgba(144, 147, 153, 0.2); color: #d7dbe1; }
+    .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .el-dialog { border-radius: 18px !important; overflow: hidden; }
+    .el-dialog__header { margin-right: 0 !important; padding-bottom: 10px !important; }
+    .el-dialog__body { padding-top: 8px !important; }
+    @media (max-width: 980px) {
+      .stats { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 680px) {
+      .stats { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div class="header">
+      <div>
+        <h1>鐢ㄦ埛涓庢潈闄愮鐞?/h1>
+        <p>杩欓噷闆嗕腑绠＄悊璐﹀彿銆佽鑹层€佸姛鑳芥潈闄愬拰閰嶇數瀹よ寖鍥达紝鏂逛究绠＄悊鍛樻寜鎵规鍜屽尯鍩熷垎閰嶆潈闄愩€?/p>
+      </div>
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <el-button @click="fetchUsers">鍒锋柊</el-button>
+        <el-button type="primary" @click="goBack">杩斿洖</el-button>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="stats">
+        <div class="stat card stat-total"><div class="metric-num">{{ stats.total }}</div><div class="metric-label">鎬荤敤鎴锋暟</div></div>
+        <div class="stat card stat-admin"><div class="metric-num">{{ stats.admin }}</div><div class="metric-label">绠＄悊鍛?/div></div>
+        <div class="stat card stat-dispatcher"><div class="metric-num">{{ stats.dispatcher }}</div><div class="metric-label">璋冨害鍛?/div></div>
+        <div class="stat card stat-electrician"><div class="metric-num">{{ stats.electrician }}</div><div class="metric-label">鐢靛伐</div></div>
+      </div>
+
+      <section class="panel card panel-users">
+        <div class="panel-head">
+          <div>
+            <h2>璐﹀彿娓呭崟</h2>
+            <span>鍙洿鎺ヨ皟鏁磋鑹层€侀噸缃瘑鐮併€侀厤缃姛鑳芥潈闄愬拰閰嶇數瀹よ寖鍥淬€?/span>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <el-table :data="users" border v-loading="loading" height="640">
+            <el-table-column prop="id" label="ID" width="90">
+              <template #default="{ row }">#{{ row.id }}</template>
+            </el-table-column>
+            <el-table-column label="鐢ㄦ埛鍚? min-width="220">
+              <template #default="{ row }">
+                <div class="user-main">
+                  <strong>{{ row.username || '-' }}</strong>
+                  <span class="sub">璐﹀彿鏍囪瘑</span>
+                </div>
+              </template>
+            </el-table-column>
+            <el-table-column label="鐪熷疄濮撳悕" min-width="180">
+              <template #default="{ row }">
+                <div class="user-main">
+                  <strong>{{ row.realname || '-' }}</strong>
+                  <span class="sub">鏄剧ず鍚嶇О</span>
+                </div>
+              </template>
+            </el-table-column>
+            <el-table-column label="瑙掕壊" width="120">
+              <template #default="{ row }">
+                <span class="role-tag" :class="roleClass(row.role)">{{ roleText(row.role) }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column label="閰嶇數瀹よ寖鍥? min-width="240">
+              <template #default="{ row }">
+                <div class="tag-list" v-if="row.room_scopes && row.room_scopes.length">
+                  <span class="tag-item" v-for="room in row.room_scopes" :key="room">{{ room }}</span>
+                </div>
+                <span v-else>鍏ㄩ儴閰嶇數瀹?/span>
+              </template>
+            </el-table-column>
+            <el-table-column label="鍔熻兘鏉冮檺" min-width="320">
+              <template #default="{ row }">
+                <div class="tag-list">
+                  <span class="tag-item" v-for="permission in row.function_permissions" :key="permission">{{ permissionLabels[permission] || permission }}</span>
+                </div>
+              </template>
+            </el-table-column>
+            <el-table-column label="鎿嶄綔" width="180">
+              <template #default="{ row }">
+                <div class="actions">
+                  <el-button type="primary" size="small" @click="openEdit(row)">缂栬緫</el-button>
+                  <el-button type="danger" size="small" v-if="row.role !== 'admin'" @click="removeUser(row.id)">鍒犻櫎</el-button>
+                </div>
+              </template>
+            </el-table-column>
+          </el-table>
+        </div>
+      </section>
+    </div>
+
+    <el-dialog v-model="dialogVisible" title="缂栬緫鐢ㄦ埛鏉冮檺" width="760px" :close-on-click-modal="false">
+      <el-form label-width="110px">
+        <el-form-item label="鐢ㄦ埛鍚?>
+          <el-input :model-value="editForm.username" disabled />
+        </el-form-item>
+        <el-form-item label="鐪熷疄濮撳悕">
+          <el-input v-model="editForm.realname" />
+        </el-form-item>
+        <el-form-item label="瑙掕壊">
+          <el-select v-model="editForm.role" style="width: 100%;">
+            <el-option label="绠＄悊鍛? value="admin" />
+            <el-option label="璋冨害鍛? value="dispatcher" />
+            <el-option label="鐢靛伐" value="electrician" />
+            <el-option label="鏅€氱敤鎴? value="user" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="鏂板瘑鐮?>
+          <el-input v-model="editForm.password" type="password" show-password placeholder="鐣欑┖鍒欎笉淇敼" />
+        </el-form-item>
+        <el-form-item label="閰嶇數瀹よ寖鍥? v-if="editForm.role !== 'admin'">
+          <el-select v-model="editForm.room_scopes" multiple collapse-tags style="width: 100%;" placeholder="鐣欑┖琛ㄧず鍏ㄩ儴閰嶇數瀹?>
+            <el-option v-for="room in permissionOptions.rooms" :key="room" :label="room" :value="room" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="鍔熻兘鏉冮檺" v-if="editForm.role !== 'admin'">
+          <el-checkbox-group v-model="editForm.function_permissions">
+            <el-checkbox v-for="item in permissionOptions.function_permissions" :key="item.code" :label="item.code">
+              {{ item.label }}
+            </el-checkbox>
+          </el-checkbox-group>
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="dialogVisible = false">鍙栨秷</el-button>
+        <el-button type="primary" @click="saveUser">淇濆瓨</el-button>
+      </template>
+    </el-dialog>
+  </div>
+
+  <script>
+    if (!localStorage.getItem('user_realname') && !localStorage.getItem('user_username')) {
+      window.appShell.handleUnauthorized();
+    }
+    if (localStorage.getItem('user_role') !== 'admin') {
+      window.appShell.handleUnauthorized('鍙湁绠＄悊鍛樺彲浠ヨ繘鍏ョ敤鎴锋潈闄愰〉闈€?, 400);
+    }
+
+    axios.defaults.withCredentials = true;
+    const { createApp, ref, computed, onMounted } = Vue;
+
+    createApp({
+      setup() {
+        const { ElMessage, ElMessageBox } = ElementPlus;
+        const loading = ref(false);
+        const users = ref([]);
+        const dialogVisible = ref(false);
+        const permissionOptions = ref({ rooms: [], function_permissions: [] });
+        const editForm = ref({
+          id: null,
+          username: '',
+          realname: '',
+          role: 'user',
+          password: '',
+          room_scopes: [],
+          function_permissions: [],
+        });
+
+        const permissionLabels = {
+          approval_center: '瀹℃壒涓績',
+          batch_approval: '鎵归噺瀹℃壒',
+          batch_management: '澶ф淇壒娆?,
+          device_monitor: '璁惧鐩戞帶',
+          notifications: '閫氱煡',
+          stats: '缁熻',
+          user_management: '鐢ㄦ埛绠＄悊',
+          apply: '鍋滅數鐢宠',
+          repair: '妫€淇鐞?,
+          power_on_apply: '閫佺數鐢宠',
+        };
+
+        const roleMap = {
+          admin: '绠＄悊鍛?,
+          dispatcher: '璋冨害鍛?,
+          electrician: '鐢靛伐',
+          user: '鏅€氱敤鎴?,
+        };
+
+        const stats = computed(() => ({
+          total: users.value.length,
+          admin: users.value.filter((item) => item.role === 'admin').length,
+          dispatcher: users.value.filter((item) => item.role === 'dispatcher').length,
+          electrician: users.value.filter((item) => item.role === 'electrician').length,
+        }));
+
+        const roleText = (role) => roleMap[role] || role;
+        const roleClass = (role) => `role-${role || 'user'}`;
+
+        const fetchUsers = async () => {
+          loading.value = true;
+          try {
+            const [usersRes, permissionRes] = await Promise.all([
+              axios.get('/api/users'),
+              axios.get('/api/permission-options'),
+            ]);
+            users.value = Array.isArray(usersRes.data) ? usersRes.data : [];
+            permissionOptions.value = permissionRes.data || { rooms: [], function_permissions: [] };
+          } catch (err) {
+            if (err?.response?.status === 401) {
+              window.appShell.handleUnauthorized();
+              return;
+            }
+            ElMessage.error(err?.response?.data?.msg || '鐢ㄦ埛鏁版嵁鍔犺浇澶辫触');
+          } finally {
+            loading.value = false;
+          }
+        };
+
+        const openEdit = (row) => {
+          editForm.value = {
+            id: row.id,
+            username: row.username || '',
+            realname: row.realname || '',
+            role: row.role || 'user',
+            password: '',
+            room_scopes: Array.isArray(row.room_scopes) ? [...row.room_scopes] : [],
+            function_permissions: Array.isArray(row.function_permissions) ? [...row.function_permissions] : [],
+          };
+          dialogVisible.value = true;
+        };
+
+        const saveUser = async () => {
+          try {
+            await axios.put(`/api/users/${editForm.value.id}`, editForm.value);
+            ElMessage.success('淇濆瓨鎴愬姛');
+            dialogVisible.value = false;
+            fetchUsers();
+          } catch (err) {
+            ElMessage.error(err?.response?.data?.msg || '淇濆瓨澶辫触');
+          }
+        };
+
+        const removeUser = async (userId) => {
+          try {
+            await ElMessageBox.confirm('纭畾鍒犻櫎杩欎釜鐢ㄦ埛鍚楋紵鍒犻櫎鍚庝笉鍙仮澶嶃€?, '鎻愮ず', {
+              confirmButtonText: '纭畾',
+              cancelButtonText: '鍙栨秷',
+              type: 'warning',
+            });
+            await axios.delete(`/api/users/${userId}`);
+            ElMessage.success('鍒犻櫎鎴愬姛');
+            fetchUsers();
+          } catch (err) {
+            if (err !== 'cancel' && err !== 'close') {
+              ElMessage.error(err?.response?.data?.msg || '鍒犻櫎澶辫触');
+            }
+          }
+        };
+
+        const goBack = () => window.appShell.goBackOrHome();
+
+        onMounted(fetchUsers);
+
+        return {
+          loading,
+          users,
+          dialogVisible,
+          permissionOptions,
+          editForm,
+          permissionLabels,
+          stats,
+          roleText,
+          roleClass,
+          fetchUsers,
+          openEdit,
+          saveUser,
+          removeUser,
+          goBack,
+        };
+      },
+    }).use(ElementPlus).mount('#app');
+  </script>
+</body>
+</html>
+

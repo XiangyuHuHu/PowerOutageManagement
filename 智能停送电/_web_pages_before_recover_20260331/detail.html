@@ -1,0 +1,272 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>宸ュ崟璇︽儏</title>
+  <link rel="stylesheet" href="/admin_theme.css">
+  <script src="/app_shell.js"></script>
+  <script src="/vendor/vue.global.prod.js"></script>
+  <script src="/vendor/axios.min.js"></script>
+  <link rel="stylesheet" href="/vendor/element-plus/index.css">
+  <script src="/vendor/element-plus/index.full.min.js"></script>
+  <style>
+    body { margin: 0; min-height: 100vh; padding: 22px; }
+    #app { max-width: 1320px; margin: 0 auto; border-radius: 24px; overflow: hidden; }
+    .header, .content { padding: 24px 28px; }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      flex-wrap: wrap;
+      background: linear-gradient(90deg, rgba(8, 29, 42, 0.96), rgba(26, 78, 97, 0.84));
+      border-bottom: 1px solid rgba(118, 200, 255, 0.12);
+    }
+    .header h1 { margin: 0; font-size: 30px; }
+    .header p { margin: 8px 0 0; max-width: 860px; line-height: 1.8; font-size: 14px; }
+    .header-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .section {
+      margin-bottom: 18px;
+      padding: 22px;
+      border-radius: 22px;
+      position: relative;
+      overflow: hidden;
+    }
+    .section::before,
+    .info-card::before,
+    .timeline-item::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 4px;
+      border-radius: 22px 22px 0 0;
+      opacity: 0.95;
+    }
+    .section h2 { margin: 0 0 16px; font-size: 20px; }
+    .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+    .info-card {
+      padding: 16px;
+      border-radius: 18px;
+      position: relative;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at top right, rgba(255,255,255,0.04), transparent 34%),
+        rgba(255,255,255,0.05);
+    }
+    .info-card::after {
+      content: "";
+      position: absolute;
+      inset: auto -24px -24px auto;
+      width: 88px;
+      height: 88px;
+      border-radius: 50%;
+      opacity: 0.08;
+    }
+    .info-label { margin-bottom: 8px; color: var(--admin-text-soft); font-size: 12px; }
+    .info-value { font-size: 15px; line-height: 1.7; font-weight: 700; word-break: break-word; }
+    .info-value.subtle { font-weight: 600; }
+    .tag-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .tag-chip { padding: 6px 10px; border-radius: 999px; background: rgba(255,255,255,0.08); font-size: 12px; color: #dff3ff; border: 1px solid rgba(255,255,255,0.06); }
+    .timeline { display: grid; gap: 12px; }
+    .timeline-item { padding: 16px; border-radius: 18px; position: relative; overflow: hidden; }
+    .timeline-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+    .timeline-title { font-weight: 800; font-size: 15px; }
+    .timeline-time { color: var(--admin-text-soft); font-size: 13px; }
+    .timeline-body { display: grid; gap: 6px; line-height: 1.7; color: #e7f6ff; }
+    .section-base::before { background: linear-gradient(90deg, #4da8ff, #7fd6ff); }
+    .section-tags::before { background: linear-gradient(90deg, #29d0c4, #7ce9d2); }
+    .section-flow::before { background: linear-gradient(90deg, #8d84ff, #b2adff); }
+    .info-general::before { background: linear-gradient(90deg, #4da8ff, #7fd6ff); }
+    .info-general::after { background: #3d95ff; }
+    .info-device::before { background: linear-gradient(90deg, #29d0c4, #7ce9d2); }
+    .info-device::after { background: #23c7b3; }
+    .info-time::before { background: linear-gradient(90deg, #8d84ff, #b2adff); }
+    .info-time::after { background: #8f87ff; }
+    .info-risk::before { background: linear-gradient(90deg, #ffb14d, #ffd36d); }
+    .info-risk::after { background: #ffb347; }
+    .tag-chip { background: rgba(255,177,77,0.14); color: #ffd596; border-color: rgba(255,177,77,0.22); }
+    .timeline-item::before { background: linear-gradient(90deg, #8d84ff, #b2adff); }
+    .loading, .error, .empty { padding: 72px 20px; text-align: center; color: var(--admin-text-soft); }
+    @media (max-width: 980px) { .grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div class="header">
+      <div>
+        <h1>宸ュ崟璇︽儏</h1>
+        <p>杩欓噷闆嗕腑灞曠ず宸ュ崟鐘舵€併€佽澶囧畾浣嶃€佹寕鐗屾儏鍐靛拰娴佺▼杞ㄨ抗銆傝皟搴︺€佺鐞嗗憳鍜岀數宸ラ兘鍙互浠庤繖閲屽揩閫熻烦鍒版墍灞炴壒娆℃垨璁惧鐩戞帶锛屽噺灏戞潵鍥炴煡鎵俱€?/p>
+      </div>
+      <div class="header-actions">
+        <el-button v-if="application.batch_id" type="success" @click="openBatch">鎵€灞炴壒娆?/el-button>
+        <el-button type="warning" @click="openMonitor">璁惧鐩戞帶</el-button>
+        <el-button @click="goBack">杩斿洖</el-button>
+        <el-button type="primary" @click="logout">閫€鍑虹櫥褰?/el-button>
+      </div>
+    </div>
+
+    <div class="content" v-if="!loading && !error">
+      <section class="section panel section-base">
+        <h2>鍩虹淇℃伅</h2>
+        <div class="grid">
+          <div class="info-card card info-general"><div class="info-label">宸ュ崟缂栧彿</div><div class="info-value">#{{ application.id || '-' }}</div></div>
+          <div class="info-card card info-general"><div class="info-label">鐢宠浜?/div><div class="info-value">{{ application.applicant || '-' }}</div></div>
+          <div class="info-card card info-general"><div class="info-label">褰撳墠鐘舵€?/div><div class="info-value">{{ statusText(application.status) }}</div></div>
+          <div class="info-card card info-device"><div class="info-label">璁惧鍚嶇О</div><div class="info-value">{{ application.device_name || application.deviceId || '-' }}</div></div>
+          <div class="info-card card info-device"><div class="info-label">璁惧瀹氫綅</div><div class="info-value">{{ deviceLocation }}</div></div>
+          <div class="info-card card info-device"><div class="info-label">璁惧缂栧彿</div><div class="info-value">{{ application.deviceId || '-' }}</div></div>
+          <div class="info-card card info-general"><div class="info-label">鎵€灞炴壒娆?/div><div class="info-value">{{ application.batch_id ? '#' + application.batch_id : '鏅€氬伐鍗? }}</div></div>
+          <div class="info-card card info-general"><div class="info-label">鍋滅數鍘熷洜</div><div class="info-value subtle">{{ application.reason || '-' }}</div></div>
+          <div class="info-card card info-time"><div class="info-label">璁″垝鍋滅數鏃堕棿</div><div class="info-value">{{ formatDateTime(application.power_off_time) || '-' }}</div></div>
+          <div class="info-card card info-time"><div class="info-label">璁″垝閫佺數鏃堕棿</div><div class="info-value">{{ formatDateTime(application.power_on_time) || '鏈彁浜? }}</div></div>
+          <div class="info-card card info-general"><div class="info-label">閫佺數瀹℃壒浜?/div><div class="info-value">{{ application.power_on_approver || '-' }}</div></div>
+          <div class="info-card card info-risk"><div class="info-label">褰撳墠鏈夋晥鎸傜墝鏁?/div><div class="info-value">{{ application.active_tag_count || 0 }}</div></div>
+        </div>
+      </section>
+
+      <section class="section panel section-tags">
+        <h2>鎸傜墝鐘舵€?/h2>
+        <div class="info-card card">
+          <div class="info-label">褰撳墠鏈夋晥鎸傜墝浜哄憳</div>
+          <div class="info-value">{{ (application.active_tags || []).length ? '' : '褰撳墠鏃犳湁鏁堟寕鐗? }}</div>
+          <div class="tag-list" v-if="application.active_tags && application.active_tags.length">
+            <span class="tag-chip" v-for="tag in application.active_tags" :key="tag.id">{{ tag.electrician_name }} / {{ formatDateTime(tag.tag_time) }}</span>
+          </div>
+        </div>
+        <div class="timeline" style="margin-top:14px;" v-if="tagRecords.length">
+          <div class="timeline-item card" v-for="record in tagRecords" :key="record.id">
+            <div class="timeline-head">
+              <span class="timeline-title">{{ record.electrician_name }}</span>
+              <span class="timeline-time">{{ record.tag_status === 'active' ? '鏈夋晥鎸傜墝' : '宸茶В闄ゆ寕鐗? }}</span>
+            </div>
+            <div class="timeline-body">
+              <div>鎸傜墝鏃堕棿锛歿{ formatDateTime(record.tag_time) }}</div>
+              <div v-if="record.release_time">瑙ｇ墝鏃堕棿锛歿{ formatDateTime(record.release_time) }}</div>
+              <div v-if="record.release_operator_name">瑙ｇ墝浜猴細{{ record.release_operator_name }}</div>
+              <div v-if="record.release_comment">璇存槑锛歿{ record.release_comment }}</div>
+            </div>
+          </div>
+        </div>
+        <div class="empty" v-else>褰撳墠娌℃湁鎸傜墝鏄庣粏璁板綍</div>
+      </section>
+
+      <section class="section panel section-flow">
+        <h2>娴佺▼杞ㄨ抗</h2>
+        <div class="timeline" v-if="logs.length">
+          <div class="timeline-item card" v-for="log in logs" :key="log.id">
+            <div class="timeline-head">
+              <span class="timeline-title">{{ operationTypeText(log.operation_type) }}</span>
+              <span class="timeline-time">{{ formatDateTime(log.operation_time) }}</span>
+            </div>
+            <div class="timeline-body">
+              <div>鎿嶄綔浜猴細{{ log.operator || '-' }}</div>
+              <div v-if="log.operation_comment">璇存槑锛歿{ log.operation_comment }}</div>
+              <div v-if="log.old_status || log.new_status">鐘舵€佸彉鍖栵細{{ statusText(log.old_status) }} -> {{ statusText(log.new_status) }}</div>
+            </div>
+          </div>
+        </div>
+        <div class="empty" v-else>褰撳墠娌℃湁娴佺▼杞ㄨ抗</div>
+      </section>
+    </div>
+
+    <div class="loading" v-if="loading">姝ｅ湪鍔犺浇宸ュ崟璇︽儏...</div>
+    <div class="error" v-if="error">{{ error }}</div>
+  </div>
+
+  <script>
+    if (!localStorage.getItem('user_realname') && !localStorage.getItem('user_username')) {
+      window.location.href = '/login.html';
+    }
+    axios.defaults.withCredentials = true;
+    const { createApp, ref, computed, onMounted } = Vue;
+
+    createApp({
+      setup() {
+        const application = ref({});
+        const logs = ref([]);
+        const tagRecords = ref([]);
+        const loading = ref(true);
+        const error = ref('');
+        const statusMap = {
+          pending: '寰呭仠鐢靛鎵?,
+          approved: '鍋滅數瀹℃壒閫氳繃',
+          rejected: '鍋滅數瀹℃壒椹冲洖',
+          verified: '宸查獙鐢?,
+          repairing: '妫€淇腑',
+          repair_completed: '妫€淇畬鎴?,
+          power_on_applied: '寰呴€佺數瀹℃壒',
+          power_on_rejected: '閫佺數瀹℃壒椹冲洖',
+          completed: '娴佺▼瀹屾垚',
+        };
+        const operationTypeMap = {
+          auto_skip_power_off_approval: '宸插け鐢佃浆鍏ュ畨鍏ㄧ‘璁ゆ寕鐗?,
+          create: '鎻愪氦鍋滅數鐢宠',
+          power_off_approve: '鍋滅數瀹℃壒',
+          electrician_verify: '楠岀數纭',
+          repair_start: '寮€濮嬫淇?,
+          repair_end: '缁撴潫妫€淇?,
+          tag_release: '瑙ｉ櫎鏈汉鎸傜墝',
+          power_on_apply: '鎻愪氦閫佺數鐢宠',
+          power_on_approve: '閫佺數瀹℃壒',
+        };
+        const deviceLocation = computed(() => `${application.value.power_room || '鏈厤缃厤鐢靛'} / ${application.value.cabinet || '鏈厤缃煖鍙?}`);
+        const statusText = (status) => statusMap[status] || (status || '鏈紑濮?);
+        const operationTypeText = (type) => operationTypeMap[type] || type || '-';
+        const formatDateTime = (value) => {
+          if (!value) return '';
+          const date = new Date(value);
+          if (Number.isNaN(date.getTime())) return value;
+          return date.toLocaleString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+        };
+        const fetchDetail = async () => {
+          const id = new URLSearchParams(window.location.search).get('id');
+          if (!id) {
+            error.value = '缂哄皯宸ュ崟 ID';
+            loading.value = false;
+            return;
+          }
+          try {
+            const res = await axios.get(`/api/application/${id}`);
+            application.value = res.data.application || {};
+            logs.value = Array.isArray(res.data.logs) ? res.data.logs : [];
+            tagRecords.value = Array.isArray(res.data.tag_records) ? res.data.tag_records : [];
+          } catch (err) {
+            if (err?.response?.status === 401) return window.appShell.handleUnauthorized();
+            error.value = err?.response?.data?.msg || '宸ュ崟璇︽儏鍔犺浇澶辫触';
+          } finally {
+            loading.value = false;
+          }
+        };
+        const goBack = () => window.appShell.goBackOrHome();
+        const openBatch = () => {
+          if (!application.value.batch_id) return;
+          window.open(`/maintenance_batch_detail.html?id=${application.value.batch_id}`, '_blank');
+        };
+        const openMonitor = () => {
+          const query = new URLSearchParams();
+          if (application.value.deviceId) query.set('device_id', application.value.deviceId);
+          if (application.value.power_room) query.set('power_room', application.value.power_room);
+          query.set('from', 'detail');
+          window.open(`/device_monitor.html?${query.toString()}`, '_blank');
+        };
+        const logout = () => {
+          window.appShell.logout();
+        };
+        onMounted(fetchDetail);
+        return { application, logs, tagRecords, loading, error, deviceLocation, statusText, operationTypeText, formatDateTime, goBack, openBatch, openMonitor, logout };
+      },
+    }).use(ElementPlus).mount('#app');
+  </script>
+</body>
+</html>
+

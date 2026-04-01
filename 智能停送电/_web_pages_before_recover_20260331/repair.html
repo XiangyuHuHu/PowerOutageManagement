@@ -1,0 +1,461 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>妫€淇鐞?/title>
+  <link rel="stylesheet" href="/admin_theme.css">
+  <script src="/app_shell.js"></script>
+  <script src="/vendor/vue.global.prod.js"></script>
+  <script src="/vendor/axios.min.js"></script>
+  <link rel="stylesheet" href="/vendor/element-plus/index.css">
+  <script src="/vendor/element-plus/index.full.min.js"></script>
+  <style>
+    body { margin: 0; min-height: 100vh; padding: 22px; }
+    [v-cloak] { display: none; }
+    #app { max-width: 1520px; margin: 0 auto; border-radius: 24px; overflow: hidden; }
+    .header, .content { padding: 24px 28px; }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      background: linear-gradient(90deg, rgba(8, 29, 42, 0.96), rgba(26, 78, 97, 0.84));
+      border-bottom: 1px solid rgba(118, 200, 255, 0.12);
+    }
+    .header h1 { margin: 0; font-size: 30px; }
+    .header p { margin: 8px 0 0; line-height: 1.8; font-size: 14px; max-width: 920px; color: #cbeaff; }
+    .stats { display: grid; grid-template-columns: repeat(3, minmax(180px, 1fr)); gap: 14px; margin-bottom: 18px; }
+    .stat, .panel { padding: 18px; border-radius: 18px; position: relative; overflow: hidden; }
+    .stat::before, .panel::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 4px;
+      border-radius: 18px 18px 0 0;
+      opacity: 0.95;
+    }
+    .stat-total::before, .panel-list::before { background: linear-gradient(90deg, #4da8ff, #7fd6ff); }
+    .stat-verify::before { background: linear-gradient(90deg, #ffb14d, #ffd36d); }
+    .stat-repair::before { background: linear-gradient(90deg, #29d0c4, #7ce9d2); }
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+    .user-meta { color: #abdfff; font-size: 13px; }
+    .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .dialog-note {
+      margin-bottom: 10px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: #eef6ff;
+      border: 1px solid #c8def6;
+      color: #244766;
+      font-size: 13px;
+      line-height: 1.7;
+    }
+    .el-dialog {
+      --el-dialog-bg-color: #f7fbff;
+      border: 1px solid #d8e6f3;
+      box-shadow: 0 18px 48px rgba(5, 19, 30, 0.32);
+    }
+    .el-dialog__header {
+      margin-right: 0;
+      padding: 18px 20px 12px;
+      border-bottom: 1px solid #e7f0f8;
+    }
+    .el-dialog__title { color: #17344a; font-weight: 800; }
+    .el-dialog__headerbtn .el-dialog__close { color: #6f8293; }
+    .el-dialog__body { padding: 18px 20px 12px; color: #284255; }
+    .el-dialog .el-form-item__label { color: #214056 !important; font-weight: 700; }
+    .el-dialog .el-textarea__inner,
+    .el-dialog .el-input__inner {
+      background: #f4f8fb !important;
+      color: #173042 !important;
+      border-color: #c9dcec !important;
+    }
+    .el-dialog .el-textarea__inner::placeholder,
+    .el-dialog .el-input__inner::placeholder {
+      color: #7d93a6 !important;
+    }
+    .el-dialog .el-button--default {
+      color: #365268;
+      border-color: #cddcea;
+      background: #f7fbff;
+    }
+    .el-dialog .el-button--default:hover {
+      color: #214056;
+      border-color: #9fc0da;
+      background: #edf5fc;
+    }
+    .switch-note { margin-top: 8px; color: #5b7386; font-size: 12px; line-height: 1.7; }
+    @media (max-width: 860px) {
+      .stats { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div id="app" v-cloak>
+    <div class="header">
+      <div>
+        <h1>妫€淇鐞?/h1>
+        <p>闆嗕腑澶勭悊褰撳墠鐢靛伐鐩稿叧鐨勯獙鐢点€佸畨鍏ㄧ‘璁ゆ寕鐗屻€佸紑濮嬫淇€佸畬鎴愭淇拰閫佺數鐢宠銆傞〉闈㈠彧灞曠ず褰撳墠鍙互鎺ㄨ繘鐨勫姩浣滐紝閬垮厤璺ㄩ樁娈佃鎿嶄綔銆?/p>
+      </div>
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <el-button @click="fetchData">鍒锋柊</el-button>
+        <el-button type="primary" @click="goBack">杩斿洖</el-button>
+        <el-button type="danger" @click="logout">閫€鍑虹櫥褰?/el-button>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="stats">
+        <div class="stat card stat-total">
+          <div class="metric-num">{{ stats.total }}</div>
+          <div class="metric-label">鎴戠殑鐩稿叧宸ュ崟</div>
+        </div>
+        <div class="stat card stat-verify">
+          <div class="metric-num">{{ stats.verify }}</div>
+          <div class="metric-label">寰呴獙鐢?/div>
+        </div>
+        <div class="stat card stat-repair">
+          <div class="metric-num">{{ stats.repair }}</div>
+          <div class="metric-label">妫€淇腑</div>
+        </div>
+      </div>
+
+      <section class="panel card panel-list">
+        <div class="toolbar">
+          <div class="user-meta">褰撳墠鐢靛伐锛歿{ realname || username || '鏈櫥褰曠敤鎴? }}</div>
+          <el-tabs v-model="activeTab">
+            <el-tab-pane label="鍏ㄩ儴宸ュ崟" name="all"></el-tab-pane>
+            <el-tab-pane label="寰呯敵璇烽€佺數" name="poweron"></el-tab-pane>
+          </el-tabs>
+        </div>
+
+        <el-table :data="filteredList" border height="580" v-loading="loading" empty-text="褰撳墠娌℃湁鍙鐞嗗伐鍗?>
+          <el-table-column label="宸ュ崟" width="90">
+            <template #default="{ row }">#{{ row.id }}</template>
+          </el-table-column>
+          <el-table-column prop="applicant" label="鐢宠浜? width="120" />
+          <el-table-column label="鏃堕棿" width="180">
+            <template #default="{ row }">{{ formatDateTime(row.created_at) }}</template>
+          </el-table-column>
+          <el-table-column label="璁惧" min-width="220">
+            <template #default="{ row }">
+              <div>{{ row.device_name || row.deviceId }}</div>
+              <div style="color: var(--admin-text-soft); font-size: 12px; margin-top: 4px;">{{ row.deviceId }}</div>
+            </template>
+          </el-table-column>
+          <el-table-column prop="reason" label="鍋滅數鍘熷洜" min-width="220" show-overflow-tooltip />
+          <el-table-column label="褰撳墠鐘舵€? width="160">
+            <template #default="{ row }">
+              <el-tag :type="statusTagType(row.status)">{{ displayStatusText(row) }}</el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column label="鏈夋晥鎸傜墝" width="110">
+            <template #default="{ row }">{{ row.active_tag_count ?? 0 }}</template>
+          </el-table-column>
+          <el-table-column label="鐢靛伐鎿嶄綔" width="430" fixed="right">
+            <template #default="{ row }">
+              <div class="actions">
+                <el-button v-if="row.status === 'approved'" type="primary" @click="showVerifyDialog(row)">
+                  {{ row.power_off_approver === '绯荤粺鑷姩纭' ? '瀹夊叏纭骞舵寕鐗? : '楠岀數纭' }}
+                </el-button>
+                <el-button v-else-if="row.status === 'verified'" type="warning" @click="startRepair(row.id)">寮€濮嬫淇?/el-button>
+                <el-button v-else-if="row.status === 'repairing'" type="success" @click="endRepair(row.id)">瀹屾垚妫€淇?/el-button>
+                <el-button v-else-if="row.status === 'repair_completed'" type="primary" @click="showPowerOnDialog(row)">鐢宠閫佺數</el-button>
+                <el-button @click="viewDetail(row.id)">鏌ョ湅璇︽儏</el-button>
+              </div>
+            </template>
+          </el-table-column>
+        </el-table>
+      </section>
+    </div>
+
+    <el-dialog v-model="verifyDialogVisible" title="楠岀數纭" width="520px" :close-on-click-modal="false">
+      <div class="dialog-note">楠岀數鎴愬姛鍚庯紝绯荤粺浼氳嚜鍔ㄥ缓绔嬫湰浜烘寕鐗岃褰曪紝骞惰繘鍏ュ悗缁淇祦绋嬨€?/div>
+      <el-form label-width="96px">
+        <el-form-item label="瀹夊叏鎺柦">
+          <el-switch
+            v-model="verifyForm.safety_confirmed"
+            inline-prompt
+            active-text="宸茶惤瀹?
+            inactive-text="鏈‘璁?
+          />
+          <div class="switch-note">璇风‘璁ょ幇鍦哄畨鍏ㄦ帾鏂藉凡钀藉疄鍚庯紝鍐嶆墽琛岄獙鐢电‘璁ゃ€?/div>
+        </el-form-item>
+        <el-form-item label="澶囨敞">
+          <el-input v-model="verifyForm.comment" type="textarea" :rows="3" placeholder="鍙€夊～鍐欒ˉ鍏呰鏄? />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="verifyDialogVisible = false">鍙栨秷</el-button>
+        <el-button type="primary" @click="confirmVerify">纭楠岀數</el-button>
+      </template>
+    </el-dialog>
+
+    <el-dialog v-model="powerOnDialogVisible" title="閫佺數鐢宠" width="520px" :close-on-click-modal="false">
+      <div class="dialog-note">鎻愪氦鍓嶇郴缁熶細灏濊瘯瑙ｉ櫎褰撳墠鐢靛伐鏈汉鎸傜墝锛屽苟妫€鏌ユ槸鍚﹁繕鏈夊墿浣欐寕鐗屻€?/div>
+      <el-form label-width="96px">
+        <el-form-item label="閫佺數鍘熷洜">
+          <el-input v-model="powerOnForm.power_on_reason" type="textarea" :rows="3" placeholder="璇疯緭鍏ラ€佺數鍘熷洜" />
+        </el-form-item>
+        <el-form-item label="璁″垝閫佺數">
+          <el-input v-model="powerOnForm.power_on_time" placeholder="渚嬪锛?026-03-25 18:00" />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="powerOnDialogVisible = false">鍙栨秷</el-button>
+        <el-button type="primary" @click="confirmPowerOn">鎻愪氦閫佺數鐢宠</el-button>
+      </template>
+    </el-dialog>
+  </div>
+
+  <script>
+    if (!localStorage.getItem('user_realname') && !localStorage.getItem('user_username')) {
+      window.appShell.handleUnauthorized();
+    }
+    axios.defaults.withCredentials = true;
+    const { createApp, ref, computed, onMounted } = Vue;
+
+    createApp({
+      setup() {
+        const { ElMessage, ElMessageBox } = ElementPlus;
+        const applications = ref([]);
+        const loading = ref(false);
+        const verifyDialogVisible = ref(false);
+        const powerOnDialogVisible = ref(false);
+        const activeTab = ref('all');
+        const verifyForm = ref({ id: null, safety_confirmed: false, comment: '' });
+        const powerOnForm = ref({ id: null, power_on_reason: '', power_on_time: '' });
+        const realname = localStorage.getItem('user_realname') || '';
+        const username = localStorage.getItem('user_username') || '';
+        const stats = ref({ total: 0, verify: 0, repair: 0 });
+
+        const statusText = (status) => ({
+          pending: '寰呭仠鐢靛鎵?,
+          approved: '鍋滅數瀹℃壒閫氳繃',
+          rejected: '鍋滅數瀹℃壒椹冲洖',
+          verified: '宸查獙鐢?,
+          repairing: '妫€淇腑',
+          repair_completed: '妫€淇畬鎴?,
+          power_on_applied: '寰呴€佺數瀹℃壒',
+          power_on_rejected: '閫佺數瀹℃壒椹冲洖',
+          completed: '宸插畬鎴?,
+        }[status] || status || '鏈煡鐘舵€?);
+
+        const statusTagType = (status) => ({
+          approved: 'primary',
+          verified: 'warning',
+          repairing: 'success',
+          repair_completed: 'info',
+          power_on_applied: 'primary',
+          completed: 'success',
+          rejected: 'danger',
+          power_on_rejected: 'danger',
+        }[status] || 'info');
+
+        const displayStatusText = (row) =>
+          row?.status === 'approved' && row?.power_off_approver === '绯荤粺鑷姩纭'
+            ? '寰呭畨鍏ㄧ‘璁ゆ寕鐗?
+            : statusText(row?.status);
+
+        const formatDateTime = (value) => {
+          if (!value) return '-';
+          const date = new Date(value);
+          return Number.isNaN(date.getTime()) ? value : date.toLocaleString('zh-CN');
+        };
+
+        const currentDateTimeInput = () => {
+          const now = new Date();
+          const pad = (value) => String(value).padStart(2, '0');
+          return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
+        };
+
+        const currentUser = () => realname || username;
+
+        const updateStats = () => {
+          const name = currentUser();
+          const userApplications = applications.value.filter((app) =>
+            app.applicant === name || app.electrician_verifier === name || app.repair_operator === name
+          );
+          stats.value.total = userApplications.length;
+          stats.value.verify = userApplications.filter((app) => app.status === 'approved').length;
+          stats.value.repair = userApplications.filter((app) => app.status === 'repairing').length;
+        };
+
+        const fetchData = async () => {
+          loading.value = true;
+          try {
+            const res = await axios.get('/api/list');
+            applications.value = Array.isArray(res.data) ? res.data : [];
+            updateStats();
+          } catch (err) {
+            if (err?.response?.status === 401) {
+              window.appShell.handleUnauthorized();
+              return;
+            }
+            ElMessage.error(err?.response?.data?.msg || '鑾峰彇宸ュ崟鏁版嵁澶辫触');
+          } finally {
+            loading.value = false;
+          }
+        };
+
+        const filteredList = computed(() => {
+          const name = currentUser();
+          const userApplications = applications.value.filter((app) =>
+            app.applicant === name || app.electrician_verifier === name || app.repair_operator === name
+          );
+          return activeTab.value === 'poweron'
+            ? userApplications.filter((app) => app.status === 'repair_completed')
+            : userApplications;
+        });
+
+        const showVerifyDialog = (row) => {
+          verifyForm.value = { id: row.id, safety_confirmed: false, comment: '' };
+          verifyDialogVisible.value = true;
+        };
+
+        const confirmVerify = async () => {
+          if (!verifyForm.value.safety_confirmed) {
+            ElMessage.warning('璇峰厛纭鐜板満瀹夊叏鎺柦宸茶惤瀹?);
+            return;
+          }
+          loading.value = true;
+          try {
+            await axios.post('/api/electrician-verify', {
+              id: verifyForm.value.id,
+              safety_measures: '鐜板満瀹夊叏鎺柦宸茶惤瀹?,
+              comment: verifyForm.value.comment,
+            });
+            verifyDialogVisible.value = false;
+            await fetchData();
+            ElMessage.success('楠岀數纭鎴愬姛');
+          } catch (err) {
+            ElMessage.error(err?.response?.data?.msg || '楠岀數澶辫触');
+          } finally {
+            loading.value = false;
+          }
+        };
+
+        const startRepair = async (id) => {
+          try {
+            await ElMessageBox.confirm('纭寮€濮嬫淇紵', '寮€濮嬫淇?, {
+              confirmButtonText: '纭',
+              cancelButtonText: '鍙栨秷',
+              type: 'warning',
+            });
+          } catch {
+            return;
+          }
+          loading.value = true;
+          try {
+            await axios.post('/api/repair-operation', { id, operation: 'start', comment: '寮€濮嬫淇搷浣? });
+            await fetchData();
+            ElMessage.success('妫€淇凡寮€濮?);
+          } catch (err) {
+            ElMessage.error(err?.response?.data?.msg || '鎿嶄綔澶辫触');
+          } finally {
+            loading.value = false;
+          }
+        };
+
+        const endRepair = async (id) => {
+          try {
+            await ElMessageBox.confirm('纭瀹屾垚妫€淇紵', '瀹屾垚妫€淇?, {
+              confirmButtonText: '纭',
+              cancelButtonText: '鍙栨秷',
+              type: 'warning',
+            });
+          } catch {
+            return;
+          }
+          loading.value = true;
+          try {
+            await axios.post('/api/repair-operation', { id, operation: 'end', comment: '瀹屾垚妫€淇搷浣? });
+            await fetchData();
+            ElMessage.success('妫€淇凡瀹屾垚');
+          } catch (err) {
+            ElMessage.error(err?.response?.data?.msg || '鎿嶄綔澶辫触');
+          } finally {
+            loading.value = false;
+          }
+        };
+
+        const showPowerOnDialog = (row) => {
+          powerOnForm.value = { id: row.id, power_on_reason: '', power_on_time: currentDateTimeInput() };
+          powerOnDialogVisible.value = true;
+        };
+
+        const confirmPowerOn = async () => {
+          if (!powerOnForm.value.power_on_reason || !powerOnForm.value.power_on_reason.trim()) {
+            ElMessage.warning('璇峰～鍐欓€佺數鍘熷洜');
+            return;
+          }
+          loading.value = true;
+          try {
+            await axios.post('/api/power-on-apply', {
+              id: powerOnForm.value.id,
+              power_on_reason: powerOnForm.value.power_on_reason,
+              reason: powerOnForm.value.power_on_reason,
+              power_on_time: powerOnForm.value.power_on_time,
+            });
+            powerOnDialogVisible.value = false;
+            await fetchData();
+            ElMessage.success('閫佺數鐢宠宸叉彁浜?);
+          } catch (err) {
+            ElMessage.error(err?.response?.data?.msg || '閫佺數鐢宠澶辫触');
+          } finally {
+            loading.value = false;
+          }
+        };
+
+        const viewDetail = (id) => {
+          window.location.href = `/detail.html?id=${id}`;
+        };
+
+        const goBack = () => window.appShell.goBackOrHome();
+        const logout = () => window.appShell.logout();
+
+        onMounted(fetchData);
+
+        return {
+          applications,
+          loading,
+          verifyDialogVisible,
+          powerOnDialogVisible,
+          activeTab,
+          verifyForm,
+          powerOnForm,
+          realname,
+          username,
+          stats,
+          filteredList,
+          statusTagType,
+          displayStatusText,
+          formatDateTime,
+          fetchData,
+          showVerifyDialog,
+          confirmVerify,
+          startRepair,
+          endRepair,
+          showPowerOnDialog,
+          confirmPowerOn,
+          viewDetail,
+          goBack,
+          logout,
+        };
+      },
+    }).use(ElementPlus).mount('#app');
+  </script>
+</body>
+</html>
+

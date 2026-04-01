@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>调度员工作台</title>
+  <link rel="stylesheet" href="/admin_theme.css">
+  <script src="/app_shell.js"></script>
+  <script src="/vendor/vue.global.prod.js"></script>
+  <script src="/vendor/axios.min.js"></script>
+  <link rel="stylesheet" href="/vendor/element-plus/index.css">
+  <script src="/vendor/element-plus/index.full.min.js"></script>
+  <style>
+    body { margin: 0; min-height: 100vh; padding: 22px; }
+    [v-cloak] { display: none; }
+    #app { max-width: 1480px; margin: 0 auto; border-radius: 24px; overflow: hidden; }
+    .header, .content { padding: 24px 28px; }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      flex-wrap: wrap;
+      background: linear-gradient(90deg, rgba(8, 29, 42, 0.96), rgba(26, 78, 97, 0.84));
+      border-bottom: 1px solid rgba(118, 200, 255, 0.12);
+    }
+    .header h1 { margin: 0; font-size: 30px; }
+    .header p { margin: 8px 0 0; max-width: 860px; line-height: 1.8; font-size: 14px; color: #cbeaff; }
+    .header-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    .stats, .entry-grid, .focus-grid { display: grid; gap: 14px; }
+    .stats { grid-template-columns: repeat(4, minmax(180px, 1fr)); margin-bottom: 18px; }
+    .entry-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); margin-bottom: 18px; }
+    .focus-grid { grid-template-columns: 1fr 1fr; }
+    .stat, .entry, .panel, .focus-item { padding: 18px; border-radius: 20px; }
+    .stat, .entry, .panel { position: relative; overflow: hidden; }
+    .stat {
+      background:
+        radial-gradient(circle at top right, rgba(255,255,255,0.04), transparent 34%),
+        rgba(255,255,255,0.05);
+    }
+    .stat::before,
+    .entry::before,
+    .panel::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 4px;
+      border-radius: 20px 20px 0 0;
+      opacity: 0.96;
+    }
+    .stat::after,
+    .entry::after {
+      content: "";
+      position: absolute;
+      inset: auto -30px -30px auto;
+      width: 110px;
+      height: 110px;
+      border-radius: 50%;
+      opacity: 0.08;
+    }
+    .entry { cursor: pointer; transition: transform 0.18s ease, border-color 0.18s ease; }
+    .entry:hover { transform: translateY(-2px); border-color: rgba(118, 200, 255, 0.28); }
+    .entry { background: linear-gradient(180deg, rgba(255,255,255,0.045), rgba(255,255,255,0.025)), rgba(255,255,255,0.05); }
+    .entry-title { font-size: 18px; font-weight: 800; margin-bottom: 10px; }
+    .entry-desc { color: var(--admin-text-soft); line-height: 1.7; font-size: 13px; }
+    .section-title { margin: 0 0 16px; font-size: 20px; }
+    .stat-off::before,
+    .entry-approval::before,
+    .panel-room::before { background: linear-gradient(90deg, #4da8ff, #7fd6ff); }
+    .stat-off::after,
+    .entry-approval::after { background: #3d95ff; }
+    .stat-on::before,
+    .entry-batch::before { background: linear-gradient(90deg, #26d1b8, #7ce9d2); }
+    .stat-on::after,
+    .entry-batch::after { background: #2bcfb4; }
+    .stat-risk::before,
+    .entry-monitor::before,
+    .panel-task::before { background: linear-gradient(90deg, #ffb14d, #ffd36d); }
+    .stat-risk::after,
+    .entry-monitor::after { background: #ffb347; }
+    .stat-note::before,
+    .entry-history::before { background: linear-gradient(90deg, #8d84ff, #b2adff); }
+    .stat-note::after,
+    .entry-history::after { background: #8f87ff; }
+    .focus-list { display: grid; gap: 12px; }
+    .focus-item { display: flex; justify-content: space-between; gap: 14px; align-items: center; }
+    .focus-main { display: grid; gap: 6px; }
+    .focus-main strong { font-size: 15px; }
+    .focus-main span { color: var(--admin-text-soft); font-size: 13px; line-height: 1.7; }
+    .pill-row { display: flex; gap: 8px; flex-wrap: wrap; }
+    .pill { padding: 5px 10px; border-radius: 999px; background: rgba(255,255,255,0.08); font-size: 12px; border: 1px solid rgba(255,255,255,0.06); }
+    .pill-blue { background: rgba(77, 168, 255, 0.14); color: #9ed6ff; border-color: rgba(77,168,255,0.22); }
+    .pill-cyan { background: rgba(41, 208, 196, 0.14); color: #92f2e8; border-color: rgba(41,208,196,0.22); }
+    .pill-amber { background: rgba(255, 177, 77, 0.14); color: #ffd596; border-color: rgba(255,177,77,0.22); }
+    .pill-violet { background: rgba(141, 132, 255, 0.14); color: #c9c5ff; border-color: rgba(141,132,255,0.22); }
+    .metric-label { margin-top: 8px; font-size: 13px; }
+    .empty { padding: 48px 16px; text-align: center; color: var(--admin-text-soft); }
+    .soft-empty {
+      display: grid;
+      place-items: center;
+      min-height: 190px;
+      border-radius: 18px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border: 1px dashed rgba(118, 200, 255, 0.16);
+    }
+    @media (max-width: 1100px) {
+      .entry-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .focus-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 760px) {
+      .stats, .entry-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div id="app" v-cloak>
+    <div class="header">
+      <div>
+        <h1>调度员工作台</h1>
+        <p>这里集中展示待停电审批、待送电审批、批次审批、历史记录和设备监控入口。调度员先处理审批，再通过批次和监控页面核对现场状态。</p>
+      </div>
+      <div class="header-actions">
+        <el-button @click="fetchData">刷新</el-button>
+        <el-button type="primary" @click="logout">退出登录</el-button>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="stats">
+        <div class="stat card stat-off"><div class="metric-num">{{ stats.pendingPowerOff }}</div><div class="metric-label">待停电审批</div></div>
+        <div class="stat card stat-on"><div class="metric-num">{{ stats.pendingPowerOn }}</div><div class="metric-label">待送电审批</div></div>
+        <div class="stat card stat-risk"><div class="metric-num">{{ stats.riskItems }}</div><div class="metric-label">挂牌风险工单</div></div>
+        <div class="stat card stat-note"><div class="metric-num">{{ stats.unreadNotifications }}</div><div class="metric-label">未读通知</div></div>
+      </div>
+
+      <div class="entry-grid">
+        <div class="entry card entry-approval" @click="go('approval.html')">
+          <div class="entry-title">审批中心</div>
+          <div class="entry-desc">查看待审批工单，处理停电审批和送电审批。</div>
+          <div class="pill-row" style="margin-top:12px;"><span class="pill pill-blue">待处理 {{ stats.pendingPowerOff + stats.pendingPowerOn }}</span></div>
+        </div>
+        <div class="entry card entry-history" @click="go('approval_history.html')">
+          <div class="entry-title">审批记录</div>
+          <div class="entry-desc">跟踪当前流转中的审批过程和处理中工单。</div>
+          <div class="pill-row" style="margin-top:12px;"><span class="pill pill-violet">流程跟踪</span></div>
+        </div>
+        <div class="entry card entry-batch" @click="go('maintenance_batches.html')">
+          <div class="entry-title">大检修批次</div>
+          <div class="entry-desc">集中查看大检修批次、阻塞原因和批量审批入口。</div>
+          <div class="pill-row" style="margin-top:12px;"><span class="pill pill-cyan">批次联动</span></div>
+        </div>
+        <div class="entry card entry-monitor" @click="go('device_monitor.html')">
+          <div class="entry-title">设备监控</div>
+          <div class="entry-desc">查看设备是否带电、当前挂牌数量，与工单状态联动核对。</div>
+          <div class="pill-row" style="margin-top:12px;"><span class="pill pill-amber">监控联动</span></div>
+        </div>
+      </div>
+
+      <div class="focus-grid">
+        <section class="panel card panel-room">
+          <h2 class="section-title">当前重点配电室</h2>
+          <div class="focus-list" v-if="roomItems.length">
+            <div class="focus-item card" v-for="item in roomItems" :key="item.power_room">
+              <div class="focus-main">
+                <strong>{{ item.power_room || '未配置配电室' }}</strong>
+                <span>待停电 {{ item.pendingOff }} / 待送电 {{ item.pendingOn }} / 挂牌风险 {{ item.risk }}</span>
+              </div>
+              <div class="pill-row">
+                <span class="pill pill-blue">停电 {{ item.pendingOff }}</span>
+                <span class="pill pill-cyan">送电 {{ item.pendingOn }}</span>
+                <span class="pill pill-amber">风险 {{ item.risk }}</span>
+              </div>
+            </div>
+          </div>
+          <div class="soft-empty" v-else><div class="empty">当前没有需要重点关注的配电室</div></div>
+        </section>
+
+        <section class="panel card panel-task">
+          <h2 class="section-title">最近待处理工单</h2>
+          <div class="focus-list" v-if="taskItems.length">
+            <div class="focus-item card" v-for="item in taskItems" :key="item.id">
+              <div class="focus-main">
+                <strong>#{{ item.id }} / {{ item.device_name || item.deviceId }}</strong>
+                <span>{{ item.power_room || '未配置配电室' }} / {{ item.cabinet || '未配置柜号' }} / {{ statusText(item.status) }}</span>
+              </div>
+              <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                <el-button size="small" @click="openDetail(item)">详情</el-button>
+                <el-button size="small" type="warning" @click="openMonitor(item)">监控</el-button>
+              </div>
+            </div>
+          </div>
+          <div class="soft-empty" v-else><div class="empty">当前没有待处理工单</div></div>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    if (!localStorage.getItem('user_realname') && !localStorage.getItem('user_username')) {
+      window.appShell.handleUnauthorized();
+    }
+    axios.defaults.withCredentials = true;
+    const { createApp, ref, computed, onMounted } = Vue;
+
+    createApp({
+      setup() {
+        const { ElMessage } = ElementPlus;
+        const applications = ref([]);
+        const notifications = ref([]);
+
+        const currentUser = localStorage.getItem('user_realname') || localStorage.getItem('user_username') || '';
+
+        const statusText = (status) => ({
+          pending: '待停电审批',
+          approved: '已停电待验电',
+          rejected: '停电审批驳回',
+          verified: '已验电',
+          repairing: '检修中',
+          repair_completed: '检修完成',
+          power_on_applied: '待送电审批',
+          power_on_rejected: '送电审批驳回',
+          completed: '已完成',
+        }[status] || status || '未知状态');
+
+        const stats = computed(() => ({
+          pendingPowerOff: applications.value.filter((item) => item.status === 'pending').length,
+          pendingPowerOn: applications.value.filter((item) => item.status === 'power_on_applied').length,
+          riskItems: applications.value.filter((item) => Number(item.active_tag_count || 0) > 0).length,
+          unreadNotifications: notifications.value.filter((item) => !item.is_read).length,
+        }));
+
+        const roomItems = computed(() => {
+          const groups = {};
+          applications.value
+            .filter((item) => ['pending', 'power_on_applied'].includes(item.status))
+            .forEach((item) => {
+              const key = item.power_room || '未配置配电室';
+              if (!groups[key]) groups[key] = { power_room: key, pendingOff: 0, pendingOn: 0, risk: 0 };
+              if (item.status === 'pending') groups[key].pendingOff += 1;
+              if (item.status === 'power_on_applied') groups[key].pendingOn += 1;
+              if (Number(item.active_tag_count || 0) > 0) groups[key].risk += 1;
+            });
+          return Object.values(groups)
+            .sort((a, b) => (b.pendingOff + b.pendingOn + b.risk) - (a.pendingOff + a.pendingOn + a.risk))
+            .slice(0, 6);
+        });
+
+        const taskItems = computed(() => applications.value
+          .filter((item) => ['pending', 'power_on_applied'].includes(item.status))
+          .sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0))
+          .slice(0, 6));
+
+        const fetchData = async () => {
+          try {
+            const [appsRes, notificationsRes] = await Promise.all([
+              axios.get('/api/list'),
+              axios.get('/api/notifications'),
+            ]);
+            applications.value = Array.isArray(appsRes.data) ? appsRes.data : [];
+            notifications.value = Array.isArray(notificationsRes.data) ? notificationsRes.data : [];
+          } catch (err) {
+            if (err?.response?.status === 401) return window.appShell.handleUnauthorized();
+            ElMessage.error(err?.response?.data?.msg || '调度工作台加载失败');
+          }
+        };
+
+        const go = (url) => { window.location.href = `/${url}`; };
+        const openDetail = (item) => { window.open(`/detail.html?id=${item.id}`, '_blank'); };
+        const openMonitor = (item) => {
+          const query = new URLSearchParams();
+          if (item.deviceId) query.set('device_id', item.deviceId);
+          if (item.power_room) query.set('power_room', item.power_room);
+          query.set('from', 'dispatcher_home');
+          window.open(`/device_monitor.html?${query.toString()}`, '_blank');
+        };
+        const logout = () => { window.appShell.logout(); };
+
+        onMounted(fetchData);
+
+        return { currentUser, stats, roomItems, taskItems, statusText, fetchData, go, openDetail, openMonitor, logout };
+      },
+    }).use(ElementPlus).mount('#app');
+  </script>
+</body>
+</html>

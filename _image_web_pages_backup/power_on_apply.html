@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>送电申请</title>
+  <script src="https://unpkg.com/vue@3"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/element-plus/dist/index.css">
+  <script src="https://cdn.jsdelivr.net/npm/element-plus"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      padding: 22px;
+      background:
+        radial-gradient(circle at top right, rgba(255, 214, 102, 0.14), transparent 24%),
+        linear-gradient(135deg, #08131c, #183245 55%, #22566b);
+      color: #f3fbff;
+      font-family: "Segoe UI", "Microsoft YaHei", sans-serif;
+    }
+    #app {
+      max-width: 1420px;
+      margin: 0 auto;
+      background: rgba(11, 24, 35, 0.9);
+      border-radius: 24px;
+      overflow: hidden;
+      border: 1px solid rgba(128, 203, 255, 0.16);
+      box-shadow: 0 24px 50px rgba(0, 0, 0, 0.34);
+    }
+    .header {
+      padding: 24px 28px;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      background: linear-gradient(90deg, rgba(8, 28, 41, 0.96), rgba(22, 74, 99, 0.86));
+      border-bottom: 1px solid rgba(128, 203, 255, 0.14);
+    }
+    .header h1 { margin: 0; font-size: 30px; }
+    .header p {
+      margin: 8px 0 0;
+      color: #abdfff;
+      line-height: 1.8;
+      font-size: 14px;
+      max-width: 860px;
+    }
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .chip {
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+      color: #eff9ff;
+      font-size: 13px;
+    }
+    .content { padding: 22px 28px 28px; }
+    .alert-box {
+      margin-bottom: 16px;
+      border-radius: 16px;
+      padding: 14px 16px;
+      background: rgba(255, 192, 76, 0.12);
+      border: 1px solid rgba(255, 192, 76, 0.26);
+      color: #ffe4a2;
+      line-height: 1.8;
+    }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(180px, 1fr));
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+    .stat {
+      border-radius: 18px;
+      padding: 16px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(128, 203, 255, 0.12);
+    }
+    .stat .num {
+      font-size: 30px;
+      font-weight: 800;
+      color: #ffd66f;
+    }
+    .stat .label {
+      margin-top: 8px;
+      color: #b9e4ff;
+      font-size: 13px;
+    }
+    .toolbar {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+    .toolbar .grow { flex: 1; min-width: 240px; }
+    .el-table {
+      background: rgba(8, 18, 28, 0.78) !important;
+      border-radius: 18px !important;
+      border: 1px solid rgba(128, 203, 255, 0.12) !important;
+    }
+    .el-table th {
+      background: rgba(21, 63, 84, 0.92) !important;
+      color: #eef9ff !important;
+      border: none !important;
+    }
+    .el-table tr { background: rgba(14, 31, 46, 0.72) !important; }
+    .el-table td {
+      color: #eef8ff !important;
+      border-bottom: 1px solid rgba(128, 203, 255, 0.08) !important;
+    }
+    .device-cell {
+      display: grid;
+      gap: 4px;
+      line-height: 1.5;
+    }
+    .device-cell .sub {
+      color: #a7dbff;
+      font-size: 12px;
+    }
+    .tag-count {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(255, 192, 76, 0.14);
+      color: #ffd67b;
+      font-weight: 700;
+      font-size: 12px;
+    }
+    .tag-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+    }
+    .tag-item {
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+      color: #d5efff;
+      font-size: 12px;
+    }
+    @media (max-width: 980px) {
+      .stats { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 680px) {
+      .stats { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div class="header">
+      <div>
+        <h1>送电申请</h1>
+        <p>送电申请页已把挂牌数量和挂牌人前置展示。电工可以先看到自己这次申请对应的配电室、柜号和剩余挂牌，再决定是否提交送电申请。</p>
+      </div>
+      <div class="header-actions">
+        <span class="chip">{{ currentUser }}</span>
+        <el-button @click="goHome">首页</el-button>
+        <el-button type="primary" @click="logout">退出登录</el-button>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="alert-box">
+        系统会先解除“本人挂牌”。如果同一设备仍存在其他有效挂牌，工单不会进入送电审批，而是保留在当前页面继续提示未解牌人员。
+      </div>
+
+      <div class="stats">
+        <div class="stat">
+          <div class="num">{{ repairCompletedCount }}</div>
+          <div class="label">待发起送电申请</div>
+        </div>
+        <div class="stat">
+          <div class="num">{{ powerOnAppliedCount }}</div>
+          <div class="label">已进入送电审批</div>
+        </div>
+        <div class="stat">
+          <div class="num">{{ totalActiveTagCount }}</div>
+          <div class="label">当前剩余挂牌总数</div>
+        </div>
+        <div class="stat">
+          <div class="num">{{ roomCount }}</div>
+          <div class="label">涉及配电室数量</div>
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <el-input v-model="keyword" class="grow" clearable placeholder="搜索配电室 / 柜号 / 设备 / 申请人 / 原因" />
+        <el-select v-model="statusFilter" placeholder="状态筛选" style="width: 200px;">
+          <el-option label="全部" value="" />
+          <el-option label="检修完成" value="repair_completed" />
+          <el-option label="送电审批中" value="power_on_applied" />
+        </el-select>
+        <el-button type="primary" @click="fetchList">刷新</el-button>
+      </div>
+
+      <el-table :data="filteredList" border v-loading="loading" height="560">
+        <el-table-column prop="id" label="工单" width="90">
+          <template #default="{ row }">#{{ row.id }}</template>
+        </el-table-column>
+
+        <el-table-column label="设备" min-width="260">
+          <template #default="{ row }">
+            <div class="device-cell">
+              <strong>{{ row.device_name || row.deviceId }}</strong>
+              <span class="sub">{{ row.power_room || '未配置配电室' }} / {{ row.cabinet || '未配置柜号' }}</span>
+              <span class="sub">{{ row.deviceId }}</span>
+            </div>
+          </template>
+        </el-table-column>
+
+        <el-table-column prop="applicant" label="申请人" width="120" />
+        <el-table-column prop="reason" label="停电原因" min-width="180" show-overflow-tooltip />
+
+        <el-table-column label="剩余挂牌" width="220">
+          <template #default="{ row }">
+            <div>
+              <span class="tag-count">{{ row.active_tag_count || 0 }} 个</span>
+              <div class="tag-list" v-if="row.active_tags && row.active_tags.length">
+                <span class="tag-item" v-for="tag in row.active_tags" :key="tag.id">{{ tag.electrician_name }}</span>
+              </div>
+              <div v-else style="margin-top:8px; color:#a7dbff; font-size:12px;">当前无有效挂牌</div>
+            </div>
+          </template>
+        </el-table-column>
+
+        <el-table-column prop="status" label="状态" width="140">
+          <template #default="{ row }">
+            <el-tag :type="row.status === 'repair_completed' ? 'success' : 'warning'">
+              {{ statusText(row.status) }}
+            </el-tag>
+          </template>
+        </el-table-column>
+
+        <el-table-column label="操作" width="160" fixed="right">
+          <template #default="{ row }">
+            <el-button
+              type="primary"
+              size="small"
+              :disabled="row.status !== 'repair_completed'"
+              @click="showDialog(row)"
+            >
+              发起送电申请
+            </el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+    </div>
+
+    <el-dialog v-model="dialogVisible" title="提交送电申请" width="560px" :close-on-click-modal="false">
+      <el-form label-width="110px">
+        <el-form-item label="工单编号">
+          <el-input :model-value="'#' + dialogForm.id" disabled />
+        </el-form-item>
+        <el-form-item label="设备">
+          <el-input :model-value="dialogDeviceText" disabled />
+        </el-form-item>
+        <el-form-item label="当前挂牌数量">
+          <el-input :model-value="String(dialogForm.active_tag_count || 0)" disabled />
+        </el-form-item>
+        <el-form-item label="当前挂牌人" v-if="dialogForm.active_tags && dialogForm.active_tags.length">
+          <div class="tag-list">
+            <span class="tag-item" v-for="tag in dialogForm.active_tags" :key="tag.id">{{ tag.electrician_name }}</span>
+          </div>
+        </el-form-item>
+        <el-form-item label="送电原因">
+          <el-input v-model="dialogForm.comment" type="textarea" :rows="3" maxlength="200" show-word-limit />
+        </el-form-item>
+        <el-form-item label="计划送电时间">
+          <el-date-picker
+            v-model="dialogForm.power_on_time"
+            type="datetime"
+            value-format="YYYY-MM-DD HH:mm:ss"
+            placeholder="请选择计划送电时间"
+            style="width: 100%;"
+          />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="dialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="submitPowerOn">提交申请</el-button>
+      </template>
+    </el-dialog>
+  </div>
+
+  <script>
+    if (!localStorage.getItem('user_realname') && !localStorage.getItem('user_username')) {
+      window.location.href = '/login.html';
+    }
+
+    axios.defaults.withCredentials = true;
+
+    const { createApp, ref, computed, onMounted } = Vue;
+
+    createApp({
+      setup() {
+        const { ElMessage } = ElementPlus;
+        const loading = ref(false);
+        const list = ref([]);
+        const keyword = ref('');
+        const statusFilter = ref('');
+        const dialogVisible = ref(false);
+        const dialogForm = ref({
+          id: null,
+          deviceId: '',
+          device_name: '',
+          power_room: '',
+          cabinet: '',
+          active_tag_count: 0,
+          active_tags: [],
+          comment: '',
+          power_on_time: '',
+        });
+        const currentUser = localStorage.getItem('user_realname') || localStorage.getItem('user_username') || '未知用户';
+
+        const statusMap = {
+          repair_completed: '检修完成',
+          power_on_applied: '送电审批中',
+        };
+
+        const statusText = (status) => statusMap[status] || status;
+
+        const filteredList = computed(() => {
+          let data = list.value.filter((item) => ['repair_completed', 'power_on_applied'].includes(item.status));
+          if (statusFilter.value) {
+            data = data.filter((item) => item.status === statusFilter.value);
+          }
+          const kw = keyword.value.trim().toLowerCase();
+          if (kw) {
+            data = data.filter((item) =>
+              String(item.power_room || '').toLowerCase().includes(kw) ||
+              String(item.cabinet || '').toLowerCase().includes(kw) ||
+              String(item.device_name || '').toLowerCase().includes(kw) ||
+              String(item.deviceId || '').toLowerCase().includes(kw) ||
+              String(item.applicant || '').toLowerCase().includes(kw) ||
+              String(item.reason || '').toLowerCase().includes(kw)
+            );
+          }
+          return data;
+        });
+
+        const repairCompletedCount = computed(() => filteredList.value.filter((item) => item.status === 'repair_completed').length);
+        const powerOnAppliedCount = computed(() => filteredList.value.filter((item) => item.status === 'power_on_applied').length);
+        const totalActiveTagCount = computed(() => filteredList.value.reduce((sum, item) => sum + Number(item.active_tag_count || 0), 0));
+        const roomCount = computed(() => new Set(filteredList.value.map((item) => item.power_room).filter(Boolean)).size);
+        const dialogDeviceText = computed(() => {
+          if (!dialogForm.value.id) return '';
+          return `${dialogForm.value.power_room || '未配置配电室'} / ${dialogForm.value.cabinet || '未配置柜号'} / ${dialogForm.value.device_name || dialogForm.value.deviceId}`;
+        });
+
+        const fetchList = async () => {
+          loading.value = true;
+          try {
+            const res = await axios.get('/api/list');
+            list.value = Array.isArray(res.data) ? res.data : [];
+          } catch (error) {
+            list.value = [];
+            ElMessage.error(error?.response?.data?.msg || '送电申请列表加载失败');
+          } finally {
+            loading.value = false;
+          }
+        };
+
+        const showDialog = (row) => {
+          dialogForm.value = {
+            id: row.id,
+            deviceId: row.deviceId,
+            device_name: row.device_name,
+            power_room: row.power_room,
+            cabinet: row.cabinet,
+            active_tag_count: row.active_tag_count || 0,
+            active_tags: row.active_tags || [],
+            comment: '',
+            power_on_time: '',
+          };
+          dialogVisible.value = true;
+        };
+
+        const submitPowerOn = async () => {
+          const payload = dialogForm.value;
+          if (!payload.comment.trim()) {
+            ElMessage.warning('请填写送电原因');
+            return;
+          }
+          if (!payload.power_on_time) {
+            ElMessage.warning('请选择计划送电时间');
+            return;
+          }
+
+          loading.value = true;
+          try {
+            const res = await axios.post('/api/power-on-apply', {
+              id: payload.id,
+              comment: payload.comment.trim(),
+              power_on_time: payload.power_on_time,
+            });
+            dialogVisible.value = false;
+            ElMessage.success(res.data?.msg || '送电申请已提交');
+            await fetchList();
+          } catch (error) {
+            ElMessage.error(error?.response?.data?.msg || '送电申请失败');
+          } finally {
+            loading.value = false;
+          }
+        };
+
+        const logout = () => {
+          localStorage.clear();
+          window.location.href = '/login.html';
+        };
+
+        const goHome = () => {
+          window.location.href = '/electrician_home.html';
+        };
+
+        onMounted(fetchList);
+
+        return {
+          loading,
+          list,
+          keyword,
+          statusFilter,
+          dialogVisible,
+          dialogForm,
+          dialogDeviceText,
+          currentUser,
+          filteredList,
+          repairCompletedCount,
+          powerOnAppliedCount,
+          totalActiveTagCount,
+          roomCount,
+          statusText,
+          fetchList,
+          showDialog,
+          submitPowerOn,
+          logout,
+          goHome,
+        };
+      },
+    }).use(ElementPlus).mount('#app');
+  </script>
+</body>
+</html>

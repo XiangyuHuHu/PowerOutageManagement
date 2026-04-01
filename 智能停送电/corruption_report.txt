@@ -1,0 +1,352 @@
+﻿=== apply.html (34 corrupted lines) ===
+  L139: <p>鐜板満鎿嶄綔鍛樺彲浠ュ厛缁存姢"鏈汉璐熻矗璁惧锟斤拷,鐢宠鏃堕粯璁や紭鍏堝睍绀烘湰浜鸿澶?骞舵敮鎸佹寜璁惧缂栧彿銆佸悕绉帮拷锟介厤鐢靛銆佹煖鍙锋ā绯婃悳绱㈠悗澶氾拷锟芥彁浜わ拷锟界郴缁熸娴嬪埌璁惧褰撳墠宸插け鐢垫椂,浼氳嚜鍔ㄨ蛋鍏嶅仠鐢靛鎵瑰垎鏀?鐩存帴杩涘叆锟斤拷寰呯數宸ュ畨鍏ㄧ‘璁ゅ苟鎸傜墝锟斤拷鐨勬祦绋?閬垮厤鏃犵‘璁ょ洿鎺ユ寕鐗岋拷?/p>
+  L143: <button class="btn danger" @click="logout">閫拷鍑虹櫥锟?/button>
+  L150: <div class="stat stat-access"><div class="num">{{ stats.accessible }}</div><div class="label">鍙敵璇疯锟?/div></div>
+  L152: <div class="stat stat-selected"><div class="num">{{ stats.selected }}</div><div class="label">鏈宸诧拷锟借锟?/div></div>
+  L159: 绯荤粺浼氫紭鍏堟牎楠屾槸鍚﹀瓨鍦ㄦ湭瀹屽伐鍗曪拷锟借嫢璁惧褰撳墠宸插け鐢?鏈鐢宠浼氳烦杩囧仠鐢靛鎵?鐩存帴杩涘叆寰呯數宸ュ畨鍏ㄧ‘璁ゅ苟鎸傜墝鐨勬祦绋嬶拷锟?          </div>
+  L162: <div class="field"><label>鐢宠锟?/label><input v-model="form.applicant" readonly></div>
+  L167: <option disabled value="">璇凤拷锟芥嫨鍘熷洜</option>
+  L172: <div class="field full"><label>鎿嶄綔浠诲姟鎻忚堪</label><textarea v-model="form.operation_task" placeholder="濉啓妫拷淇换鍔★拷锟戒綔涓氳寖鍥达拷锟界幇鍦洪闄╃偣"></textarea></div>
+  L173: <div class="field full"><label>鍏宠仈绁ㄦ嵁 / 妯℃澘</label><input v-model="form.ticket_template" placeholder="濡傛湁鎿嶄綔绁拷锟藉伐浣滅エ缂栧彿,鍙湪杩欓噷琛ワ拷?></div>
+  L177: <input class="search" v-model.trim="searchKeyword" placeholder="鎼滅储璁惧缂栧彿 / 鍚嶇О / 閰嶇數锟?/ 鏌滃彿 / 绾胯矾">
+  L179: <button class="toggle" :class="{ active: showManagedOnly }" @click="showManagedOnly = !showManagedOnly">{{ showManagedOnly ? '褰撳墠浠呯湅鏈汉璁惧' : '鏄剧ず鍏ㄩ儴鍙敵璇疯锟? }}</button>
+  L180: <button class="toggle" @click="clearSelected">娓呯┖宸诧拷锟?/button>
+  L185: <div class="selected-title">宸诧拷锟芥嫨 {{ selectedDevices.length }} 鍙拌锟?/div>
+  L188: {{ device.device_name }}({{ device.device_id }}锟?                <button @click="toggleDevice(device.device_id)">脳</button>
+  L191: <div class="empty" v-else>璇蜂粠涓嬫柟璁惧鍒楄〃涓嬀閫夐渶瑕佸仠鐢电殑璁惧锟?/div>
+  L199: <div class="device-meta">{{ device.power_room || '鏈厤缃厤鐢靛' }} / {{ device.cabinet || '鏈厤缃煖锟? }}</div>
+  L206: <span class="pill skip" v-if="device.can_skip_approval">褰撳墠宸插け锟?/span>
+  L207: <span class="pill normal" v-else>闇拷鍋滅數瀹℃壒</span>
+  L212: 褰撳墠璁惧宸插け鐢?鎻愪氦鍚庝細杩涘叆鍏嶅鎵圭殑瀹夊叏纭鎸傜墝娴佺▼锟?              </div>
+  L216: {{ searchKeyword ? '娌℃湁鍖归厤鍒拌澶?璇疯皟鏁村叧閿瘝锟? : (showManagedOnly && stats.managed === 0 ? '褰撳墠杩樻病鏈夌淮鎶ゆ湰浜鸿礋璐ｈ澶?璇峰厛鍦ㄥ彸渚ч潰鏉块厤缃拷锟? : '鏆傛棤鍙敵璇疯澶囷拷锟?) }}
+  L221: <button class="btn" @click="submitForm" :disabled="loading">{{ loading ? '鎻愪氦锟?..' : `鎻愪氦 ${selectedDevices.length || 0} 鍙拌澶囧仠鐢电敵璇穈 }}</button>
+  L228: <div class="panel-note">杩欓噷缁存姢浣犳湰浜鸿礋璐ｇ鐞嗙殑璁惧銆備繚瀛樺悗,鐢宠椤典細榛樿浼樺厛鏄剧ず杩欎簺璁惧,渚夸簬鐜板満蹇拷锟藉嬀閫夊彂璧峰仠鐢电敵璇凤拷锟?/div>
+  L235: <button class="toggle" @click="selectManagedDraft(true)" v-if="editingManaged">鍏拷锟藉綋鍓嶅垪锟?/button>
+  L245: <div class="device-meta">{{ device.power_room || '鏈厤缃厤鐢靛' }} / {{ device.cabinet || '鏈厤缃煖锟? }}</div>
+  L246: <div class="device-meta">{{ device.device_id }}<span v-if="device.can_skip_approval"> 路 褰撳墠宸插け锟?/span></div>
+  L253: <button class="btn secondary" @click="saveManagedDevices" :disabled="savingManaged">{{ savingManaged ? '淇濆瓨锟?..' : '淇濆瓨璐熻矗璁惧' }}</button>
+  L265: <div class="device-meta">{{ device.power_room || '鏈厤缃厤鐢靛' }} / {{ device.cabinet || '鏈厤缃煖锟? }}</div>
+  L269: <span class="pill skip" v-if="device.can_skip_approval">宸插け锟?/span>
+  L274: <div class="empty" v-else>褰撳墠杩樻病鏈夐厤缃湰浜鸿礋璐ｈ澶囷拷锟界偣鍑伙拷锟界紪杈戣礋璐ｈ澶囷拷锟藉悗鍗冲彲澧炲姞鎴栧噺灏戯拷锟?/div>
+  L299: const reasonOptions = ['绾胯矾妫拷锟?, '璁惧缁存姢', '澶ф淇綔锟?, '涓存椂闅旂', '鍏朵粬'];
+  L351: return '鐘讹拷锟芥湭锟?;
+  L407: managedMessage.value = response.data?.msg || '璐熻矗璁惧宸叉洿锟?;
+  L428: message.value = '璇峰厛濉啓瀹屾暣鐢宠淇℃伅骞跺嬀閫夎锟?;
+  L455: window.appShell.toast(`锟?${result.skipped.length} 鍙拌澶囨湭鎻愪氦,璇锋煡鐪嬭繑鍥炶鏄巂, 'warning');
+
+=== approval.html (30 corrupted lines) ===
+  L115: <p>瀹℃壒椤垫敮鎸佹寜閰嶇數瀹ゆ眹鎬诲拰鎵归噺瀹℃壒銆傛壒閲忓鎵瑰彧澶勭悊褰撳墠閰嶇數瀹ゅ唴鐘讹拷锟藉尮閰嶇殑宸ュ崟;锟斤拷鐢垫壒閲忛€氳繃鏃?浠嶄細閫愭潯妫拷鏌ュ墿浣欐寕鐗屽苟璺宠繃涓嶅畨鍏ㄥ伐鍗曪拷锟?/p>
+  L119: <span class="pill">{{ accessAllRooms ? '鍏ㄩ儴閰嶇數锟? : `闄愬畾閰嶇數锟?${roomScopes.length} 涓猔 }}</span>
+  L121: <el-button type="primary" @click="logout">閫拷鍑虹櫥锟?/el-button>
+  L127: <div class="stat stat-pending-off"><div class="num">{{ stats.pendingPowerOff }}</div><div class="label">寰呭仠鐢靛锟?/div></div>
+  L128: <div class="stat stat-pending-on"><div class="num">{{ stats.pendingPowerOn }}</div><div class="label">寰咃拷锟界數瀹℃壒</div></div>
+  L134: 鍙湁鎷ユ湁 `batch_approval` 鍔熻兘鏉冮檺鐨勮皟搴﹀憳鎵嶈兘鎵ц鎵归噺瀹℃壒銆傦拷锟界數鎵归噺瀹℃壒閬囧埌浠嶆湁鎸傜墝鐨勫伐鍗曟椂浼氳嚜鍔ㄨ烦杩?骞惰繑鍥炶烦杩囧師鍥狅拷锟?      </div>
+  L137: <el-input v-model="keyword" class="grow" clearable placeholder="鎼滅储閰嶇數锟?/ 鏌滃彿 / 璁惧 / 鐢宠锟?/ 鍘熷洜" />
+  L138: <el-select v-model="statusFilter" placeholder="娴佺▼绛涳拷锟? style="width: 180px;">
+  L140: <el-option label="寰呭仠鐢靛锟? value="pending" />
+  L141: <el-option label="寰咃拷锟界數瀹℃壒" value="power_on_applied" />
+  L146: 宸插け鐢靛苟杞叆"瀹夊叏纭鎸傜墝娴佺▼锟斤拷鐨勫伐鍗曚笉浼氬嚭鐜板湪杩欓噷鐨勫緟鍋滅數瀹℃壒鍒楄〃,鍚庣画鐢辩數宸ュ湪妫拷淇〉瀹屾垚瀹夊叏纭骞舵寕鐗岋拷锟?      </div>
+  L154: 寰呭仠鐢靛锟?{{ room.pendingPowerOff }} 锟?                <br>
+  L155: 寰咃拷锟界數瀹℃壒 {{ room.pendingPowerOn }} 锟?              </div>
+  L157: <el-tag type="warning">{{ room.total }} 锟?/el-tag>
+  L174: <el-table :data="filteredList" border v-loading="loading" height="560" empty-text="褰撳墠娌℃湁寰呭鎵瑰伐锟?>
+  L182: <span class="sub">{{ row.power_room || '鏈厤缃厤鐢靛' }} / {{ row.cabinet || '鏈厤缃煖锟? }}</span>
+  L187: <el-table-column prop="applicant" label="鐢宠锟? width="120" />
+  L189: <el-table-column prop="status" label="褰撳墠鐘讹拷锟? width="140">
+  L198: {{ (row.active_tag_count || 0) > 0 ? `鍓╀綑鎸傜墝 ${row.active_tag_count}` : '鏃犲墿浣欐寕锟? }}
+  L200: <span class="sub">{{ (row.active_tags || []).map((tag) => tag.electrician_name).join('锟?) || '褰撳墠鏃犳湁鏁堟寕锟? }}</span>
+  L244: pending: '寰呭仠鐢靛锟?,
+  L247: verified: '宸查獙锟?,
+  L248: repairing: '妫拷淇腑',
+  L249: repair_completed: '妫拷淇畬锟?,
+  L250: power_on_applied: '寰咃拷锟界數瀹℃壒',
+  L321: pass ? '瀹℃壒鎰忚鍙拷锟藉～锟? : '椹冲洖鏃跺繀椤诲～鍐欏鎵规剰锟?,
+  L336: ElMessage.warning('椹冲洖鏃跺繀椤诲～鍐欏鎵规剰锟?);
+  L345: ElMessage.success('瀹℃壒宸叉彁锟?);
+  L357: ElMessage.warning('鎵归噺椹冲洖鏃跺繀椤诲～鍐欏鎵规剰锟?);
+  L369: ElMessage.warning(`${res.data.msg}銆傝烦杩囧伐鍗?${skipped.map((item) => '#' + item.id).join('锟?)}`);
+
+=== approval_history.html (16 corrupted lines) ===
+  L46: <p>杩欓噷鍙睍绀轰粛鍦ㄦ祦杞腑鐨勫伐鍗曟棩蹇?閫傚悎璺熻釜褰撳墠瀹℃壒銆侀獙鐢碉拷锟芥淇拷锟斤拷锟界數鍜屾寕鐗岃繘搴︼拷锟藉凡瀹屾垚宸ュ崟璇峰埌"宸插畬鎴愯褰?鏌ョ湅锟斤拷?/p>
+  L55: <div class="stat card stat-total"><div class="metric-num">{{ stats.total }}</div><div class="metric-label">鍦拷锟芥棩蹇楁暟</div></div>
+  L62: <el-input v-model="filters.applicationId" clearable placeholder="鎸夊伐锟?ID 杩囨护" />
+  L63: <el-input v-model="filters.deviceId" clearable placeholder="鎸夎澶囩紪鍙疯繃锟? />
+  L64: <el-input v-model="filters.batchId" clearable placeholder="鎸夋壒锟?ID 杩囨护" />
+  L65: <el-select v-model="filters.operationType" clearable placeholder="鎸夋搷浣滅被鍨嬭繃锟?>
+  L88: <el-table-column prop="applicant" label="鐢宠锟? width="120" />
+  L89: <el-table-column prop="operator" label="鎿嶄綔锟? width="120" />
+  L93: <el-table-column label="鐘讹拷锟芥祦锟? min-width="180">
+  L120: { label: '宸插け鐢佃浆鍏ュ畨鍏ㄧ‘璁ゆ寕锟?, value: 'auto_skip_power_off_approval' },
+  L125: { label: '寮拷濮嬫锟?, value: 'repair_start' },
+  L126: { label: '瀹屾垚妫拷锟?, value: 'repair_end' },
+  L136: const statusMap = { pending: '寰呭仠鐢靛锟?, approved: '鍋滅數瀹℃壒閫氳繃', rejected: '鍋滅數瀹℃壒椹冲洖', verified: '宸查獙锟?, repairing: '妫拷淇腑', repair_completed: '妫拷淇畬锟?, power_on_applied: '寰咃拷锟界數瀹℃壒', power_on_rejected: '閫佺數瀹℃壒椹冲洖', completed: '宸插畬锟?, '': '鍒濆鐘讹拷锟?, null: '鍒濆鐘讹拷锟? };
+  L137: const operationMap = { auto_skip_power_off_approval: '宸插け鐢佃浆鍏ュ畨鍏ㄧ‘璁ゆ寕锟?, create: '鍒涘缓鐢宠', power_off_approve: '鍋滅數瀹℃壒', power_on_approve: '閫佺數瀹℃壒', electrician_verify: '楠岀數', repair_start: '寮拷濮嬫锟?, repair_end: '瀹屾垚妫拷锟?, power_on_apply: '鐢宠閫佺數', tag_release: '瑙ｉ櫎鎸傜墝' };
+  L138: const statusText = (status) => statusMap[status] || status || '鏈煡鐘讹拷锟?;
+  L164: errorMessage.value = '鐧诲綍鎬佸凡澶辨晥,璇烽噸鏂扮櫥褰曞悗鍐嶆煡鐪嬪鎵硅褰曪拷?;
+
+=== completed_history.html (10 corrupted lines) ===
+  L6: <title>宸插畬鎴愯锟?/title>
+  L40: <h1>宸插畬鎴愯锟?/h1>
+  L41: <p>杩欓噷涓撻棬鏌ョ湅宸插畬鎴愮殑鍋滐拷锟界數宸ュ崟鍘嗗彶,鐢ㄤ簬褰掓。锟斤拷杩芥函鍜屽睍绀哄畬鎴愭儏鍐?涓嶅啀涓庤繘琛屼腑鐨勫鎵规棩蹇楁贩鍦ㄤ涪锟借捣锟斤拷?/p>
+  L50: <div class="stat card stat-total"><div class="metric-num">{{ stats.total }}</div><div class="metric-label">宸插畬鎴愬伐锟?/div></div>
+  L59: <el-input v-model="filters.applicant" clearable placeholder="鐢宠锟? />
+  L61: <el-date-picker v-model="filters.dateFrom" type="date" value-format="YYYY-MM-DD" placeholder="寮拷濮嬫棩锟? />
+  L67: <el-table :data="completedList" border height="640" v-loading="loading" empty-text="褰撳墠娌℃湁宸插畬鎴愬伐鍗曡锟?>
+  L82: <el-table-column prop="applicant" label="鐢宠锟? width="120" />
+  L141: errorMessage.value = '鐧诲綍鎬佸凡澶辨晥,璇烽噸鏂扮櫥褰曞悗鍐嶆煡鐪嬪凡瀹屾垚璁板綍锟斤拷?;
+  L145: errorMessage.value = error?.response?.data?.msg || '宸插畬鎴愯褰曞姞杞藉け锟?;
+
+=== debug.html (6 corrupted lines) ===
+  L83: <div class="debug-title">1. 妫拷锟?localStorage 涓殑鐢ㄦ埛淇℃伅</div>
+  L84: <button class="test-button" onclick="checkLocalStorage()">妫拷锟?localStorage</button>
+  L95: <div class="debug-title">3. 妫拷鏌ュ綋鍓嶇櫥褰曪拷锟芥帴锟?/div>
+  L147: const realname = localStorage.getItem('user_realname') || '鏈锟?;
+  L148: const username = localStorage.getItem('user_username') || '鏈锟?;
+  L151: `鐢ㄦ埛锟? ${username}\n` +
+
+=== detail.html (23 corrupted lines) ===
+  L108: <p>杩欓噷闆嗕腑灞曠ず宸ュ崟鐘讹拷锟斤拷锟借澶囧畾浣嶏拷锟芥寕鐗屾儏鍐靛拰娴佺▼杞ㄨ抗銆傝皟搴︼拷锟界鐞嗗憳鍜岀數宸ラ兘鍙互浠庤繖閲屽揩閫熻烦鍒版墍灞炴壒娆℃垨璁惧鐩戞帶,鍑忓皯鏉ュ洖鏌ユ壘锟斤拷?/p>
+  L111: <el-button v-if="application.batch_id" type="success" @click="openBatch">鎵拷灞炴壒锟?/el-button>
+  L114: <el-button type="primary" @click="logout">閫拷鍑虹櫥锟?/el-button>
+  L123: <div class="info-card card info-general"><div class="info-label">鐢宠锟?/div><div class="info-value">{{ application.applicant || '-' }}</div></div>
+  L124: <div class="info-card card info-general"><div class="info-label">褰撳墠鐘讹拷锟?/div><div class="info-value">{{ statusText(application.status) }}</div></div>
+  L128: <div class="info-card card info-general"><div class="info-label">鎵拷灞炴壒锟?/div><div class="info-value">{{ application.batch_id ? '#' + application.batch_id : '鏅拷锟藉伐锟? }}</div></div>
+  L131: <div class="info-card card info-time"><div class="info-label">璁″垝閫佺數鏃堕棿</div><div class="info-value">{{ formatDateTime(application.power_on_time) || '鏈彁锟? }}</div></div>
+  L132: <div class="info-card card info-general"><div class="info-label">閫佺數瀹℃壒锟?/div><div class="info-value">{{ application.power_on_approver || '-' }}</div></div>
+  L133: <div class="info-card card info-risk"><div class="info-label">褰撳墠鏈夋晥鎸傜墝锟?/div><div class="info-value">{{ application.active_tag_count || 0 }}</div></div>
+  L138: <h2>鎸傜墝鐘讹拷锟?/h2>
+  L141: <div class="info-value">{{ (application.active_tags || []).length ? '' : '褰撳墠鏃犳湁鏁堟寕锟? }}</div>
+  L150: <span class="timeline-time">{{ record.tag_status === 'active' ? '鏈夋晥鎸傜墝' : '宸茶В闄ゆ寕锟? }}</span>
+  L174: <div v-if="log.old_status || log.new_status">鐘讹拷锟藉彉鍖?{{ statusText(log.old_status) }} -> {{ statusText(log.new_status) }}</div>
+  L201: pending: '寰呭仠鐢靛锟?,
+  L204: verified: '宸查獙锟?,
+  L205: repairing: '妫拷淇腑',
+  L206: repair_completed: '妫拷淇畬锟?,
+  L207: power_on_applied: '寰咃拷锟界數瀹℃壒',
+  L212: auto_skip_power_off_approval: '宸插け鐢佃浆鍏ュ畨鍏ㄧ‘璁ゆ寕锟?,
+  L216: repair_start: '寮拷濮嬫锟?,
+  L217: repair_end: '缁撴潫妫拷锟?,
+  L222: const deviceLocation = computed(() => `${application.value.power_room || '鏈厤缃厤鐢靛'} / ${application.value.cabinet || '鏈厤缃煖锟?}`);
+  L223: const statusText = (status) => statusMap[status] || (status || '鏈紑锟?);
+
+=== device_monitor.html (14 corrupted lines) ===
+  L153: <p>褰撳墠鐩戞帶椤靛凡鏀舵暃涓虹畝鐗?鍙洿缁曡澶囨槸鍚﹀甫鐢靛拰褰撳墠鎸傜墝鏁伴噺灞曠ず,渚夸簬鐜板満蹇€熷垽鏂兘鍚﹀仠鐢碉拷锟芥槸鍚︿粛鏈夋寕鐗岄闄?浠ュ強鍜屽仠閫佺數娴佺▼鏄惁涓拷鑷达拷锟?/p>
+  L181: <el-radio-button label="diagram">绯荤粺鍥炬ā锟?/el-radio-button>
+  L184: <el-input v-model="keyword" class="grow" clearable placeholder="鎼滅储閰嶇數锟?/ 鏌滃彿 / 璁惧 / 缂栧彿 / 绾胯矾" />
+  L188: <h2>绯荤粺锟?/h2>
+  L192: <div class="legend-item"><span class="state-chip chip-tagged">鏈夋寕锟?/span></div>
+  L200: 璁惧 {{ room.items.length }} 锟?br>
+  L204: <el-tag type="info">{{ room.totalTags }} 涓寕锟?/el-tag>
+  L218: <span>鏈拷杩戞洿鏂?{{ formatTime(device.last_update) }}</span>
+  L223: <span class="tag-item chip-unpowered" v-else>鏃犳寕锟?/span>
+  L242: <template #default="{ row }">{{ row.power_room || '鏈厤缃厤鐢靛' }} / {{ row.cabinet || '鏈厤缃煖锟? }}</template>
+  L244: <el-table-column label="甯︾數鐘讹拷锟? width="120">
+  L255: <el-table-column label="鏈拷杩戞洿锟? width="180">
+  L359: ElMessage.success('鐩戞帶鏁版嵁宸插埛锟?);
+  L376: if (!timestamp) return '鏈笂锟?;
+
+=== login.html (6 corrupted lines) ===
+  L6: <title>鏅鸿兘鍋滐拷锟界數绯荤粺鐧诲綍</title>
+  L78: <h1>鏅鸿兘鍋滐拷锟界數绯荤粺鐧诲綍</h1>
+  L79: <div class="sub">鐧诲綍鍚庝細鏍规嵁瑙掕壊鑷姩杩涘叆绠＄悊鍛橈拷锟借皟搴﹀憳鎴栫數宸ュ伐浣滃彴锟?/div>
+  L80: <input v-model="form.username" placeholder="鐢ㄦ埛锟?>
+  L83: <button class="sub-btn" @click="goToRegister">娉ㄥ唽鏂扮敤锟?/button>
+  L118: error.value = '璇疯緭鍏ョ敤鎴峰悕鍜屽瘑锟?;
+
+=== maintenance_batch_detail.html (49 corrupted lines) ===
+  L87: <p>杩欓噷鎸夋壒娆￠泦涓煡鐪嬭澶囧伐鍗曠姸鎬侊拷锟芥寕鐗岄闄╁拰閫佺數闃诲鎯呭喌銆傚乏渚х敤浜庡揩閫熻瘑鍒噸鐐归棶棰?鍙充晶鐢ㄤ簬绛涳拷锟藉拰澶勭悊璁惧鏄庣粏锟?/p>
+  L91: <el-button @click="refreshBatchStatus">鍒锋柊鎵规鐘讹拷锟?/el-button>
+  L101: <div class="card metric-generated"><div class="metric-num">{{ summary.generated_count || 0 }}</div><div class="metric-label">宸茬敓鎴愬伐锟?/div></div>
+  L102: <div class="card metric-pending"><div class="metric-num">{{ summary.pending_approval_count || 0 }}</div><div class="metric-label">寰呭仠鐢靛锟?/div></div>
+  L103: <div class="card metric-progress"><div class="metric-num">{{ summary.in_progress_count || 0 }}</div><div class="metric-label">澶勭悊锟?/div></div>
+  L104: <div class="card metric-completed"><div class="metric-num">{{ summary.completed_count || 0 }}</div><div class="metric-label">宸插畬锟?/div></div>
+  L113: <div class="meta-item"><div class="meta-label">閰嶇數锟?/div><div class="meta-value">{{ batch.power_room || '-' }}</div></div>
+  L114: <div class="meta-item"><div class="meta-label">鎵规鐘讹拷锟?/div><div class="meta-value">{{ batchStatusText(batch.batch_status) }}</div></div>
+  L115: <div class="meta-item"><div class="meta-label">璁″垝寮拷锟?/div><div class="meta-value">{{ formatDateTime(batch.planned_start_time) }}</div></div>
+  L117: <div class="meta-item"><div class="meta-label">鍒涘缓锟?/div><div class="meta-value">{{ batch.created_by_name || '-' }}</div></div>
+  L119: <div class="meta-item full-row"><div class="meta-label">鎵规璇存槑</div><div class="meta-value">{{ batch.description || '锟? }}</div></div>
+  L122: <div class="note">鐐瑰嚮璁惧鐩戞帶浼氳嚜鍔ㄥ畾浣嶅埌瀵瑰簲閰嶇數瀹ゅ拰鐩爣璁惧,鐐瑰嚮宸ュ崟璇︽儏鍙互缁х画杩藉鎵规棩蹇楀拰鎸傜墝璁板綍锟斤拷?/div>
+  L123: <div class="note" v-if="summary.can_complete">褰撳墠鎵规宸叉弧瓒冲畬鎴愭潯浠?鍏ㄩ儴璁惧宸ュ崟宸茶繘鍏ョ粓鎬?涓旀病鏈夊墿浣欐寕鐗岋拷锟?/div>
+  L156: <div class="focus-meta">{{ (row.active_tag_names || []).join('锟?) || '瀛樺湪鏈夋晥鎸傜墝' }}</div>
+  L162: <h3>寰呭鐞嗚锟?/h3>
+  L178: <el-button size="small" type="primary" @click="setFocus('pending')">鍙湅寰呭锟?/el-button>
+  L182: <el-select v-model="filters.status" placeholder="鍏ㄩ儴鐘讹拷锟? clearable>
+  L189: <el-option label="寰呭锟? value="pending" />
+  L194: <el-table :data="filteredItems" border height="680" empty-text="褰撳墠绛涳拷锟戒笅娌℃湁璁惧">
+  L198: <div class="device-meta">{{ row.device_id }} / {{ row.power_room || '鏈厤缃厤鐢靛' }} / {{ row.cabinet || '鏈厤缃煖锟? }}</div>
+  L204: <el-table-column label="娴佺▼鐘讹拷锟? width="150">
+  L219: <span v-else>锟?/span>
+  L259: { value: 'pending', label: '寰呭仠鐢靛锟? },
+  L261: { value: 'verified', label: '宸查獙锟? },
+  L262: { value: 'repairing', label: '妫拷淇腑' },
+  L263: { value: 'repair_completed', label: '妫拷淇畬锟? },
+  L264: { value: 'power_on_applied', label: '寰咃拷锟界數瀹℃壒' },
+  L265: { value: 'completed', label: '宸插畬锟? },
+  L271: pending: '寰呭仠鐢靛锟?,
+  L274: verified: '宸查獙锟?,
+  L275: repairing: '妫拷淇腑',
+  L276: repair_completed: '妫拷淇畬锟?,
+  L277: power_on_applied: '寰咃拷锟界數瀹℃壒',
+  L282: const statusText = (status) => statusMap[status] || status || '鏈敓鎴愬伐锟?;
+  L284: draft: '鑽夛拷6锟?',
+  L285: generated: '宸茬敓锟?,
+  L286: in_progress: '鎵ц锟?,
+  L287: completed: '宸插畬锟?,
+  L307: if (summary.value.rejected_count > 0) reasons.push(`褰撳墠锟?${summary.value.rejected_count} 鏉″伐鍗曞浜庨┏鍥烇拷锟?闇拷瑕侀噸鏂板鐞哷);
+  L342: ElMessage.warning('鐧诲綍鎬佸凡澶辨晥,璇烽噸鏂扮櫥褰曞悗鍐嶆煡鐪嬫壒娆＄湅鏉匡拷?);
+  L343: window.appShell.handleUnauthorized('鐧诲綍鎬佸凡澶辨晥,璇烽噸鏂扮櫥褰曞悗鍐嶆煡鐪嬫壒娆＄湅鏉匡拷?, 800);
+  L359: pass ? '瀹℃壒鎰忚鍙拷锟藉～锟? : '椹冲洖鏃跺繀椤诲～鍐欏鎵规剰锟?,
+  L365: inputPlaceholder: pass ? '鍙～鍐欐壒閲忓鎵硅锟? : '璇疯緭鍏ラ┏鍥炲師锟?,
+  L385: ElMessage.warning('鎵归噺椹冲洖鏃跺繀椤诲～鍐欏鎵规剰锟?);
+  L396: ElMessage.warning(`${res.data.msg}銆傝烦杩囧伐鍗?${skipped.map((item) => '#' + item.id).join('锟?)}`);
+  L417: ElMessage.success(`鎵规鐘讹拷锟藉凡鍒锋柊涓?${batchStatusText(batch.value.batch_status)}`);
+  L428: '绯荤粺浼氬厛鏍￠獙褰撳墠鎵规鏄惁宸茬粡鍏ㄩ儴杩涘叆缁堬拷锟?涓斾笉瀛樺湪鍓╀綑鎸傜墝銆傛弧瓒虫潯浠跺悗鎵嶄細瀹屾垚鎵规锟?,
+  L441: ElMessage.success(res.data?.msg || '鎵规宸插畬锟?);
+  L446: ElMessage.warning(`${data.msg}锟?{data.blockers.join('锟?)}`);
+
+=== maintenance_batches.html (46 corrupted lines) ===
+  L6: <title>澶ф淇壒锟?/title>
+  L99: <h1>澶ф淇壒锟?/h1>
+  L100: <p>杩欓噷缁熶竴绠＄悊鎸夐厤鐢靛寤虹珛鐨勫ぇ妫拷淇换鍔★拷锟藉乏渚ц礋璐ｆ壒娆″缓鍗?鍙充晶璐熻矗鎵规绛涳拷锟斤拷锟介闄╄瘑鍒拰鐪嬫澘鍏ュ彛锟?/p>
+  L111: <div class="card metric-generated"><div class="metric-num">{{ summary.generated_batches || 0 }}</div><div class="metric-label">宸茬敓鎴愭壒锟?/div></div>
+  L113: <div class="card metric-pending"><div class="metric-num">{{ summary.pending_count || 0 }}</div><div class="metric-label">寰呭仠鐢靛鎵硅锟?/div></div>
+  L114: <div class="card metric-progress"><div class="metric-num">{{ summary.in_progress_count || 0 }}</div><div class="metric-label">澶勭悊涓锟?/div></div>
+  L121: <div class="panel-desc">寤鸿鍏堟寜閰嶇數瀹ょ粍缁囪澶?鍐嶄竴娆★拷锟界敓鎴愬仠鐢靛伐鍗曪拷锟藉悗缁鎵癸拷锟芥寕鐗岋拷锟斤拷锟界數鍜岀湅鏉跨粺璁￠兘浼氳嚜鍔ㄤ覆鍒板悓涓拷鎵规锟?/div>
+  L123: <div class="note">褰撳墠浼氫负閫変腑鐨勬瘡鍙拌澶囩敓鎴愪竴寮犲緟鍋滅數瀹℃壒宸ュ崟,骞跺湪瀹℃壒璁板綍涓繚鐣?鎵规寤哄崟锟斤拷杞ㄨ抗锟斤拷?/div>
+  L127: <el-input v-model="form.batch_name" placeholder="渚嬪:涓€鍙烽厤鐢靛 4 鏈堝ぇ妫拷锟? />
+  L129: <el-form-item label="閰嶇數锟?>
+  L130: <el-select v-model="form.power_room" style="width:100%" @change="onRoomChange" placeholder="璇凤拷锟芥嫨閰嶇數锟?>
+  L134: <el-form-item label="璁″垝寮拷锟?>
+  L135: <el-input v-model="form.planned_start_time" placeholder="渚嬪锟?026-03-25 08:00" />
+  L138: <el-input v-model="form.planned_end_time" placeholder="渚嬪锟?026-03-25 18:00" />
+  L141: <el-input v-model="form.reason" type="textarea" :rows="3" placeholder="渚嬪:楂樺帇鏌滄＂锟戒慨锟斤拷姣嶇嚎娓呮壂锟斤拷淇濇姢璇曪拷? />
+  L144: <el-input v-model="form.description" type="textarea" :rows="3" placeholder="琛ュ厖妫拷淇寖鍥达拷锟界彮缁勶拷锟介闄╄锟? />
+  L150: <span>宸诧拷锟芥嫨:{{ form.device_ids.length }}</span>
+  L155: <div class="device-meta">{{ device.device_id }} / {{ device.cabinet || '鏈厤缃煖锟? }} / {{ device.line_name || '鏈厤缃嚎锟? }}</div>
+  L158: <div v-if="!filteredDevices.length" class="device-meta">褰撳墠閰嶇數瀹や笅鏆傛棤鍙拷锟借澶囷拷锟?/div>
+  L162: <el-button type="primary" @click="createBatch">鍒涘缓鎵规骞剁敓鎴愬伐锟?/el-button>
+  L170: <h2 style="margin-bottom:6px;">鎵规宸ヤ綔锟?/h2>
+  L171: <div class="panel-desc" style="margin:0;">鏀寔鎸夐厤鐢靛銆佺姸鎬佸拰鍏抽敭璇嶇瓫閫夋壒娆?浼樺厛璇嗗埆椋庨櫓鎵规鍜屽緟澶勭悊鎵规锟?/div>
+  L174: <span class="batch-tag">宸插畬锟?{{ summary.completed_count || 0 }}</span>
+  L175: <span class="batch-tag">寰呭锟?{{ summary.pending_count || 0 }}</span>
+  L181: <el-input v-model="filters.keyword" placeholder="鎼滅储鎵规鍚嶇О鎴栬锟? clearable @keyup.enter="fetchData" />
+  L182: <el-select v-model="filters.power_room" placeholder="鍏ㄩ儴閰嶇數锟? clearable>
+  L185: <el-select v-model="filters.batch_status" placeholder="鍏ㄩ儴鐘讹拷锟? clearable>
+  L186: <el-option label="鑽夛拷6锟?" value="draft" />
+  L187: <el-option label="宸茬敓锟? value="generated" />
+  L188: <el-option label="鎵ц锟? value="in_progress" />
+  L189: <el-option label="宸插畬锟? value="completed" />
+  L196: <el-button size="small" type="warning" @click="applyQuickFilter('pending')">鍙湅寰呭锟?/el-button>
+  L197: <el-button size="small" type="danger" @click="applyQuickFilter('risk')">鍙湅鏈夐锟?/el-button>
+  L198: <el-button size="small" type="success" @click="applyQuickFilter('completed')">鍙湅宸插畬锟?/el-button>
+  L201: <div v-if="summary.risk_count > 0" class="warn">褰撳墠绛涳拷锟界粨鏋滀笅锟?{{ summary.risk_count }} 鍙拌澶囧瓨鍦ㄦ寕鐗岄闄?閫佺數鍓嶉渶瑕侀噸鐐圭‘璁わ拷锟?/div>
+  L202: <div v-else class="note">褰撳墠绛涳拷锟界粨鏋滀笅娌℃湁鎸傜墝椋庨櫓璁惧,鍙互浼樺厛澶勭悊寰呭仠鐢靛鎵瑰拰澶勭悊涓壒娆★拷?/div>
+  L211: <el-table-column label="鐘讹拷锟? width="120">
+  L219: <div class="device-meta">宸茬敓鎴愬伐锟?/ 鎵规璁惧</div>
+  L224: <div>寰呭 {{ row.pending_count || 0 }} / 澶勭悊锟?{{ row.in_progress_count || 0 }} / 瀹屾垚 {{ row.completed_count || 0 }}</div>
+  L230: <span :class="{ 'risk-text': Number(row.risk_count || 0) > 0 }">{{ row.risk_count || 0 }} 锟?/span>
+  L285: draft: '鑽夛拷6锟?',
+  L286: generated: '宸茬敓锟?,
+  L287: in_progress: '鎵ц锟?,
+  L288: completed: '宸插畬锟?,
+  L317: errorMessage.value = '鐧诲綍鎬佸凡澶辨晥,璇烽噸鏂扮櫥褰曞悗鍐嶆煡鐪嬫垨鍒涘缓鎵规锟斤拷?;
+  L330: ElMessage.warning('璇峰～鍐欐壒娆″悕绉帮拷锟介厤鐢靛銆佸仠鐢靛師鍥犲苟閫夋嫨璁惧');
+
+=== notifications.html (5 corrupted lines) ===
+  L114: <p>缁熶竴鏌ョ湅绯荤粺娑堟伅銆佸鎵规彁閱掑拰鎵规鎻愮ず銆傦拷锟界煡鎸夊綋鍓嶇櫥褰曠敤鎴疯繃婊?鏈娑堟伅浼氬湪宸ヤ綔鍙板拰杩欓噷鍚屾椂浣撶幇锟?/p>
+  L127: <div class="stat stat-week"><div class="num">{{ stats.week }}</div><div class="label">锟?7 澶╋拷锟界煡</div></div>
+  L133: <div class="panel-note">褰撳墠椤靛彧淇濈暀鍚庣宸叉敮鎸佺殑鑳藉姏:鍒锋柊锟斤拷锟斤拷鏉″凡璇汇€佸叏閮ㄥ凡璇?涓嶅啀灞曠ず涓嶅瓨鍦ㄧ殑鍒犻櫎鎺ュ彛锟?/div>
+  L148: <div class="notification-content">{{ notification.content || '鏃狅拷锟界煡鍐呭' }}</div>
+  L246: window.appShell.toast('鏈閫氱煡宸插叏閮ㄥ锟?, 'success');
+
+=== power_execute.html (4 corrupted lines) ===
+  L6: <title>鍔熻兘宸插仠锟?/title>
+  L33: <h1>鍔熻兘宸插仠锟?/h1>
+  L35: 褰撳墠绯荤粺涓嶅啀璐熻矗鐜板満鍋滐拷锟界數鎵ц銆傚钩鍙颁繚鐣欏鎵规祦杞拷锟芥淇暀鐥曪拷锟芥壒娆＄鐞嗗拰璁惧鐩戞帶,鐜板満鎵ц璇锋寜绾夸笅瑙勭▼澶勭悊锟斤拷?    </div>
+  L37: 濡傛灉闇拷瑕佺‘璁よ澶囨槸鍚﹀凡缁忓仠鐢垫垨閫佺數,璇峰墠寰€"璁惧鐩戞帶锟斤拷椤甸潰鏌ワ拷?OPC UA 瀹炴椂鐘讹拷锟?骞剁粨鍚堢幇鍦烘墽琛岀粨鏋滄牳瀵癸拷锟?    </div>
+
+=== power_on_apply.html (27 corrupted lines) ===
+  L167: <p>閫佺數鐢宠椤典細浼樺厛灞曠ず褰撳墠璁惧鐨勯厤鐢靛銆佹煖鍙凤拷锟藉墿浣欐寕鐗屽拰闃诲鍘熷洜銆傜‘璁ゆ棤鍓╀綑鎸傜墝鍚?鍐嶆彁浜わ拷锟界數鐢宠锟?/p>
+  L172: <el-button type="primary" @click="logout">閫拷鍑虹櫥锟?/el-button>
+  L178: 绯荤粺浼氬厛瑙ｉ櫎"鏈汉鎸傜墝锟斤拷锟斤拷濡傛灉鍚屼涪锟借澶囦粛瀛樺湪鍏朵粬鏈夋晥鎸傜墝,宸ュ崟涓嶄細杩涘叆閫佺數瀹℃壒,锟斤拷鏄户缁繚鐣欏湪褰撳墠椤甸潰骞舵彁绀烘湭瑙ｇ墝浜哄憳锟斤拷?      </div>
+  L181: <div class="stat stat-ready"><div class="metric-num">{{ repairCompletedCount }}</div><div class="metric-label">寰呭彂璧凤拷锟界數鐢宠</div></div>
+  L182: <div class="stat stat-review"><div class="metric-num">{{ powerOnAppliedCount }}</div><div class="metric-label">宸茶繘鍏ワ拷锟界數瀹℃壒</div></div>
+  L184: <div class="stat stat-room"><div class="metric-num">{{ roomCount }}</div><div class="metric-label">娑夊強閰嶇數瀹ゆ暟锟?/div></div>
+  L188: <div class="table-note">浼樺厛鍏虫敞"鍓╀綑鎸傜墝锟斤拷鍜?闃诲鍘熷洜锟斤拷锟斤拷杩欎袱涓瓧娈靛喅瀹氬綋鍓嶅伐鍗曡兘鍚︾湡姝ｈ繘鍏ラ€佺數瀹℃壒锟?/div>
+  L191: <el-input v-model="keyword" class="grow" clearable placeholder="鎼滅储閰嶇數锟?/ 鏌滃彿 / 璁惧 / 鐢宠锟?/ 鍘熷洜" />
+  L192: <el-select v-model="statusFilter" placeholder="鐘讹拷锟界瓫锟? style="width: 200px;">
+  L194: <el-option label="妫拷淇畬锟? value="repair_completed" />
+  L195: <el-option label="閫佺數瀹℃壒锟? value="power_on_applied" />
+  L214: <el-table-column label="閰嶇數锟?/ 鏌滃彿" min-width="200">
+  L218: <span class="sub">{{ row.cabinet || '鏈厤缃煖锟? }}</span>
+  L223: <el-table-column prop="status" label="褰撳墠鐘讹拷锟? width="140">
+  L234: <span class="tag-count" :class="{ safe: !(row.active_tag_count > 0) }">{{ row.active_tag_count || 0 }} 锟?/span>
+  L238: <div v-else class="blocked-reason">褰撳墠鏃犳湁鏁堟寕锟?/div>
+  L243: <el-table-column label="鐢宠锟?/ 鍘熷洜" min-width="260">
+  L256: <div v-else class="blocked-reason" style="color:#9fe8d8;">褰撳墠鍙彂璧凤拷锟界數鐢宠</div>
+  L279: <div class="dialog-note">鎻愪氦鍚?绯荤粺浼氬厛灏濊瘯瑙ｉ櫎褰撳墠鐢靛伐鏈汉鎸傜墝,鍐嶆＂锟芥煡鏄惁杩樻湁鍓╀綑鎸傜墝锟斤拷?/div>
+  L290: <el-form-item label="褰撳墠鎸傜墝锟? v-if="dialogForm.active_tags && dialogForm.active_tags.length">
+  L303: placeholder="璇凤拷锟芥嫨璁″垝閫佺數鏃堕棿"
+  L345: repair_completed: '妫拷淇畬锟?,
+  L346: power_on_applied: '閫佺數瀹℃壒锟?,
+  L376: return `${dialogForm.value.power_room || '鏈厤缃厤鐢靛'} / ${dialogForm.value.cabinet || '鏈厤缃煖锟?} / ${dialogForm.value.device_name || dialogForm.value.deviceId}`;
+  L420: ElMessage.warning('璇峰～鍐欙拷锟界數鍘熷洜');
+  L424: ElMessage.warning('璇凤拷锟芥嫨璁″垝閫佺數鏃堕棿');
+  L436: ElMessage.success(res.data?.msg || '閫佺數鐢宠宸叉彁锟?);
+
+=== register.html (17 corrupted lines) ===
+  L6: <title>鏅鸿兘鍋滐拷锟界數绯荤粺 - 鐢ㄦ埛娉ㄥ唽</title>
+  L123: <h2><i class="fas fa-user-plus"></i> 娉ㄥ唽鏂扮敤锟?/h2>
+  L124: <div class="sub">鐩墠浠呭紑鏀捐皟搴﹀憳鍜岀數宸ユ敞鍐?娉ㄥ唽鎴愬姛鍚庤繑鍥炵櫥褰曢〉锟?/div>
+  L127: <label for="username">鐢ㄦ埛锟?/label>
+  L133: <input id="password" type="password" v-model="form.password" placeholder="璇疯緭鍏ュ瘑锟? @input="validatePassword">
+  L138: <input id="confirmPassword" type="password" v-model="form.confirmPassword" placeholder="璇峰啀娆¤緭鍏ュ瘑锟? @input="validateConfirmPassword">
+  L143: <input id="realname" v-model.trim="form.realname" placeholder="璇疯緭鍏ョ湡瀹炲锟?>
+  L149: <option value="">璇凤拷锟芥嫨瑙掕壊</option>
+  L151: <option value="dispatcher">璋冨害锟?/option>
+  L155: <i class="fas fa-tools"></i> 鐢靛伐:鍙彁浜ゅ仠鐢电敵璇枫€侀獙鐢碉拷锟芥淇拰閫佺數鐢宠锟?          </div>
+  L157: <i class="fas fa-clipboard-check"></i> 璋冨害鍛?鍙鎵瑰仠鐢碉拷锟斤拷锟界數骞跺鐞嗘壒閲忓鎵癸拷锟?          </div>
+  L195: error.value = '鐢ㄦ埛鍚嶈嚦灏戦渶锟?3 涓瓧锟?;
+  L208: error.value = '瀵嗙爜鑷冲皯闇拷锟?6 涓瓧锟?;
+  L221: error.value = '涓ゆ杈撳叆鐨勫瘑鐮佷笉涓拷锟?;
+  L244: error.value = '璇疯緭鍏ョ湡瀹炲锟?;
+  L248: error.value = '璇凤拷锟芥嫨瑙掕壊';
+  L263: error.value = err?.response?.data?.msg || `娉ㄥ唽澶辫触锟?{err.message}`;
+
+=== stats.html (10 corrupted lines) ===
+  L118: <p>闆嗕腑灞曠ず鍋滐拷锟界數瀹℃壒骞冲彴鐨勫伐鍗曟暟閲忥拷锟藉鎵规晥鐜囷拷锟界敤鎴疯鑹插垎甯冨拰鏈拷杩戞椿鍔?渚夸簬绠＄悊鍛樺揩閫熶簡瑙ｇ郴缁熻繍琛屾儏鍐碉拷锟?/p>
+  L141: <div class="metric-label">宸插锟?/div>
+  L142: <div class="metric-trend">瀹℃壒锟?{{ stats.approvalRate }}%</div>
+  L146: <div class="metric-label">寰呭锟?/div>
+  L147: <div class="metric-trend">闇拷瑕侀噸鐐瑰锟?/div>
+  L158: <h2><i class="fas fa-chart-pie"></i>鐢宠鐘讹拷锟藉垎锟?/h2>
+  L183: <h2><i class="fas fa-history"></i>鏈拷杩戞椿锟?/h2>
+  L184: <div v-if="recentActivities.length === 0" class="empty-state">褰撳墠娌℃湁鏈拷杩戞椿鍔ㄨ锟?/div>
+  L206: window.appShell.handleUnauthorized('鍙湁绠＄悊鍛樺彲浠ユ煡鐪嬬郴缁熺粺璁★拷锟?, 400);
+  L284: title: `宸ュ崟 #${item.id} - ${item.deviceId || '鏈煡璁惧'} - ${item.reason || '鏃犲師锟?}`,
+
+=== user_management.html (23 corrupted lines) ===
+  L6: <title>鐢ㄦ埛涓庢潈闄愮锟?/title>
+  L116: <h1>鐢ㄦ埛涓庢潈闄愮锟?/h1>
+  L117: <p>杩欓噷闆嗕腑绠＄悊璐﹀彿銆佽鑹诧拷锟藉姛鑳芥潈闄愬拰閰嶇數瀹よ寖鍥?鏂逛究绠＄悊鍛樻寜鎵规鍜屽尯鍩熷垎閰嶆潈闄愶拷锟?/p>
+  L128: <div class="stat card stat-admin"><div class="metric-num">{{ stats.admin }}</div><div class="metric-label">绠＄悊锟?/div></div>
+  L129: <div class="stat card stat-dispatcher"><div class="metric-num">{{ stats.dispatcher }}</div><div class="metric-label">璋冨害锟?/div></div>
+  L137: <span>鍙洿鎺ヨ皟鏁磋鑹诧拷锟介噸缃瘑鐮侊拷锟介厤缃姛鑳芥潈闄愬拰閰嶇數瀹よ寖鍥达拷锟?/span>
+  L146: <el-table-column label="鐢ㄦ埛锟? min-width="220">
+  L167: <el-table-column label="閰嶇數瀹よ寖锟? min-width="240">
+  L172: <span v-else>鍏ㄩ儴閰嶇數锟?/span>
+  L197: <el-form-item label="鐢ㄦ埛锟?>
+  L205: <el-option label="绠＄悊锟? value="admin" />
+  L206: <el-option label="璋冨害锟? value="dispatcher" />
+  L208: <el-option label="鏅拷锟界敤锟? value="user" />
+  L211: <el-form-item label="鏂板瘑锟?>
+  L214: <el-form-item label="閰嶇數瀹よ寖锟? v-if="editForm.role !== 'admin'">
+  L215: <el-select v-model="editForm.room_scopes" multiple collapse-tags style="width: 100%;" placeholder="鐣欑┖琛ㄧず鍏ㄩ儴閰嶇數锟?>
+  L239: window.appShell.handleUnauthorized('鍙湁绠＄悊鍛樺彲浠ヨ繘鍏ョ敤鎴锋潈闄愰〉闈?锟?锟斤拷?, 400);
+  L265: batch_management: '澶ф淇壒锟?,
+  L271: repair: '妫拷淇锟?,
+  L276: admin: '绠＄悊锟?,
+  L277: dispatcher: '璋冨害锟?,
+  L279: user: '鏅拷锟界敤锟?,
+  L338: await ElMessageBox.confirm('纭畾鍒犻櫎杩欎釜鐢ㄦ埛鍚?鍒犻櫎鍚庝笉鍙仮澶嶏拷锟?, '鎻愮ず', {
+

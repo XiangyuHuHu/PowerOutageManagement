@@ -3,156 +3,311 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>审批历史记录</title>
-  <script src="https://unpkg.com/vue@3"></script>
-  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/element-plus/dist/index.css">
-  <script src="https://cdn.jsdelivr.net/npm/element-plus"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <title>审批记录</title>
+  <link rel="stylesheet" href="/admin_theme.css">
+  <script src="/app_shell.js"></script>
+  <script src="/vendor/vue.global.prod.js"></script>
+  <script src="/vendor/axios.min.js"></script>
+  <link rel="stylesheet" href="/vendor/element-plus/index.css">
+  <script src="/vendor/element-plus/index.full.min.js"></script>
   <style>
-    body { background: #203a43; color: #fff; min-height: 100vh; margin: 0; font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif; }
-    #app { max-width: 1400px; margin: 40px auto; background: rgba(16,33,47,0.95); border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.4); border: 1px solid rgba(64,158,255,0.2); padding: 32px; }
-    h2 { text-align: center; margin-bottom: 32px; }
-    .el-table { background: rgba(12,28,44,0.7) !important; border-radius: 12px !important; overflow: hidden; border: 1px solid rgba(64,158,255,0.2) !important; }
-    .el-table th { background: linear-gradient(to bottom, #0d2b46, #143a5f) !important; color: #e6f7ff !important; font-weight: 600 !important; border: none !important; }
-    .el-table tr { background: rgba(16,33,47,0.5) !important; transition: all 0.3s ease; }
-    .el-table tr:hover { background: rgba(30,60,90,0.7) !important; transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
-    .el-table td { border-bottom: 1px solid rgba(64,158,255,0.1) !important; color: #e6f7ff !important; }
-    .el-tag { font-weight: 600 !important; border: none !important; }
-    .status-completed .el-tag { background: linear-gradient(135deg, #67c23a, #4a8c2c) !important; color: #fff !important; }
-    .status-rejected .el-tag, .status-power_on_rejected .el-tag { background: linear-gradient(135deg, #f56c6c, #c45656) !important; color: #fff !important; }
-    .status-approved .el-tag { background: linear-gradient(135deg, #409eff, #2a6bc5) !important; color: #fff !important; }
-    .status-pending .el-tag { background: linear-gradient(135deg, #e6a23c, #b88230) !important; color: #fff !important; }
-    .status-power_on_applied .el-tag { background: linear-gradient(135deg, #e6a23c, #b88230) !important; color: #fff !important; }
+    body { margin: 0; min-height: 100vh; padding: 22px; }
+    [v-cloak] { display: none; }
+    #app { max-width: 1540px; margin: 0 auto; border-radius: 22px; overflow: hidden; }
+    .header, .content { padding: 24px 28px; }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      background: linear-gradient(90deg, rgba(13, 43, 70, 0.96), rgba(20, 58, 95, 0.84));
+      border-bottom: 1px solid rgba(64, 158, 255, 0.18);
+    }
+    .header h1 { margin: 0; font-size: 30px; }
+    .header p { margin: 8px 0 0; line-height: 1.8; font-size: 14px; max-width: 920px; }
+    .stats { display: grid; grid-template-columns: repeat(4, minmax(170px, 1fr)); gap: 14px; margin-bottom: 18px; }
+    .stat, .panel { padding: 18px; border-radius: 18px; position: relative; overflow: hidden; }
+    .stat::before, .panel::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 4px;
+      border-radius: 18px 18px 0 0;
+      opacity: 0.95;
+    }
+    .stat-total::before, .panel-history::before { background: linear-gradient(90deg, #4da8ff, #7fd6ff); }
+    .stat-approve::before { background: linear-gradient(90deg, #29d0c4, #7ce9d2); }
+    .stat-operate::before { background: linear-gradient(90deg, #8d84ff, #b2adff); }
+    .stat-batch::before { background: linear-gradient(90deg, #ffb14d, #ffd36d); }
+    .filters { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr auto; gap: 12px; margin-bottom: 16px; }
+    .alert {
+      margin-bottom: 14px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      background: rgba(245, 108, 108, 0.12);
+      border: 1px solid rgba(245, 108, 108, 0.22);
+      color: #ffd0d0;
+    }
+    .table-wrap { overflow: hidden; border-radius: 16px; border: 1px solid rgba(64, 158, 255, 0.16); }
+    .type-tag {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 88px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .type-approve { background: rgba(64, 158, 255, 0.18); color: #9bd0ff; }
+    .type-reject { background: rgba(245, 108, 108, 0.18); color: #ffb7b7; }
+    .type-operate { background: rgba(103, 194, 58, 0.18); color: #c8f2af; }
+    .type-batch { background: rgba(230, 162, 60, 0.18); color: #ffd38e; }
+    .meta { color: #abdfff; font-size: 12px; line-height: 1.7; }
+    .cell-main { color: #eef9ff; font-weight: 700; }
+    .cell-sub { color: #abdfff; font-size: 12px; line-height: 1.7; margin-top: 4px; }
+    .el-table {
+      --el-table-bg-color: rgba(255,255,255,0.03);
+      --el-table-tr-bg-color: rgba(255,255,255,0.03);
+      --el-table-expanded-cell-bg-color: rgba(255,255,255,0.03);
+      --el-table-header-bg-color: rgba(16, 52, 74, 0.78);
+      --el-table-border-color: rgba(64, 158, 255, 0.16);
+      --el-table-row-hover-bg-color: rgba(77, 168, 255, 0.08);
+      background: rgba(255,255,255,0.03);
+      color: #eaf7ff;
+      border-radius: 16px;
+      overflow: hidden;
+    }
+    .el-table th.el-table__cell,
+    .el-table td.el-table__cell,
+    .el-table tr { background: transparent; color: #eaf7ff; }
+    .el-table th.el-table__cell { color: #d7eeff; font-weight: 800; }
+    .el-table__inner-wrapper::before,
+    .el-table__border-left-patch { background: rgba(64, 158, 255, 0.16) !important; }
+    .el-table__empty-block,
+    .el-table__empty-text,
+    .el-scrollbar__view,
+    .el-table__body-wrapper,
+    .el-table__header-wrapper,
+    .el-table__fixed,
+    .el-table__fixed-right,
+    .el-table__fixed-header-wrapper,
+    .el-table__fixed-body-wrapper,
+    .el-table__fixed-right-patch { background: transparent !important; color: #abdfff; }
+    .el-table__header-wrapper th,
+    .el-table__fixed-header-wrapper th,
+    .el-table__fixed-right-patch { background: rgba(16, 52, 74, 0.78) !important; }
+    .el-table__body-wrapper td,
+    .el-table__fixed-body-wrapper td { background: rgba(255,255,255,0.03) !important; }
+    @media (max-width: 980px) {
+      .stats { grid-template-columns: 1fr 1fr; }
+      .filters { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 680px) {
+      .stats, .filters { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
-  <div id="app">
-    <button style="position: absolute; top: 24px; right: 36px; z-index: 1000; background: linear-gradient(135deg, #409eff, #2a6bc5); color: #fff; border: none; border-radius: 8px; padding: 8px 20px; font-weight: bold; font-size: 15px; cursor: pointer;" @click="logout">
-      <i class='fas fa-sign-out-alt'></i> 退出登录
-    </button>
-    <h2><i class="fas fa-history"></i> 审批历史记录</h2>
-    <div style="overflow-x: auto;">
-      <el-table
-        :data="historyList"
-        style="width: 100%; min-width: 1200px;"
-        border
-        height="600"
-        v-loading="loading"
-        element-loading-text="加载中..."
-      >
-        <el-table-column prop="id" label="ID" width="80">
-          <template #default="{ row }">
-            <div style="font-weight: bold;">#{{ row.id }}</div>
-          </template>
-        </el-table-column>
-        <el-table-column prop="applicant" label="申请人" width="120">
-          <template #default="{ row }">
-            <i class="fas fa-user-circle"></i>
-            {{ row.applicant }}
-          </template>
-        </el-table-column>
-        <el-table-column prop="created_at" label="时间" width="180">
-          <template #default="{ row }">
-            <i class="fas fa-clock"></i>
-            {{ formatDateTime(row.created_at) }}
-          </template>
-        </el-table-column>
-        <el-table-column prop="deviceId" label="设备编号" width="120">
-          <template #default="{ row }">
-            <i class="fas fa-microchip"></i>
-            {{ row.deviceId }}
-          </template>
-        </el-table-column>
-        <el-table-column prop="reason" label="停电原因" width="160">
-          <template #default="{ row }">
-            <i class="fas fa-comment-alt"></i>
-            {{ row.reason }}
-          </template>
-        </el-table-column>
-        <el-table-column prop="status" label="当前状态" width="120">
-          <template #default="{ row }">
-            <div :class="'status-' + row.status">
-              <el-tag>{{ statusText(row.status) }}</el-tag>
-            </div>
-          </template>
-        </el-table-column>
-        <el-table-column prop="status" label="审批类型" width="120">
-          <template #default="{ row }">
-            <el-tag v-if="row.status === 'pending'" type="warning">停电审批</el-tag>
-            <el-tag v-else-if="['approved', 'verified', 'repairing', 'repair_completed'].includes(row.status)" type="info">停电中</el-tag>
-            <el-tag v-else-if="row.status === 'power_on_applied'" type="success">送电审批</el-tag>
-            <el-tag v-else-if="row.status === 'completed'" type="success">完成</el-tag>
-            <el-tag v-else-if="['rejected', 'power_on_rejected'].includes(row.status)" type="danger">已驳回</el-tag>
-            <span v-else>-</span>
-          </template>
-        </el-table-column>
-        <el-table-column label="操作" width="120" fixed="right">
-          <template #default="{ row }">
-            <el-button type="primary" size="small" @click="viewDetail(row.id)">
-              <i class="fas fa-eye"></i> 详情
-            </el-button>
-          </template>
-        </el-table-column>
-      </el-table>
+  <div id="app" v-cloak>
+    <div class="header">
+      <div>
+        <h1>审批记录</h1>
+        <p>这里仅展示仍在流转中的工单日志，适合跟踪当前审批、验电、检修、送电和挂牌进度。已完成工单请到“已完成记录”查看。</p>
+      </div>
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <el-button @click="fetchHistory">刷新</el-button>
+        <el-button type="primary" @click="goBack">返回</el-button>
+      </div>
+    </div>
+    <div class="content">
+      <div class="stats">
+        <div class="stat card stat-total"><div class="metric-num">{{ stats.total }}</div><div class="metric-label">进行中日志数</div></div>
+        <div class="stat card stat-approve"><div class="metric-num">{{ stats.approvals }}</div><div class="metric-label">审批动作</div></div>
+        <div class="stat card stat-operate"><div class="metric-num">{{ stats.operations }}</div><div class="metric-label">流程操作</div></div>
+        <div class="stat card stat-batch"><div class="metric-num">{{ stats.batch }}</div><div class="metric-label">涉及批次</div></div>
+      </div>
+      <section class="panel card panel-history">
+        <div class="filters">
+          <el-input v-model="filters.applicationId" clearable placeholder="按工单 ID 过滤" />
+          <el-input v-model="filters.deviceId" clearable placeholder="按设备编号过滤" />
+          <el-input v-model="filters.batchId" clearable placeholder="按批次 ID 过滤" />
+          <el-select v-model="filters.operationType" clearable placeholder="按操作类型过滤">
+            <el-option v-for="item in operationOptions" :key="item.value" :label="item.label" :value="item.value" />
+          </el-select>
+          <el-button type="primary" @click="fetchHistory">查询</el-button>
+        </div>
+        <div v-if="errorMessage" class="alert">{{ errorMessage }}</div>
+        <div class="table-wrap">
+          <el-table :data="historyList" border height="640" v-loading="loading" empty-text="当前没有进行中的审批日志">
+            <el-table-column prop="log_id" label="日志 ID" width="100" />
+            <el-table-column label="工单" width="90">
+              <template #default="{ row }">#{{ row.application_id }}</template>
+            </el-table-column>
+            <el-table-column label="设备/批次" min-width="260">
+              <template #default="{ row }">
+                <div class="cell-main">{{ row.device_name || row.deviceId || '-' }}</div>
+                <div class="meta">
+                  {{ row.deviceId || '-' }}
+                  <span v-if="row.power_room"> / {{ row.power_room }}</span>
+                  <span v-if="row.cabinet"> / {{ row.cabinet }}</span>
+                  <span v-if="row.batch_name"> / 批次：{{ row.batch_name }}</span>
+                </div>
+              </template>
+            </el-table-column>
+            <el-table-column label="人员" min-width="180">
+              <template #default="{ row }">
+                <div class="cell-main">申请：{{ row.applicant || '-' }}</div>
+                <div class="cell-sub">操作：{{ row.operator || '-' }}</div>
+              </template>
+            </el-table-column>
+            <el-table-column label="操作类型" width="140">
+              <template #default="{ row }">
+                <span class="type-tag" :class="operationClass(row.operation_type)">{{ operationText(row.operation_type) }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column label="状态流转" min-width="220">
+              <template #default="{ row }">{{ statusText(row.old_status) }} -> {{ statusText(row.new_status) }}</template>
+            </el-table-column>
+            <el-table-column label="原因/说明" min-width="260" show-overflow-tooltip>
+              <template #default="{ row }">
+                <div class="cell-main">{{ row.reason || '-' }}</div>
+                <div class="cell-sub">{{ row.operation_comment || '-' }}</div>
+              </template>
+            </el-table-column>
+            <el-table-column label="时间" width="180">
+              <template #default="{ row }">{{ formatDateTime(row.operation_time) }}</template>
+            </el-table-column>
+            <el-table-column label="查看" width="110">
+              <template #default="{ row }">
+                <el-button type="primary" size="small" @click="viewDetail(row.application_id)">详情</el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+        </div>
+      </section>
     </div>
   </div>
   <script>
+    if (!localStorage.getItem('user_realname') && !localStorage.getItem('user_username')) {
+      window.appShell.handleUnauthorized();
+    }
     axios.defaults.withCredentials = true;
-    const { createApp, ref, onMounted } = Vue;
+    const { createApp, ref, computed, onMounted } = Vue;
     createApp({
       setup() {
-        const historyList = ref([]);
+        const { ElMessage } = ElementPlus;
         const loading = ref(false);
+        const historyList = ref([]);
+        const errorMessage = ref('');
+        const filters = ref({
+          applicationId: '',
+          deviceId: '',
+          batchId: '',
+          operationType: '',
+        });
+        const operationOptions = [
+          { label: '已有挂牌免停电审批', value: 'auto_skip_power_off_approval' },
+          { label: '创建申请', value: 'create' },
+          { label: '停电审批', value: 'power_off_approve' },
+          { label: '送电审批', value: 'power_on_approve' },
+          { label: '验电', value: 'electrician_verify' },
+          { label: '开始检修', value: 'repair_start' },
+          { label: '完成检修', value: 'repair_end' },
+          { label: '申请送电', value: 'power_on_apply' },
+          { label: '解除挂牌', value: 'tag_release' },
+        ];
+        const stats = computed(() => ({
+          total: historyList.value.length,
+          approvals: historyList.value.filter((item) => ['power_off_approve', 'power_on_approve'].includes(item.operation_type)).length,
+          operations: historyList.value.filter((item) => ['electrician_verify', 'repair_start', 'repair_end', 'power_on_apply', 'tag_release', 'create', 'auto_skip_power_off_approval'].includes(item.operation_type)).length,
+          batch: historyList.value.filter((item) => item.batch_name || String(item.operation_type || '').includes('batch')).length,
+        }));
         const statusMap = {
-          pending: "待审批",
-          approved: "审批通过",
-          rejected: "审批驳回",
-          verified: "已验电",
-          "verify-rejected": "验电驳回",
-          repairing: "检修中",
-          "repair_completed": "检修完成",
-          "power_on_applied": "送电申请",
-          completed: "已完成",
-          "power_on_rejected": "送电驳回"
+          pending: '待停电审批',
+          approved: '停电审批通过',
+          rejected: '停电审批驳回',
+          verified: '已验电',
+          repairing: '检修中',
+          repair_completed: '检修完成',
+          power_on_applied: '待送电审批',
+          power_on_rejected: '送电审批驳回',
+          completed: '已完成',
+          '': '初始状态',
+          null: '初始状态',
         };
-        const statusText = (status) => statusMap[status] || status;
-        const formatDateTime = (timestamp) => {
-          if (!timestamp) return '';
-          const date = new Date(timestamp);
-          return date.toLocaleString('zh-CN', {
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit',
-            hour: '2-digit',
-            minute: '2-digit'
-          });
+        const operationMap = {
+          auto_skip_power_off_approval: '已有挂牌免停电审批',
+          create: '创建申请',
+          power_off_approve: '停电审批',
+          power_on_approve: '送电审批',
+          electrician_verify: '验电',
+          repair_start: '开始检修',
+          repair_end: '完成检修',
+          power_on_apply: '申请送电',
+          tag_release: '解除挂牌',
+        };
+        const statusText = (status) => statusMap[status] || status || '未知状态';
+        const operationText = (type) => operationMap[type] || type;
+        const operationClass = (type) => {
+          if (['power_off_approve', 'power_on_approve'].includes(type)) return 'type-approve';
+          if (String(type || '').includes('reject')) return 'type-reject';
+          if (['repair_start', 'repair_end', 'electrician_verify', 'power_on_apply', 'tag_release', 'auto_skip_power_off_approval', 'create'].includes(type)) return 'type-operate';
+          return 'type-batch';
+        };
+        const formatDateTime = (value) => {
+          if (!value) return '-';
+          const date = new Date(value);
+          return Number.isNaN(date.getTime()) ? value : date.toLocaleString('zh-CN');
         };
         const fetchHistory = async () => {
           loading.value = true;
+          errorMessage.value = '';
           try {
-            const res = await axios.get('/api/list');
-            // 只排除“pending”和“power_on_applied”，其他都算历史
-            historyList.value = res.data.filter(app => !['pending', 'power_on_applied'].includes(app.status));
-          } catch (err) {
-            historyList.value = [];
+            const params = {};
+            if (filters.value.applicationId) params.application_id = filters.value.applicationId;
+            if (filters.value.deviceId) params.device_id = filters.value.deviceId;
+            if (filters.value.batchId) params.batch_id = filters.value.batchId;
+            if (filters.value.operationType) params.operation_type = filters.value.operationType;
+            const res = await axios.get('/api/approval-history', { params });
+            historyList.value = Array.isArray(res.data)
+              ? res.data.filter((item) => item.current_status !== 'completed')
+              : [];
+          } catch (error) {
+            if (error?.response?.status === 401) {
+              errorMessage.value = '登录态已失效，请重新登录后再查看审批记录。';
+              window.appShell.handleUnauthorized(errorMessage.value, 800);
+              return;
+            }
+            errorMessage.value = error?.response?.data?.msg || '审批记录加载失败';
+            ElMessage.error(errorMessage.value);
           } finally {
             loading.value = false;
           }
         };
-        const viewDetail = (id) => {
-          window.open(`/detail.html?id=${id}`, '_blank');
+        const viewDetail = (id) => window.open(`/detail.html?id=${id}`, '_blank');
+        const goBack = () => window.appShell.goBackOrHome();
+        onMounted(fetchHistory);
+        return {
+          loading,
+          historyList,
+          errorMessage,
+          filters,
+          operationOptions,
+          stats,
+          statusText,
+          operationText,
+          operationClass,
+          formatDateTime,
+          fetchHistory,
+          viewDetail,
+          goBack,
         };
-        const logout = () => {
-          localStorage.clear();
-          window.location.href = '/login.html';
-        };
-        onMounted(() => {
-          fetchHistory();
-        });
-        return { historyList, loading, statusText, formatDateTime, viewDetail, logout };
-      }
-    }).use(ElementPlus).mount('#app')
+      },
+    }).use(ElementPlus).mount('#app');
   </script>
 </body>
-</html> 
+</html>

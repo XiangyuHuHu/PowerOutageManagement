@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>审批中心</title>
+  <script src="https://unpkg.com/vue@3"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/element-plus/dist/index.css">
+  <script src="https://cdn.jsdelivr.net/npm/element-plus"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: linear-gradient(135deg, rgba(13, 49, 74, 0.96), rgba(8, 19, 31, 0.98));
+      color: #ecf8ff;
+      font-family: "Segoe UI", "Microsoft YaHei", sans-serif;
+      padding: 22px;
+    }
+    #app {
+      max-width: 1520px;
+      margin: 0 auto;
+      background: rgba(8, 22, 33, 0.86);
+      border: 1px solid rgba(116, 192, 255, 0.15);
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 24px 50px rgba(0, 0, 0, 0.35);
+    }
+    .header, .page-body { padding: 24px 28px; }
+    .header {
+      background: linear-gradient(90deg, rgba(10, 32, 48, 0.95), rgba(18, 61, 89, 0.85));
+      border-bottom: 1px solid rgba(116, 192, 255, 0.12);
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .header h1 { margin: 0; font-size: 30px; }
+    .header p { margin: 10px 0 0; color: #a7dbff; font-size: 14px; line-height: 1.8; max-width: 840px; }
+    .header-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+    .pill { padding: 8px 14px; border-radius: 999px; background: rgba(255,255,255,0.08); font-size: 13px; }
+    .stats, .room-grid { display: grid; gap: 14px; }
+    .stats { grid-template-columns: repeat(4, minmax(180px, 1fr)); margin-bottom: 16px; }
+    .stat, .room-card {
+      padding: 16px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(116, 192, 255, 0.12);
+    }
+    .stat .num { font-size: 30px; font-weight: 800; color: #6ec0ff; }
+    .stat .label { margin-top: 8px; color: #abdfff; font-size: 13px; }
+    .warning-strip {
+      margin-bottom: 16px;
+      padding: 14px 16px;
+      border-radius: 16px;
+      border: 1px solid rgba(255, 195, 88, 0.3);
+      background: rgba(255, 195, 88, 0.12);
+      color: #ffe8b0;
+      line-height: 1.7;
+      font-size: 14px;
+    }
+    .toolbar { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+    .toolbar .grow { flex: 1; min-width: 240px; }
+    .section-title { margin: 20px 0 12px; font-size: 18px; }
+    .room-grid { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); margin-bottom: 18px; }
+    .room-head { display: flex; justify-content: space-between; gap: 10px; align-items: flex-start; margin-bottom: 12px; }
+    .room-name { font-size: 18px; font-weight: 800; }
+    .room-meta { color: #abdfff; font-size: 13px; line-height: 1.7; }
+    .tag-row { display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0; }
+    .tag { padding: 5px 10px; border-radius: 999px; background: rgba(255,255,255,0.08); font-size: 12px; }
+    .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .el-table {
+      background: rgba(7, 18, 28, 0.78) !important;
+      border: 1px solid rgba(116, 192, 255, 0.12) !important;
+      border-radius: 18px !important;
+    }
+    .el-table th { background: rgba(19, 57, 84, 0.92) !important; color: #ebf7ff !important; border: none !important; }
+    .el-table tr { background: rgba(12, 30, 45, 0.72) !important; }
+    .el-table td { color: #e9f6ff !important; border-bottom: 1px solid rgba(116, 192, 255, 0.08) !important; }
+    .device-meta { display: grid; gap: 4px; line-height: 1.5; }
+    .sub { color: #a7dbff; font-size: 12px; }
+    .risk-badge { border-radius: 999px; padding: 4px 10px; font-size: 12px; font-weight: 700; }
+    .risk-badge.safe { background: rgba(103,194,58,0.16); color: #87db5d; }
+    .risk-badge.warn { background: rgba(230,162,60,0.18); color: #ffca73; }
+    @media (max-width: 980px) { .stats { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 680px) { .stats { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div class="header">
+      <div>
+        <h1>审批中心</h1>
+        <p>审批页现在支持按配电室汇总和批量审批。批量审批只会处理当前配电室内状态匹配的工单；送电批量通过时，仍会逐条检查剩余挂牌并跳过不安全工单。</p>
+      </div>
+      <div class="header-actions">
+        <span class="pill">审批人：{{ currentUser }}</span>
+        <span class="pill">{{ accessAllRooms ? '全部配电室' : `限定配电室 ${roomScopes.length} 个` }}</span>
+        <el-button @click="fetchData">刷新</el-button>
+        <el-button type="primary" @click="logout">退出登录</el-button>
+      </div>
+    </div>
+
+    <div class="page-body">
+      <div class="stats">
+        <div class="stat"><div class="num">{{ stats.pendingPowerOff }}</div><div class="label">待停电审批</div></div>
+        <div class="stat"><div class="num">{{ stats.pendingPowerOn }}</div><div class="label">待送电审批</div></div>
+        <div class="stat"><div class="num">{{ stats.riskItems }}</div><div class="label">挂牌风险工单</div></div>
+        <div class="stat"><div class="num">{{ stats.rooms }}</div><div class="label">可审批配电室</div></div>
+      </div>
+
+      <div class="warning-strip">
+        只有拥有 `batch_approval` 功能权限的调度员才能执行批量审批。送电批量审批遇到仍有挂牌的工单时会自动跳过，并返回跳过原因。
+      </div>
+
+      <div class="toolbar">
+        <el-input v-model="keyword" class="grow" clearable placeholder="搜索配电室 / 柜号 / 设备 / 申请人 / 原因" />
+        <el-select v-model="statusFilter" placeholder="流程筛选" style="width: 180px;">
+          <el-option label="全部" value="" />
+          <el-option label="待停电审批" value="pending" />
+          <el-option label="待送电审批" value="power_on_applied" />
+        </el-select>
+      </div>
+
+      <h2 class="section-title">按配电室批量处理</h2>
+      <div class="room-grid">
+        <div class="room-card" v-for="room in roomGroups" :key="room.name">
+          <div class="room-head">
+            <div>
+              <div class="room-name">{{ room.name }}</div>
+              <div class="room-meta">
+                待停电审批 {{ room.pendingPowerOff }} 条
+                <br>
+                待送电审批 {{ room.pendingPowerOn }} 条
+              </div>
+            </div>
+            <el-tag type="warning">{{ room.total }} 条</el-tag>
+          </div>
+          <div class="tag-row">
+            <span class="tag" v-if="room.pendingPowerOff">停电待审 {{ room.pendingPowerOff }}</span>
+            <span class="tag" v-if="room.pendingPowerOn">送电待审 {{ room.pendingPowerOn }}</span>
+            <span class="tag" v-if="room.riskItems">挂牌风险 {{ room.riskItems }}</span>
+          </div>
+          <div class="actions">
+            <el-button size="small" type="success" :disabled="!canBatchApprove || !room.pendingPowerOff" @click="batchApprove(room, 'power_off', true)">批量通过停电</el-button>
+            <el-button size="small" type="danger" :disabled="!canBatchApprove || !room.pendingPowerOff" @click="batchApprove(room, 'power_off', false)">批量驳回停电</el-button>
+            <el-button size="small" type="success" :disabled="!canBatchApprove || !room.pendingPowerOn" @click="batchApprove(room, 'power_on', true)">批量通过送电</el-button>
+            <el-button size="small" type="danger" :disabled="!canBatchApprove || !room.pendingPowerOn" @click="batchApprove(room, 'power_on', false)">批量驳回送电</el-button>
+          </div>
+        </div>
+      </div>
+
+      <h2 class="section-title">审批明细</h2>
+      <el-table :data="filteredList" border v-loading="loading" height="560">
+        <el-table-column prop="id" label="工单" width="90">
+          <template #default="{ row }">#{{ row.id }}</template>
+        </el-table-column>
+        <el-table-column label="设备" min-width="250">
+          <template #default="{ row }">
+            <div class="device-meta">
+              <strong>{{ row.device_name || row.deviceId }}</strong>
+              <span class="sub">{{ row.power_room || '未配置配电室' }} / {{ row.cabinet || '未配置柜号' }}</span>
+              <span class="sub">{{ row.deviceId }}</span>
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column prop="applicant" label="申请人" width="120" />
+        <el-table-column prop="reason" label="申请原因" min-width="180" show-overflow-tooltip />
+        <el-table-column prop="status" label="当前状态" width="140">
+          <template #default="{ row }">
+            <el-tag :type="statusTagType(row.status)">{{ statusText(row.status) }}</el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column label="挂牌风险" width="220">
+          <template #default="{ row }">
+            <div style="display:flex; flex-direction:column; gap:6px; align-items:flex-start;">
+              <span class="risk-badge" :class="(row.active_tag_count || 0) > 0 ? 'warn' : 'safe'">
+                {{ (row.active_tag_count || 0) > 0 ? `剩余挂牌 ${row.active_tag_count}` : '无剩余挂牌' }}
+              </span>
+              <span class="sub">{{ (row.active_tags || []).map((tag) => tag.electrician_name).join('、') || '当前无有效挂牌' }}</span>
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column label="审批操作" width="220" fixed="right">
+          <template #default="{ row }">
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+              <template v-if="row.status === 'pending'">
+                <el-button type="success" size="small" @click="approve(row, true)">通过</el-button>
+                <el-button type="danger" size="small" @click="approve(row, false)">驳回</el-button>
+              </template>
+              <template v-else-if="row.status === 'power_on_applied'">
+                <el-button type="success" size="small" @click="approve(row, true)">允许送电</el-button>
+                <el-button type="danger" size="small" @click="approve(row, false)">驳回送电</el-button>
+              </template>
+              <el-button size="small" @click="viewDetail(row.id)">详情</el-button>
+            </div>
+          </template>
+        </el-table-column>
+      </el-table>
+    </div>
+  </div>
+
+  <script>
+    if (!localStorage.getItem('user_realname') && !localStorage.getItem('user_username')) {
+      window.location.href = '/login.html';
+    }
+    axios.defaults.withCredentials = true;
+    const { createApp, ref, computed, onMounted } = Vue;
+    createApp({
+      setup() {
+        const { ElMessage, ElMessageBox } = ElementPlus;
+        const loading = ref(false);
+        const applications = ref([]);
+        const keyword = ref('');
+        const statusFilter = ref('');
+        const currentUser = localStorage.getItem('user_realname') || localStorage.getItem('user_username') || '未知用户';
+        const roomScopes = JSON.parse(localStorage.getItem('user_room_scopes') || '[]');
+        const accessAllRooms = localStorage.getItem('user_access_all_rooms') !== 'false';
+        const functionPermissions = JSON.parse(localStorage.getItem('user_function_permissions') || '[]');
+        const canBatchApprove = functionPermissions.includes('batch_approval') || localStorage.getItem('user_role') === 'admin';
+
+        const statusMap = {
+          pending: '待停电审批',
+          approved: '停电审批通过',
+          rejected: '停电审批驳回',
+          verified: '已验电',
+          repairing: '检修中',
+          repair_completed: '检修完成',
+          power_on_applied: '待送电审批',
+          power_on_rejected: '送电审批驳回',
+          completed: '流程完成',
+        };
+        const statusText = (status) => statusMap[status] || status;
+        const statusTagType = (status) => {
+          if (status === 'pending' || status === 'power_on_applied') return 'warning';
+          if (status === 'rejected' || status === 'power_on_rejected') return 'danger';
+          if (status === 'completed') return 'success';
+          return 'info';
+        };
+
+        const filteredList = computed(() => {
+          let list = applications.value.filter((item) => ['pending', 'power_on_applied'].includes(item.status));
+          if (statusFilter.value) list = list.filter((item) => item.status === statusFilter.value);
+          const kw = keyword.value.trim().toLowerCase();
+          if (kw) {
+            list = list.filter((item) =>
+              String(item.power_room || '').toLowerCase().includes(kw) ||
+              String(item.cabinet || '').toLowerCase().includes(kw) ||
+              String(item.device_name || '').toLowerCase().includes(kw) ||
+              String(item.deviceId || '').toLowerCase().includes(kw) ||
+              String(item.applicant || '').toLowerCase().includes(kw) ||
+              String(item.reason || '').toLowerCase().includes(kw)
+            );
+          }
+          return list;
+        });
+
+        const roomGroups = computed(() => {
+          const groups = {};
+          filteredList.value.forEach((item) => {
+            const roomName = item.power_room || '未配置配电室';
+            if (!groups[roomName]) {
+              groups[roomName] = {
+                name: roomName,
+                total: 0,
+                pendingPowerOff: 0,
+                pendingPowerOn: 0,
+                riskItems: 0,
+              };
+            }
+            groups[roomName].total += 1;
+            if (item.status === 'pending') groups[roomName].pendingPowerOff += 1;
+            if (item.status === 'power_on_applied') groups[roomName].pendingPowerOn += 1;
+            if (Number(item.active_tag_count || 0) > 0) groups[roomName].riskItems += 1;
+          });
+          return Object.values(groups).sort((a, b) => a.name.localeCompare(b.name, 'zh-CN'));
+        });
+
+        const stats = computed(() => ({
+          pendingPowerOff: filteredList.value.filter((item) => item.status === 'pending').length,
+          pendingPowerOn: filteredList.value.filter((item) => item.status === 'power_on_applied').length,
+          riskItems: filteredList.value.filter((item) => Number(item.active_tag_count || 0) > 0).length,
+          rooms: roomGroups.value.length,
+        }));
+
+        const fetchData = async () => {
+          loading.value = true;
+          try {
+            const res = await axios.get('/api/list');
+            applications.value = Array.isArray(res.data) ? res.data : [];
+          } catch (error) {
+            applications.value = [];
+            ElMessage.error(error?.response?.data?.msg || '审批列表加载失败');
+          } finally {
+            loading.value = false;
+          }
+        };
+
+        const promptComment = async (title, pass) => {
+          try {
+            const result = await ElMessageBox.prompt(
+              pass ? '审批意见可选填写' : '驳回时必须填写审批意见',
+              title,
+              { inputType: 'textarea', confirmButtonText: '提交', cancelButtonText: '取消' }
+            );
+            return (result.value || '').trim();
+          } catch {
+            return null;
+          }
+        };
+
+        const approve = async (row, pass) => {
+          const isPowerOn = row.status === 'power_on_applied';
+          const comment = await promptComment(isPowerOn ? '送电审批意见' : '停电审批意见', pass);
+          if (comment === null) return;
+          if (!pass && !comment) {
+            ElMessage.warning('驳回时必须填写审批意见');
+            return;
+          }
+          try {
+            await axios.post(isPowerOn ? '/api/power-on-approve' : '/api/power-off-approve', {
+              id: row.id,
+              action: pass ? 'approve' : 'reject',
+              comment,
+            });
+            ElMessage.success('审批已提交');
+            await fetchData();
+          } catch (error) {
+            ElMessage.error(error?.response?.data?.msg || '审批失败');
+          }
+        };
+
+        const batchApprove = async (room, stage, pass) => {
+          const title = `${room.name} - ${stage === 'power_off' ? '停电' : '送电'}批量审批`;
+          const comment = await promptComment(title, pass);
+          if (comment === null) return;
+          if (!pass && !comment) {
+            ElMessage.warning('批量驳回时必须填写审批意见');
+            return;
+          }
+          try {
+            const res = await axios.post('/api/batch-approve-room', {
+              power_room: room.name,
+              stage,
+              action: pass ? 'approve' : 'reject',
+              comment,
+            });
+            const skipped = res.data?.skipped || [];
+            if (skipped.length) {
+              ElMessage.warning(`${res.data.msg}。跳过工单：${skipped.map((item) => '#' + item.id).join('、')}`);
+            } else {
+              ElMessage.success(res.data?.msg || '批量审批完成');
+            }
+            await fetchData();
+          } catch (error) {
+            ElMessage.error(error?.response?.data?.msg || '批量审批失败');
+          }
+        };
+
+        const viewDetail = (id) => window.open(`/detail.html?id=${id}`, '_blank');
+        const logout = () => {
+          localStorage.clear();
+          window.location.href = '/login.html';
+        };
+        onMounted(fetchData);
+        return { loading, applications, keyword, statusFilter, currentUser, roomScopes, accessAllRooms, canBatchApprove, filteredList, roomGroups, stats, fetchData, statusText, statusTagType, approve, batchApprove, viewDetail, logout };
+      },
+    }).use(ElementPlus).mount('#app');
+  </script>
+</body>
+</html>

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>功能已停用</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body {
+      background: #203a43;
+      color: #fff;
+      min-height: 100vh;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: "Microsoft YaHei", sans-serif;
+    }
+    .main {
+      background: rgba(16, 33, 47, 0.95);
+      border-radius: 16px;
+      padding: 36px 30px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+      width: 520px;
+    }
+    h2 {
+      text-align: center;
+      margin: 0 0 20px;
+    }
+    .tip {
+      margin: 0 0 24px;
+      padding: 12px 14px;
+      background: rgba(255, 193, 7, 0.16);
+      border: 1px solid rgba(255, 193, 7, 0.35);
+      border-radius: 10px;
+      font-size: 14px;
+      line-height: 1.8;
+    }
+    button {
+      width: 100%;
+      border: none;
+      border-radius: 10px;
+      padding: 12px 0;
+      font-size: 16px;
+      font-weight: bold;
+      color: #fff;
+      cursor: pointer;
+      margin-top: 12px;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #409eff, #2a6bc5);
+    }
+    .btn-back {
+      background: linear-gradient(135deg, #4d6480, #34495e);
+    }
+    .result {
+      margin-top: 14px;
+      font-size: 14px;
+      color: #d6e6f7;
+      text-align: center;
+      line-height: 1.8;
+    }
+  </style>
+</head>
+<body>
+  <div class="main">
+    <h2><i class="fas fa-circle-info"></i> 功能已停用</h2>
+    <div class="tip">
+      当前系统不再负责现场停电/送电执行，相关动作由另一套现场程序完成。
+      本系统仅保留审批流程、检修留痕和基于 OPC UA 的设备状态监视。
+    </div>
+    <div class="result">
+      如需确认设备是否已经停电或送电，请前往“设备监控”页面查看 OPC UA 实时状态。
+    </div>
+    <button class="btn-primary" onclick="location.href='device_monitor.html'">
+      <i class="fas fa-tachometer-alt"></i> 前往设备监控
+    </button>
+    <button class="btn-back" onclick="location.href='repair.html'">
+      <i class="fas fa-list-check"></i> 返回检修/我的申请
+    </button>
+    <button class="btn-back" onclick="location.href='electrician_home.html'">
+      <i class="fas fa-arrow-left"></i> 返回电工首页
+    </button>
+  </div>
+</body>
+</html>

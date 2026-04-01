@@ -1,234 +1,507 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>提交停电申请</title>
-  <script src="https://unpkg.com/vue@3"></script>
-  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <title>停电申请</title>
+  <link rel="stylesheet" href="/admin_theme.css">
+  <script src="/app_shell.js"></script>
+  <script src="/vendor/vue.global.prod.js"></script>
+  <script src="/vendor/axios.min.js"></script>
   <style>
-    body {
-      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+    body { margin: 0; min-height: 100vh; padding: 22px; }
+    #app { max-width: 1540px; margin: 0 auto; border-radius: 24px; overflow: hidden; }
+    .header, .content { padding: 24px 28px; }
+    .header {
       display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      flex-wrap: wrap;
+      background: linear-gradient(90deg, rgba(8, 29, 42, 0.96), rgba(26, 78, 97, 0.84));
+      border-bottom: 1px solid rgba(118, 200, 255, 0.12);
+    }
+    .header h1 { margin: 0; font-size: 32px; }
+    .header p { margin: 10px 0 0; max-width: 980px; line-height: 1.8; color: #cae9ff; }
+    .header-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn {
+      border: none;
+      border-radius: 12px;
+      padding: 12px 16px;
+      cursor: pointer;
+      font-weight: 700;
+      color: #fff;
+      background: linear-gradient(135deg, #368de6, #54adff);
+    }
+    .btn.ghost {
+      background: rgba(255,255,255,0.08);
+      color: #d9f0ff;
+      border: 1px solid rgba(118,200,255,0.18);
+    }
+    .btn.danger { background: linear-gradient(135deg, #d25c5c, #f07878); }
+    .btn.secondary { background: linear-gradient(135deg, #2d7d74, #35b5a8); }
+    .btn:disabled { opacity: 0.55; cursor: not-allowed; }
+    .content { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(360px, 0.85fr); gap: 18px; }
+    .panel {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(118,200,255,0.12);
+      border-radius: 20px;
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+    .panel::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 4px;
+      background: linear-gradient(90deg, #4da8ff, #7fd6ff);
+    }
+    .panel h2 { margin: 0 0 14px; font-size: 22px; }
+    .panel-note { margin-bottom: 16px; color: #badfff; line-height: 1.8; font-size: 14px; }
+    .stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-bottom: 18px; }
+    .stat {
+      padding: 16px 18px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(118,200,255,0.12);
+      position: relative;
+      overflow: hidden;
+    }
+    .stat::before { content: ""; position: absolute; left: 0; top: 0; width: 100%; height: 4px; }
+    .stat-access::before { background: linear-gradient(90deg, #4da8ff, #7fd6ff); }
+    .stat-managed::before { background: linear-gradient(90deg, #29d0c4, #7ce9d2); }
+    .stat-selected::before { background: linear-gradient(90deg, #8d84ff, #b2adff); }
+    .stat-skip::before { background: linear-gradient(90deg, #ffb14d, #ffd36d); }
+    .num { font-size: 34px; font-weight: 800; color: #eef9ff; margin-bottom: 8px; }
+    .label { color: #b9e5ff; font-size: 14px; }
+    .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-bottom: 16px; }
+    .field { display: flex; flex-direction: column; gap: 8px; }
+    .field.full { grid-column: 1 / -1; }
+    .field label { font-size: 13px; color: #ccecff; font-weight: 600; }
+    .field input, .field textarea {
+      width: 100%;
+      border: 1px solid rgba(118,200,255,0.16);
+      border-radius: 14px;
+      padding: 13px 14px;
+      background: rgba(7,22,32,0.72);
+      color: #eef8ff;
+      outline: none;
+      font-size: 14px;
+    }
+    .field textarea { min-height: 108px; resize: vertical; }
+    .device-toolbar { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; align-items: center; }
+    .toolbar-left, .toolbar-right { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .search-box {
+      flex: 1 1 320px;
+      min-width: 240px;
+      border-radius: 14px;
+      border: 1px solid rgba(118,200,255,0.16);
+      padding: 12px 14px;
+      background: rgba(7,22,32,0.72);
+      color: #eef8ff;
+    }
+    .device-list, .selected-list, .manage-list { display: grid; gap: 12px; }
+    .device-card, .selected-card, .manage-card {
+      border-radius: 18px;
+      border: 1px solid rgba(118,200,255,0.12);
+      background: rgba(255,255,255,0.04);
+      padding: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+    .device-card.skip::before, .selected-card.skip::before, .manage-card.skip::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 4px;
+      background: linear-gradient(90deg, #ffb14d, #ffd36d);
+    }
+    .device-card-head, .selected-card-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+    .device-name { font-size: 18px; font-weight: 800; color: #eef9ff; }
+    .device-meta { display: grid; gap: 6px; color: #bfe4ff; font-size: 13px; line-height: 1.7; }
+    .tag-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+    .tag {
+      display: inline-flex;
       align-items: center;
       justify-content: center;
-      min-height: 100vh;
-      font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
-      margin: 0;
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      border: 1px solid rgba(255,255,255,0.08);
     }
-    .apply-box {
-      background: rgba(16, 33, 47, 0.95);
-      padding: 38px 32px 24px 32px;
+    .tag.blue { background: rgba(77,168,255,0.16); color: #a8d6ff; }
+    .tag.green { background: rgba(41,208,196,0.14); color: #95f0dc; }
+    .tag.gold { background: rgba(255,177,77,0.16); color: #ffd79d; }
+    .tag.gray { background: rgba(255,255,255,0.08); color: #d9efff; }
+    .manage-card { display: flex; justify-content: space-between; gap: 14px; align-items: center; }
+    .switch { display: inline-flex; align-items: center; gap: 8px; color: #bfe4ff; font-size: 14px; }
+    .message-box {
+      margin-top: 14px;
+      padding: 14px 16px;
       border-radius: 16px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-      width: 400px;
-      color: #fff;
-      border: 1px solid rgba(64, 158, 255, 0.3);
-      position: relative;
+      border: 1px solid rgba(118,200,255,0.12);
+      background: rgba(255,255,255,0.04);
+      color: #d7f1ff;
+      line-height: 1.8;
     }
-    .top-bar {
-      display: flex;
-      align-items: center;
-      justify-content: flex-end;
-      margin-bottom: 12px;
-      gap: 12px;
-      min-height: 32px;
-    }
-    .user-name {
-      color: #a0d9ff;
-      font-size: 15px;
-      font-weight: bold;
-      letter-spacing: 1px;
-      background: linear-gradient(90deg, #53a7fd 30%, #fff 100%);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-      margin-right: 0;
-      white-space: nowrap;
-      max-width: 160px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      display: inline-block;
-    }
-    .logout-btn {
-      background: linear-gradient(135deg, #409eff, #2a6bc5);
-      border: none;
-      color: #fff;
-      padding: 6px 16px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: bold;
-      font-size: 15px;
-      transition: background 0.2s;
-    }
-    .logout-btn:hover {
-      background: linear-gradient(135deg, #2a6bc5, #409eff);
-    }
-    .apply-box h2 {
-      text-align: center;
-      margin-bottom: 24px;
-      background: linear-gradient(to right, #409eff, #a0d9ff);
-      -webkit-background-clip: text;
-      color: transparent;
-      font-size: 23px;
-    }
-    label {
-      display: block;
-      margin-top: 18px;
-      margin-bottom: 5px;
-      font-size: 15px;
-    }
-    input, select, textarea {
-      width: 100%;
-      padding: 12px;
-      font-size: 15px;
-      border-radius: 8px;
-      border: none;
-      background: rgba(255,255,255,0.08);
-      color: #fff;
-      box-sizing: border-box;
-      margin-bottom: 6px;
-    }
-    input[readonly] {
-      background: rgba(255,255,255,0.16);
-      color: #b4d8fc;
-      cursor: not-allowed;
-    }
-    select {
-      background: rgba(255,255,255,0.13);
-    }
-    button[type="submit"] {
-      margin-top: 28px;
-      width: 100%;
-      padding: 14px;
-      font-size: 16px;
-      background: linear-gradient(135deg, #409eff, #2a6bc5);
-      color: #fff;
-      border: none;
-      border-radius: 8px;
-      font-weight: bold;
-      cursor: pointer;
-      transition: transform 0.2s;
-    }
-    button[type="submit"]:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 12px rgba(64,158,255,0.25);
-    }
-    .message {
-      margin-top: 16px;
-      color: #90e890;
-      min-height: 24px;
-      text-align: center;
-    }
+    .empty { padding: 40px 12px; text-align: center; color: #abdfff; }
+    @media (max-width: 1100px) { .content { grid-template-columns: 1fr; } .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media (max-width: 720px) { .stats, .form-grid { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
   <div id="app">
-    <div class="apply-box">
-      <div class="top-bar">
-        <span class="user-name" id="userName"></span>
-        <button class="logout-btn" @click="logout">退出登录</button>
+    <div class="header">
+      <div>
+        <h1>停电申请</h1>
+        <p>支持按负责设备快速发起停电申请，也支持模糊搜索设备后多选提交。只有当前已经存在挂牌的设备，才会显示“可免停电审批”；单纯失电但没有挂牌的设备，仍按正常停电申请流程走。</p>
       </div>
-      <h2><i class="fas fa-file-signature"></i> 停电申请表</h2>
+      <div class="header-actions">
+        <button class="btn ghost" @click="goBack">返回</button>
+        <button class="btn danger" @click="logout">退出登录</button>
+      </div>
+    </div>
+    <div class="content">
+      <section class="panel">
+        <div class="stats">
+          <div class="stat stat-access"><div class="num">{{ stats.accessible }}</div><div class="label">可访问设备</div></div>
+          <div class="stat stat-managed"><div class="num">{{ stats.managed }}</div><div class="label">负责设备</div></div>
+          <div class="stat stat-selected"><div class="num">{{ stats.selected }}</div><div class="label">已选设备</div></div>
+          <div class="stat stat-skip"><div class="num">{{ stats.skip }}</div><div class="label">已有挂牌可免停电审批</div></div>
+        </div>
+        <h2>停电申请信息</h2>
+        <div class="panel-note">一次可勾选多台设备提交。若设备当前已经存在挂牌，系统会跳过停电审批，直接转入后续安全确认/检修流程；如果没有挂牌，即使当前失电，也仍按正常停电审批处理。</div>
+        <div class="form-grid">
+          <div class="field"><label>申请人</label><input v-model="form.applicant" readonly></div>
+          <div class="field"><label>申请人工号</label><input v-model="form.applicant_id" readonly></div>
+          <div class="field"><label>计划停电时间</label><input v-model="form.power_off_time" type="datetime-local"></div>
+          <div class="field"><label>计划送电时间</label><input v-model="form.power_on_time" type="datetime-local"></div>
+          <div class="field full"><label>停电原因</label><textarea v-model="form.reason" placeholder="请输入停电原因"></textarea></div>
+        </div>
+        <div class="device-toolbar">
+          <div class="toolbar-left">
+            <input class="search-box" v-model="searchKeyword" placeholder="按设备编号、设备名称、配电室、柜号、线路搜索">
+            <label class="switch"><input type="checkbox" v-model="showManagedOnly"> 只看本人负责设备</label>
+          </div>
+          <div class="toolbar-right">
+            <button class="btn ghost" @click="clearSelected" :disabled="!selectedDevices.length">清空已选</button>
+          </div>
+        </div>
+        <div v-if="filteredDevices.length" class="device-list">
+          <div class="device-card" :class="{ skip: item.can_skip_approval }" v-for="item in filteredDevices" :key="item.device_id">
+            <div class="device-card-head">
+              <div>
+                <div class="device-name">{{ item.device_name || item.device_id }}</div>
+                <div class="device-meta">
+                  <div>设备编号：{{ item.device_id }}</div>
+                  <div>设备位置：{{ item.power_room || '未配置配电室' }} / {{ item.cabinet || '未配置柜号' }}</div>
+                  <div>线路名称：{{ item.line_name || '未配置线路' }}</div>
+                  <div>当前带电状态：{{ formatPowerStatus(item.current_power_status) }}</div>
+                  <div>当前挂牌数量：{{ item.current_active_tag_count || 0 }}</div>
+                  <div>在线状态：{{ formatOnlineStatus(item.current_status) }}</div>
+                </div>
+              </div>
+              <button class="btn secondary" @click="toggleDevice(item.device_id)">{{ form.deviceIds.includes(item.device_id) ? '取消选择' : '选择设备' }}</button>
+            </div>
+            <div class="tag-row">
+              <span class="tag blue" v-if="item.is_managed">本人负责</span>
+              <span class="tag green" v-if="item.current_power_status === 'unpowered'">当前失电</span>
+              <span class="tag green" v-else-if="item.current_power_status === 'powered'">当前带电</span>
+              <span class="tag gold" v-if="item.can_skip_approval">已有挂牌，可免停电审批</span>
+              <span class="tag gray" v-if="!item.is_managed">非负责设备</span>
+            </div>
+          </div>
+        </div>
+        <div v-else class="empty">当前没有匹配的设备</div>
+        <div class="message-box" v-if="message">{{ message }}</div>
+      </section>
 
-      <label>申请人</label>
-      <input v-model="form.applicant" placeholder="自动填写" readonly />
+      <section class="panel">
+        <h2>已选设备</h2>
+        <div class="panel-note">提交前请确认设备、计划停送电时间和停电原因。重复设备或存在未完工单的设备会被系统跳过并给出说明。</div>
+        <div v-if="selectedDevices.length" class="selected-list">
+          <div class="selected-card" :class="{ skip: item.can_skip_approval }" v-for="item in selectedDevices" :key="item.device_id">
+            <div class="selected-card-head">
+              <div>
+                <div class="device-name">{{ item.device_name || item.device_id }}</div>
+                <div class="device-meta">
+                  <div>{{ item.power_room || '未配置配电室' }} / {{ item.cabinet || '未配置柜号' }}</div>
+                  <div>{{ item.device_id }}</div>
+                  <div>当前挂牌数量：{{ item.current_active_tag_count || 0 }}</div>
+                </div>
+              </div>
+              <button class="btn ghost" @click="toggleDevice(item.device_id)">移除</button>
+            </div>
+            <div class="tag-row">
+              <span class="tag green" v-if="item.current_power_status === 'unpowered'">当前失电</span>
+              <span class="tag green" v-else-if="item.current_power_status === 'powered'">当前带电</span>
+              <span class="tag gold" v-if="item.can_skip_approval">已有挂牌，可免停电审批</span>
+            </div>
+          </div>
+        </div>
+        <div v-else class="empty">尚未选择任何设备</div>
 
-      <label>停电时间</label>
-      <input type="datetime-local" v-model="form.power_off_time" />
+        <div style="margin-top:18px; display:flex; gap:10px; flex-wrap:wrap;">
+          <button class="btn" @click="submitForm" :disabled="loading">{{ loading ? '提交中...' : '提交停电申请' }}</button>
+        </div>
 
-      <label>设备编号</label>
-      <select v-model="form.deviceId">
-        <option disabled value="">请选择设备</option>
-        <option v-for="d in deviceOptions" :key="d" :value="d">{{ d }}</option>
-      </select>
+        <hr style="margin:22px 0; border-color: rgba(118,200,255,0.12); border-style: solid; border-width: 1px 0 0;">
 
-      <label>停电原因</label>
-      <select v-model="form.reason">
-        <option disabled value="">请选择原因</option>
-        <option v-for="r in reasonOptions" :key="r" :value="r">{{ r }}</option>
-      </select>
-
-      <label>操作任务描述</label>
-      <textarea v-model="form.operation_task" placeholder="如有操作任务请填写"></textarea>
-
-      <label>操作票模板</label>
-      <input v-model="form.ticket_template" placeholder="如有模板请填写" />
-
-      <button type="submit" @click="submitForm">提交申请</button>
-      <div class="message">{{ message }}</div>
+        <div class="device-toolbar">
+          <h2 style="margin:0;">负责设备维护</h2>
+          <div class="toolbar-right">
+            <button class="btn ghost" v-if="!editingManaged" @click="toggleManageEdit">编辑负责设备</button>
+            <template v-else>
+              <button class="btn secondary" @click="saveManagedDevices" :disabled="savingManaged">{{ savingManaged ? '保存中...' : '保存' }}</button>
+              <button class="btn ghost" @click="cancelManageEdit">取消</button>
+            </template>
+          </div>
+        </div>
+        <div class="panel-note">操作员可以维护自己负责的设备范围，申请停电时优先展示本人负责设备。</div>
+        <input class="search-box" v-model="manageSearchKeyword" placeholder="搜索负责设备候选项" style="margin-bottom:14px;">
+        <div v-if="editingManaged" style="display:flex; gap:10px; margin-bottom:12px;">
+          <button class="btn ghost" @click="selectManagedDraft(true)">全选当前结果</button>
+          <button class="btn ghost" @click="selectManagedDraft(false)">清空当前结果</button>
+        </div>
+        <div v-if="managedEditorDevices.length" class="manage-list">
+          <div class="manage-card" :class="{ skip: item.can_skip_approval }" v-for="item in managedEditorDevices" :key="item.device_id">
+            <div>
+              <div class="device-name">{{ item.device_name || item.device_id }}</div>
+              <div class="device-meta">
+                <div>{{ item.device_id }}</div>
+                <div>{{ item.power_room || '未配置配电室' }} / {{ item.cabinet || '未配置柜号' }}</div>
+              </div>
+            </div>
+            <label class="switch">
+              <input type="checkbox" :checked="editingManaged ? managedDraftIds.includes(item.device_id) : item.is_managed" :disabled="!editingManaged" @change="toggleManagedDraft(item.device_id)">
+              {{ editingManaged ? '加入负责范围' : (item.is_managed ? '已负责' : '未负责') }}
+            </label>
+          </div>
+        </div>
+        <div v-else class="empty">没有可维护的设备</div>
+        <div class="message-box" v-if="managedMessage">{{ managedMessage }}</div>
+      </section>
     </div>
   </div>
 
   <script>
-    // 登录校验
-    (function checkLogin() {
-      const realname = localStorage.getItem('user_realname');
-      const username = localStorage.getItem('user_username');
-      if (!realname && !username) {
-        window.location.href = '/login.html';
-      }
-    })();
     axios.defaults.withCredentials = true;
-    // 退出登录
-    const logout = () => {
-      localStorage.clear();
-      window.location.href = '/login.html';
-    };
-    // 显示用户
-    window.onload = function() {
-      const name = localStorage.getItem('user_realname') || localStorage.getItem('user_username') || '';
-      const el = document.getElementById('userName');
-      if (el) el.textContent = name;
-    }
+    const { createApp, ref, computed, onMounted } = Vue;
 
-    const { createApp, ref, onMounted } = Vue;
     createApp({
       setup() {
+        const allDevices = ref([]);
+        const searchKeyword = ref('');
+        const manageSearchKeyword = ref('');
+        const showManagedOnly = ref(true);
+        const editingManaged = ref(false);
+        const savingManaged = ref(false);
+        const loading = ref(false);
+        const message = ref('');
+        const managedMessage = ref('');
+        const managedDraftIds = ref([]);
         const form = ref({
           applicant: '',
           applicant_id: '',
           power_off_time: '',
-          deviceId: '',
+          power_on_time: '',
           reason: '',
-          operation_task: '',
-          ticket_template: ''
+          deviceIds: [],
         });
 
-        const deviceOptions = ['配电柜A1', '配电柜A2', '配电柜B1'];
-        const reasonOptions = ['线路检修', '设备维护', '其他'];
-        const message = ref('');
-
-        onMounted(() => {
-          const realname = localStorage.getItem('user_realname');
-          const username = localStorage.getItem('user_username');
-          const user_id = localStorage.getItem('user_id');
-          form.value.applicant = realname || username || '';
-          form.value.applicant_id = user_id || '';
+        const hasManagedDevices = computed(() => allDevices.value.some(item => item.is_managed));
+        const managedDevices = computed(() => allDevices.value.filter(item => item.is_managed));
+        const baseVisibleDevices = computed(() => (showManagedOnly.value && hasManagedDevices.value) ? managedDevices.value : allDevices.value);
+        const filteredDevices = computed(() => {
+          const q = searchKeyword.value.trim().toLowerCase();
+          if (!q) return baseVisibleDevices.value;
+          return baseVisibleDevices.value.filter(item =>
+            [item.device_id, item.device_name, item.power_room, item.cabinet, item.line_name]
+              .filter(Boolean)
+              .some(v => String(v).toLowerCase().includes(q))
+          );
         });
+        const managedEditorDevices = computed(() => {
+          const q = manageSearchKeyword.value.trim().toLowerCase();
+          if (!q) return allDevices.value;
+          return allDevices.value.filter(item =>
+            [item.device_id, item.device_name, item.power_room, item.cabinet, item.line_name]
+              .filter(Boolean)
+              .some(v => String(v).toLowerCase().includes(q))
+          );
+        });
+        const selectedDevices = computed(() => allDevices.value.filter(item => form.value.deviceIds.includes(item.device_id)));
+        const stats = computed(() => ({
+          accessible: allDevices.value.length,
+          managed: managedDevices.value.length,
+          selected: selectedDevices.value.length,
+          skip: selectedDevices.value.filter(item => item.can_skip_approval).length,
+        }));
 
-        const submitForm = async () => {
-          if (!form.value.applicant || !form.value.applicant_id || !form.value.power_off_time || !form.value.deviceId || !form.value.reason) {
-            message.value = '请填写完整信息';
-            return;
-          }
-          try {
-            const res = await axios.post('/api/power-apply', form.value);
-            if (res.status === 200) {
-              message.value = '✅ 申请提交成功！';
-              const { applicant, applicant_id } = form.value;
-              form.value = { applicant, applicant_id, power_off_time: '', deviceId: '', reason: '', operation_task: '', ticket_template: '' };
-            } else {
-              message.value = '❌ 提交失败';
-            }
-          } catch (e) {
-            message.value = '❌ 网络错误或服务器故障';
+        const formatOnlineStatus = (status) => ({ online: '在线', warning: '告警', offline: '离线', error: '异常' }[status] || '状态未知');
+        const formatPowerStatus = (status) => ({ powered: '带电', unpowered: '失电' }[status] || '状态未知');
+        const normalizeDevicePayload = (items) => (Array.isArray(items) ? items : []).map(item => ({
+          ...item,
+          is_managed: !!item.is_managed,
+          can_skip_approval: !!item.can_skip_approval,
+        }));
+
+        const loadDevices = async () => {
+          const response = await axios.get('/api/devices');
+          allDevices.value = normalizeDevicePayload(response.data);
+          if (editingManaged.value) {
+            managedDraftIds.value = managedDevices.value.map(item => item.device_id);
           }
         };
 
-        return { form, deviceOptions, reasonOptions, submitForm, message, logout };
-      }
+        const toggleDevice = (deviceId) => {
+          const next = new Set(form.value.deviceIds);
+          if (next.has(deviceId)) next.delete(deviceId);
+          else next.add(deviceId);
+          form.value.deviceIds = [...next];
+        };
+
+        const clearSelected = () => {
+          form.value.deviceIds = [];
+        };
+
+        const toggleManageEdit = () => {
+          editingManaged.value = true;
+          managedMessage.value = '';
+          managedDraftIds.value = managedDevices.value.map(item => item.device_id);
+        };
+
+        const cancelManageEdit = () => {
+          editingManaged.value = false;
+          managedMessage.value = '';
+          managedDraftIds.value = managedDevices.value.map(item => item.device_id);
+        };
+
+        const toggleManagedDraft = (deviceId) => {
+          const next = new Set(managedDraftIds.value);
+          if (next.has(deviceId)) next.delete(deviceId);
+          else next.add(deviceId);
+          managedDraftIds.value = [...next];
+        };
+
+        const selectManagedDraft = (selectAll) => {
+          managedDraftIds.value = selectAll ? managedEditorDevices.value.map(item => item.device_id) : [];
+        };
+
+        const saveManagedDevices = async () => {
+          savingManaged.value = true;
+          managedMessage.value = '';
+          try {
+            const response = await axios.put('/api/my-devices', { device_ids: managedDraftIds.value });
+            managedMessage.value = response.data?.msg || '负责设备已更新';
+            window.appShell.toast(managedMessage.value, 'success');
+            await loadDevices();
+            editingManaged.value = false;
+            if (showManagedOnly.value && !hasManagedDevices.value) showManagedOnly.value = false;
+          } catch (error) {
+            if (error?.response?.status === 401) return window.appShell.handleUnauthorized();
+            managedMessage.value = error?.response?.data?.msg || '保存负责设备失败';
+            window.appShell.toast(managedMessage.value, 'error');
+          } finally {
+            savingManaged.value = false;
+          }
+        };
+
+        const submitForm = async () => {
+          if (!form.value.applicant || !form.value.applicant_id || !form.value.power_off_time || !form.value.reason || !form.value.deviceIds.length) {
+            message.value = '请先填写完整申请信息并勾选设备';
+            return window.appShell.toast(message.value, 'error');
+          }
+          loading.value = true;
+          message.value = '';
+          try {
+            const response = await axios.post('/api/power-apply', { ...form.value, deviceIds: form.value.deviceIds });
+            const result = response.data || {};
+            message.value = result.msg || '停电申请提交成功';
+            window.appShell.toast(message.value, 'success');
+            form.value = {
+              applicant: form.value.applicant,
+              applicant_id: form.value.applicant_id,
+              power_off_time: '',
+              power_on_time: '',
+              reason: '',
+              deviceIds: [],
+            };
+            if (Array.isArray(result.skipped) && result.skipped.length) {
+              window.appShell.toast(`有 ${result.skipped.length} 台设备未提交，请查看返回说明`, 'warning');
+            }
+            if (Array.isArray(result.joined) && result.joined.length) {
+              window.appShell.toast(`有 ${result.joined.length} 台设备已加入既有工单并新增挂牌`, 'success');
+            }
+          } catch (error) {
+            if (error?.response?.status === 401) return window.appShell.handleUnauthorized();
+            message.value = error?.response?.data?.msg || '停电申请提交失败';
+            window.appShell.toast(message.value, 'error');
+          } finally {
+            loading.value = false;
+          }
+        };
+
+        const logout = () => window.appShell.logout();
+        const goBack = () => window.appShell.goBackOrHome();
+
+        onMounted(async () => {
+          form.value.applicant = localStorage.getItem('user_realname') || localStorage.getItem('user_username') || '';
+          form.value.applicant_id = localStorage.getItem('user_id') || '';
+          try {
+            await loadDevices();
+            managedDraftIds.value = managedDevices.value.map(item => item.device_id);
+            if (!hasManagedDevices.value) showManagedOnly.value = false;
+          } catch (error) {
+            if (error?.response?.status === 401) return window.appShell.handleUnauthorized();
+            message.value = error?.response?.data?.msg || '设备加载失败';
+            window.appShell.toast(message.value, 'error');
+          }
+        });
+
+        return {
+          searchKeyword,
+          manageSearchKeyword,
+          showManagedOnly,
+          editingManaged,
+          savingManaged,
+          loading,
+          message,
+          managedMessage,
+          managedDraftIds,
+          form,
+          managedDevices,
+          filteredDevices,
+          managedEditorDevices,
+          selectedDevices,
+          stats,
+          formatOnlineStatus,
+          formatPowerStatus,
+          toggleDevice,
+          clearSelected,
+          toggleManageEdit,
+          cancelManageEdit,
+          toggleManagedDraft,
+          selectManagedDraft,
+          saveManagedDevices,
+          submitForm,
+          logout,
+          goBack,
+        };
+      },
     }).mount('#app');
   </script>
 </body>

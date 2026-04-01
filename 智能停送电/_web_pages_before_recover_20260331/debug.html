@@ -1,0 +1,163 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>璋冭瘯椤甸潰</title>
+  <script src="/app_shell.js"></script>
+  <script src="/vendor/axios.min.js"></script>
+  <style>
+    body {
+      font-family: "Segoe UI", "Microsoft YaHei", sans-serif;
+      padding: 20px;
+      margin: 0;
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      color: #eef9ff;
+    }
+    .container {
+      max-width: 1080px;
+      margin: 0 auto;
+    }
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+    .debug-section {
+      background: rgba(16, 33, 47, 0.95);
+      margin: 20px 0;
+      padding: 20px;
+      border-radius: 16px;
+      border: 1px solid rgba(64, 158, 255, 0.24);
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.22);
+    }
+    .debug-title {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 10px;
+      color: #dff3ff;
+    }
+    .debug-content {
+      background: rgba(7, 18, 27, 0.82);
+      padding: 15px;
+      border-radius: 10px;
+      font-family: Consolas, monospace;
+      white-space: pre-wrap;
+      word-break: break-word;
+      color: #d7efff;
+      border: 1px solid rgba(118, 200, 255, 0.14);
+      min-height: 60px;
+    }
+    .test-button {
+      background: linear-gradient(135deg, #409eff, #2a6bc5);
+      color: white;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 10px;
+      cursor: pointer;
+      margin: 10px 8px 10px 0;
+      font-weight: 700;
+    }
+    .ghost-button {
+      background: rgba(255, 255, 255, 0.08);
+      color: #d9f0ff;
+      border: 1px solid rgba(118, 200, 255, 0.18);
+      padding: 10px 18px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="topbar">
+      <h1 style="margin:0;">璋冭瘯椤甸潰</h1>
+      <button class="ghost-button" onclick="window.appShell.goBackOrHome()">杩斿洖</button>
+    </div>
+
+    <div class="debug-section">
+      <div class="debug-title">1. 妫€鏌?localStorage 涓殑鐢ㄦ埛淇℃伅</div>
+      <button class="test-button" onclick="checkLocalStorage()">妫€鏌?localStorage</button>
+      <div id="localStorageResult" class="debug-content"></div>
+    </div>
+
+    <div class="debug-section">
+      <div class="debug-title">2. 娴嬭瘯鐧诲綍鎺ュ彛杩斿洖鏁版嵁</div>
+      <button class="test-button" onclick="testLoginAPI()">娴嬭瘯鐧诲綍 API</button>
+      <div id="loginAPIResult" class="debug-content"></div>
+    </div>
+
+    <div class="debug-section">
+      <div class="debug-title">3. 妫€鏌ュ綋鍓嶇櫥褰曟€佹帴鍙?/div>
+      <button class="test-button" onclick="testCurrentUser()">鑾峰彇褰撳墠宸ュ崟鍒楄〃</button>
+      <div id="currentUserResult" class="debug-content"></div>
+    </div>
+
+    <div class="debug-section">
+      <div class="debug-title">4. 褰撳墠鐢ㄦ埛灞曠ず鏁堟灉</div>
+      <div id="userDisplay" class="debug-content"></div>
+    </div>
+  </div>
+
+  <script>
+    axios.defaults.withCredentials = true;
+
+    function checkLocalStorage() {
+      const result = document.getElementById('localStorageResult');
+      const userData = {
+        user_id: localStorage.getItem('user_id'),
+        user_username: localStorage.getItem('user_username'),
+        user_realname: localStorage.getItem('user_realname'),
+        user_role: localStorage.getItem('user_role'),
+      };
+      result.textContent = JSON.stringify(userData, null, 2);
+    }
+
+    async function testLoginAPI() {
+      const result = document.getElementById('loginAPIResult');
+      result.textContent = '姝ｅ湪娴嬭瘯...';
+      try {
+        const response = await axios.post('/api/login', {
+          username: 'admin',
+          password: 'admin',
+        });
+        result.textContent = `鐧诲綍 API 杩斿洖鏁版嵁:\n${JSON.stringify(response.data, null, 2)}`;
+      } catch (error) {
+        result.textContent = `鐧诲綍 API 閿欒:\n${JSON.stringify(error.response?.data || error.message, null, 2)}`;
+      }
+    }
+
+    async function testCurrentUser() {
+      const result = document.getElementById('currentUserResult');
+      result.textContent = '姝ｅ湪鑾峰彇褰撳墠宸ュ崟鍒楄〃...';
+      try {
+        const response = await axios.get('/api/list');
+        result.textContent = `褰撳墠鍒楄〃鎺ュ彛杩斿洖:\n${JSON.stringify(response.data, null, 2)}`;
+      } catch (error) {
+        result.textContent = `鑾峰彇鎺ュ彛淇℃伅閿欒:\n${JSON.stringify(error.response?.data || error.message, null, 2)}`;
+      }
+    }
+
+    function displayUserInfo() {
+      const display = document.getElementById('userDisplay');
+      const realname = localStorage.getItem('user_realname') || '鏈缃?;
+      const username = localStorage.getItem('user_username') || '鏈缃?;
+      display.textContent =
+        `褰撳墠鐢ㄦ埛淇℃伅:\n` +
+        `鐢ㄦ埛鍚? ${username}\n` +
+        `鐪熷疄濮撳悕: ${realname}\n` +
+        `灞曠ず鏁堟灉: 鎿嶄綔鍛橈細${realname || username}\n`;
+    }
+
+    window.onload = function() {
+      checkLocalStorage();
+      displayUserInfo();
+    };
+  </script>
+</body>
+</html>
+

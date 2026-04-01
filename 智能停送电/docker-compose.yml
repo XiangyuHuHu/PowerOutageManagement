@@ -6,8 +6,8 @@ services:
     image: mysql:8.0
     container_name: power_mysql
     environment:
-      - MYSQL_ROOT_PASSWORD=hxy19990606
-      - MYSQL_DATABASE=power_control
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-hxy19990606}
+      - MYSQL_DATABASE=${MYSQL_DATABASE:-power_control}
       - MYSQL_CHARACTER_SET_SERVER=utf8mb4
       - MYSQL_COLLATION_SERVER=utf8mb4_unicode_ci
       - MYSQL_DEFAULT_CHARSET=utf8mb4
@@ -27,14 +27,32 @@ services:
     ports:
       - "5050:5050"
     environment:
-      - DB_HOST=mysql
-      - DB_USER=root
-      - DB_PASSWORD=hxy19990606
-      - DB_NAME=power_control
+      - DB_HOST=${DB_HOST:-mysql}
+      - DB_USER=${DB_USER:-root}
+      - DB_PASSWORD=${DB_PASSWORD:-hxy19990606}
+      - DB_NAME=${DB_NAME:-power_control}
+      - DB_PORT=${DB_PORT:-3306}
       - FLASK_ENV=production
-      - SECRET_KEY=your-secret-key-here
-      - MQTT_BROKER=host.docker.internal
-      - MQTT_PORT=1883
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - SECRET_KEY=${SECRET_KEY:-ChangeMe_Flask_Secret_2026!}
+      - SESSION_TYPE=${SESSION_TYPE:-filesystem}
+      - SESSION_REDIS_URL=${SESSION_REDIS_URL:-}
+      - MQTT_BROKER=${MQTT_BROKER:-host.docker.internal}
+      - MQTT_PORT=${MQTT_PORT:-1883}
+      - DEVICE_DATA_SOURCE=${DEVICE_DATA_SOURCE:-opcua}
+      - OPCUA_ENDPOINT=${OPCUA_ENDPOINT:-opc.tcp://192.168.10.50:49320}
+      - OPCUA_NS=${OPCUA_NS:-2}
+      - OPCUA_DEVICE_ID=${OPCUA_DEVICE_ID:-opcua_device}
+      - OPCUA_POLL_INTERVAL=${OPCUA_POLL_INTERVAL:-1}
+      - OPCUA_PLAN_REFRESH_INTERVAL=${OPCUA_PLAN_REFRESH_INTERVAL:-60}
+      - OPCUA_NODEIDS=${OPCUA_NODEIDS:-AB.PLC1.AB.Online.刮板机带电,AB.PLC1.AB.Online.刮板机挂锁测试1,AB.PLC1.AB.Online.刮板机挂锁测试2,AB.PLC1.AB.Online.刮板机挂锁测试3}
+      - OPCUA_USERNAME=${OPCUA_USERNAME:-kep}
+      - OPCUA_PASSWORD=${OPCUA_PASSWORD:-111111}
+      - OPCUA_SECURITY_POLICY=${OPCUA_SECURITY_POLICY:-None}
+      - OPCUA_SECURITY_MODE=${OPCUA_SECURITY_MODE:-None}
+      - OPCUA_CERT=${OPCUA_CERT:-}
+      - OPCUA_KEY=${OPCUA_KEY:-}
+      - OPCUA_SERVER_CERT=${OPCUA_SERVER_CERT:-}
       - LANG=zh_CN.UTF-8
       - LC_ALL=zh_CN.UTF-8
       - PYTHONIOENCODING=utf-8
@@ -89,5 +107,4 @@ volumes:
 networks:
   power_network:
     driver: bridge
-
 

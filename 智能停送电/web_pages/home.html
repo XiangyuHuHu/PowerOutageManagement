@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>正在进入工作台</title>
+  <style>
+    body {
+      margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center;
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364); color: #fff;
+      font-family: "Segoe UI", "Microsoft YaHei", sans-serif;
+    }
+    .panel {
+      width: 420px; max-width: calc(100vw - 32px); padding: 32px; border-radius: 18px;
+      background: rgba(16, 33, 47, 0.92); border: 1px solid rgba(64, 158, 255, 0.28);
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.34); text-align: center;
+    }
+    h1 { margin: 0 0 12px; font-size: 24px; color: #dff3ff; }
+    p { margin: 0; color: #a8d9ff; line-height: 1.8; }
+  </style>
+</head>
+<body>
+  <div class="panel">
+    <h1>正在进入工作台</h1>
+    <p id="tip">正在根据当前账号角色跳转，请稍候...</p>
+  </div>
+  <script>
+    const role = localStorage.getItem('user_role');
+    const routes = {
+      admin: 'admin.html',
+      dispatcher: 'dispatcher_home.html',
+      electrician: 'electrician_home.html',
+      user: 'apply.html',
+    };
+    const target = routes[role] || 'login.html';
+    document.getElementById('tip').textContent = role
+      ? `检测到当前角色 ${role}，正在跳转`
+      : '未检测到登录信息，正在返回登录页';
+    window.location.replace(target);
+  </script>
+</body>
+</html>

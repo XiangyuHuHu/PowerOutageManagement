@@ -1,0 +1,277 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>鏅鸿兘鍋滈€佺數绯荤粺 - 鐢ㄦ埛娉ㄥ唽</title>
+  <script src="/vendor/vue.global.prod.js"></script>
+  <script src="/vendor/axios.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body {
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      font-family: "Segoe UI", "Microsoft YaHei", sans-serif;
+      margin: 0;
+      padding: 20px;
+    }
+    .register-box {
+      background: rgba(16, 33, 47, 0.92);
+      padding: 40px;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+      width: 460px;
+      color: #fff;
+      border: 1px solid rgba(64, 158, 255, 0.3);
+    }
+    .register-box h2 {
+      text-align: center;
+      margin: 0 0 14px;
+      background: linear-gradient(to right, #67c23a, #a0d9ff);
+      -webkit-background-clip: text;
+      color: transparent;
+      font-size: 24px;
+    }
+    .sub {
+      margin: 0 0 28px;
+      text-align: center;
+      color: #a0d9ff;
+      line-height: 1.7;
+      font-size: 14px;
+    }
+    .form-group { margin-bottom: 20px; }
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      color: #a0d9ff;
+      font-weight: 500;
+    }
+    .register-box input,
+    .register-box select {
+      width: 100%;
+      padding: 14px;
+      font-size: 16px;
+      border-radius: 8px;
+      border: none;
+      background-color: rgba(255, 255, 255, 0.1);
+      color: #fff;
+      box-sizing: border-box;
+    }
+    .register-box input::placeholder { color: #c9d8e7; }
+    .register-box select { cursor: pointer; }
+    .register-box select option {
+      background-color: #1a3a5f;
+      color: #fff;
+    }
+    .register-box button {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #67c23a, #4a8c2c);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 16px;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+      margin-bottom: 15px;
+    }
+    .register-box button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(103, 194, 58, 0.4);
+    }
+    .register-box button:disabled {
+      cursor: not-allowed;
+      opacity: 0.65;
+      transform: none;
+      box-shadow: none;
+    }
+    .back-btn {
+      background: linear-gradient(135deg, #909399, #606266) !important;
+    }
+    .back-btn:hover {
+      background: linear-gradient(135deg, #606266, #909399) !important;
+      box-shadow: 0 6px 12px rgba(144, 147, 153, 0.4) !important;
+    }
+    .error {
+      color: #f56c6c;
+      margin-top: 10px;
+      text-align: center;
+      min-height: 22px;
+    }
+    .success {
+      color: #67c23a;
+      margin-top: 10px;
+      text-align: center;
+      min-height: 22px;
+    }
+    .role-description {
+      font-size: 12px;
+      color: #a0d9ff;
+      margin-top: 5px;
+      opacity: 0.88;
+      line-height: 1.7;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div class="register-box">
+      <h2><i class="fas fa-user-plus"></i> 娉ㄥ唽鏂扮敤鎴?/h2>
+      <div class="sub">鐩墠浠呭紑鏀捐皟搴﹀憳鍜岀數宸ユ敞鍐岋紝娉ㄥ唽鎴愬姛鍚庤繑鍥炵櫥褰曢〉銆?/div>
+
+      <div class="form-group">
+        <label for="username">鐢ㄦ埛鍚?/label>
+        <input id="username" v-model.trim="form.username" placeholder="璇疯緭鍏ョ敤鎴峰悕" @input="validateUsername">
+      </div>
+
+      <div class="form-group">
+        <label for="password">瀵嗙爜</label>
+        <input id="password" type="password" v-model="form.password" placeholder="璇疯緭鍏ュ瘑鐮? @input="validatePassword">
+      </div>
+
+      <div class="form-group">
+        <label for="confirmPassword">纭瀵嗙爜</label>
+        <input id="confirmPassword" type="password" v-model="form.confirmPassword" placeholder="璇峰啀娆¤緭鍏ュ瘑鐮? @input="validateConfirmPassword">
+      </div>
+
+      <div class="form-group">
+        <label for="realname">鐪熷疄濮撳悕</label>
+        <input id="realname" v-model.trim="form.realname" placeholder="璇疯緭鍏ョ湡瀹炲鍚?>
+      </div>
+
+      <div class="form-group">
+        <label for="role">瑙掕壊</label>
+        <select id="role" v-model="form.role">
+          <option value="">璇烽€夋嫨瑙掕壊</option>
+          <option value="electrician">鐢靛伐</option>
+          <option value="dispatcher">璋冨害鍛?/option>
+        </select>
+        <div class="role-description">
+          <div v-if="form.role === 'electrician'">
+            <i class="fas fa-tools"></i> 鐢靛伐锛氬彲鎻愪氦鍋滅數鐢宠銆侀獙鐢点€佹淇拰閫佺數鐢宠銆?          </div>
+          <div v-else-if="form.role === 'dispatcher'">
+            <i class="fas fa-clipboard-check"></i> 璋冨害鍛橈細鍙鎵瑰仠鐢点€侀€佺數骞跺鐞嗘壒閲忓鎵广€?          </div>
+        </div>
+      </div>
+
+      <button @click="register" :disabled="!isFormValid">
+        <i class="fas fa-user-plus"></i> 娉ㄥ唽
+      </button>
+      <button class="back-btn" @click="goBack">
+        <i class="fas fa-arrow-left"></i> 杩斿洖鐧诲綍
+      </button>
+
+      <div class="error">{{ error }}</div>
+      <div class="success">{{ success }}</div>
+    </div>
+  </div>
+
+  <script>
+    const { createApp, ref, computed } = Vue;
+    axios.defaults.withCredentials = true;
+
+    createApp({
+      setup() {
+        const form = ref({
+          username: '',
+          password: '',
+          confirmPassword: '',
+          realname: '',
+          role: '',
+        });
+        const error = ref('');
+        const success = ref('');
+
+        const validateUsername = () => {
+          if (!form.value.username) {
+            error.value = '';
+            return false;
+          }
+          if (form.value.username.length < 3) {
+            error.value = '鐢ㄦ埛鍚嶈嚦灏戦渶瑕?3 涓瓧绗?;
+            return false;
+          }
+          error.value = '';
+          return true;
+        };
+
+        const validatePassword = () => {
+          if (!form.value.password) {
+            error.value = '';
+            return false;
+          }
+          if (form.value.password.length < 6) {
+            error.value = '瀵嗙爜鑷冲皯闇€瑕?6 涓瓧绗?;
+            return false;
+          }
+          error.value = '';
+          return true;
+        };
+
+        const validateConfirmPassword = () => {
+          if (!form.value.confirmPassword) {
+            error.value = '';
+            return false;
+          }
+          if (form.value.password !== form.value.confirmPassword) {
+            error.value = '涓ゆ杈撳叆鐨勫瘑鐮佷笉涓€鑷?;
+            return false;
+          }
+          error.value = '';
+          return true;
+        };
+
+        const isFormValid = computed(() => (
+          form.value.username &&
+          form.value.password &&
+          form.value.confirmPassword &&
+          form.value.realname &&
+          form.value.role &&
+          form.value.password === form.value.confirmPassword &&
+          form.value.username.length >= 3 &&
+          form.value.password.length >= 6
+        ));
+
+        const register = async () => {
+          error.value = '';
+          success.value = '';
+          if (!validateUsername() || !validatePassword() || !validateConfirmPassword()) return;
+          if (!form.value.realname.trim()) {
+            error.value = '璇疯緭鍏ョ湡瀹炲鍚?;
+            return;
+          }
+          if (!form.value.role) {
+            error.value = '璇烽€夋嫨瑙掕壊';
+            return;
+          }
+          try {
+            const res = await axios.post('/api/register', {
+              username: form.value.username,
+              password: form.value.password,
+              realname: form.value.realname,
+              role: form.value.role,
+            });
+            success.value = res.data?.msg || '娉ㄥ唽鎴愬姛';
+            setTimeout(() => {
+              window.location.href = 'login.html';
+            }, 1200);
+          } catch (err) {
+            error.value = err?.response?.data?.msg || `娉ㄥ唽澶辫触锛?{err.message}`;
+          }
+        };
+
+        const goBack = () => {
+          window.location.href = 'login.html';
+        };
+
+        return { form, error, success, register, goBack, isFormValid, validateUsername, validatePassword, validateConfirmPassword };
+      },
+    }).mount('#app');
+  </script>
+</body>
+</html>
+

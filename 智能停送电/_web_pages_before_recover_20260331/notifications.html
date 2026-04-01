@@ -1,0 +1,261 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>绯荤粺閫氱煡</title>
+  <link rel="stylesheet" href="/admin_theme.css">
+  <script src="/app_shell.js"></script>
+  <script src="/vendor/vue.global.prod.js"></script>
+  <style>
+    body { margin: 0; min-height: 100vh; padding: 22px; }
+    #app { max-width: 1320px; margin: 0 auto; border-radius: 24px; overflow: hidden; }
+    .header, .content { padding: 24px 28px; }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      background: linear-gradient(90deg, rgba(8, 29, 42, 0.96), rgba(26, 78, 97, 0.84));
+      border-bottom: 1px solid rgba(118, 200, 255, 0.12);
+    }
+    .header h1 { margin: 0; font-size: 30px; }
+    .header p { margin: 8px 0 0; line-height: 1.8; font-size: 14px; color: #cbeaff; max-width: 900px; }
+    .header-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn {
+      border: none;
+      border-radius: 12px;
+      padding: 12px 16px;
+      cursor: pointer;
+      font-weight: 700;
+      color: #fff;
+      background: linear-gradient(135deg, #368de6, #54adff);
+    }
+    .btn.ghost {
+      background: rgba(255, 255, 255, 0.08);
+      color: #d9f0ff;
+      border: 1px solid rgba(118, 200, 255, 0.18);
+    }
+    .content { display: grid; gap: 18px; }
+    .stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+    .stat, .panel, .notification {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(118, 200, 255, 0.12);
+      border-radius: 18px;
+      position: relative;
+      overflow: hidden;
+    }
+    .stat { padding: 18px; }
+    .panel { padding: 20px; }
+    .stat::before, .panel::before, .notification::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 4px;
+    }
+    .stat-total::before, .panel::before { background: linear-gradient(90deg, #4da8ff, #7fd6ff); }
+    .stat-unread::before { background: linear-gradient(90deg, #ffb14d, #ffd36d); }
+    .stat-today::before { background: linear-gradient(90deg, #29d0c4, #7ce9d2); }
+    .stat-week::before { background: linear-gradient(90deg, #8d84ff, #b2adff); }
+    .notification.unread::before { background: linear-gradient(90deg, #ffb14d, #ffd36d); }
+    .stat .num { font-size: 34px; font-weight: 800; color: #eef9ff; margin-bottom: 8px; }
+    .stat .label { color: #b9e5ff; font-size: 14px; }
+    .panel-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 18px; }
+    .panel-title { font-size: 22px; font-weight: 800; }
+    .panel-note { color: #b7deff; font-size: 14px; line-height: 1.8; }
+    .notification-list { display: grid; gap: 12px; }
+    .notification { padding: 18px; }
+    .notification-head { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; margin-bottom: 12px; }
+    .notification-title { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; font-size: 18px; font-weight: 700; }
+    .notification-time { white-space: nowrap; color: #a6d6f0; font-size: 13px; }
+    .notification-content { color: #dbefff; line-height: 1.8; white-space: pre-wrap; margin-bottom: 12px; }
+    .type-tag, .state-tag {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .type-info { background: rgba(77,168,255,0.14); color: #8ed0ff; }
+    .type-warning { background: rgba(255,177,77,0.16); color: #ffd36d; }
+    .type-success { background: rgba(41,208,196,0.16); color: #8df1d8; }
+    .type-error { background: rgba(255,130,87,0.16); color: #ffad8a; }
+    .state-tag { background: rgba(255,255,255,0.08); color: #d7efff; }
+    .notification-actions { display: flex; justify-content: flex-end; gap: 10px; }
+    .empty-state, .loading {
+      min-height: 280px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      color: #a0d9ff;
+      line-height: 1.8;
+    }
+    @media (max-width: 980px) {
+      .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 720px) {
+      .stats { grid-template-columns: 1fr; }
+      .header, .content { padding: 20px; }
+      .notification-head { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div class="header">
+      <div>
+        <h1>绯荤粺閫氱煡</h1>
+        <p>缁熶竴鏌ョ湅绯荤粺娑堟伅銆佸鎵规彁閱掑拰鎵规鎻愮ず銆傞€氱煡鎸夊綋鍓嶇櫥褰曠敤鎴疯繃婊わ紝鏈娑堟伅浼氬湪宸ヤ綔鍙板拰杩欓噷鍚屾椂浣撶幇銆?/p>
+      </div>
+      <div class="header-actions">
+        <button class="btn ghost" @click="goBack">杩斿洖</button>
+        <button class="btn ghost" @click="refreshNotifications">鍒锋柊</button>
+        <button class="btn" @click="markAllAsRead">鍏ㄩ儴宸茶</button>
+      </div>
+    </div>
+    <div class="content">
+      <div class="stats">
+        <div class="stat stat-total"><div class="num">{{ stats.total }}</div><div class="label">閫氱煡鎬绘暟</div></div>
+        <div class="stat stat-unread"><div class="num">{{ stats.unread }}</div><div class="label">鏈閫氱煡</div></div>
+        <div class="stat stat-today"><div class="num">{{ stats.today }}</div><div class="label">浠婃棩鏂板</div></div>
+        <div class="stat stat-week"><div class="num">{{ stats.week }}</div><div class="label">杩?7 澶╅€氱煡</div></div>
+      </div>
+      <section class="panel">
+        <div class="panel-head">
+          <div>
+            <div class="panel-title">閫氱煡鍒楄〃</div>
+            <div class="panel-note">褰撳墠椤靛彧淇濈暀鍚庣宸叉敮鎸佺殑鑳藉姏锛氬埛鏂般€侀€愭潯宸茶銆佸叏閮ㄥ凡璇伙紝涓嶅啀灞曠ず涓嶅瓨鍦ㄧ殑鍒犻櫎鎺ュ彛銆?/div>
+          </div>
+        </div>
+        <div v-if="loading" class="loading">姝ｅ湪鍔犺浇閫氱煡...</div>
+        <div v-else-if="notifications.length === 0" class="empty-state">褰撳墠娌℃湁绯荤粺閫氱煡</div>
+        <div v-else class="notification-list">
+          <article v-for="notification in notifications" :key="notification.id" :class="['notification', { unread: !notification.is_read }]">
+            <div class="notification-head">
+              <div class="notification-title">
+                <span>{{ notification.title || '绯荤粺閫氱煡' }}</span>
+                <span :class="['type-tag', `type-${notification.type || 'info'}`]">{{ getTypeText(notification.type) }}</span>
+                <span class="state-tag">{{ notification.is_read ? '宸茶' : '鏈' }}</span>
+              </div>
+              <div class="notification-time">{{ formatTime(notification.created_at) }}</div>
+            </div>
+            <div class="notification-content">{{ notification.content || '鏃犻€氱煡鍐呭' }}</div>
+            <div class="notification-actions">
+              <button v-if="!notification.is_read" class="btn" @click="markAsRead(notification.id)">鏍囪宸茶</button>
+            </div>
+          </article>
+        </div>
+      </section>
+    </div>
+  </div>
+  <script>
+    const { createApp } = Vue;
+    createApp({
+      data() {
+        return { notifications: [], stats: { total: 0, unread: 0, today: 0, week: 0 }, loading: false };
+      },
+      mounted() {
+        this.loadNotifications();
+      },
+      methods: {
+        async loadNotifications() {
+          this.loading = true;
+          try {
+            const response = await fetch('/api/notifications', { credentials: 'include' });
+            if (response.status === 401) {
+              window.appShell.handleUnauthorized();
+              return;
+            }
+            if (!response.ok) {
+              throw new Error('鍔犺浇閫氱煡澶辫触');
+            }
+            const data = await response.json();
+            this.notifications = Array.isArray(data) ? data : [];
+            this.updateStats();
+          } catch (error) {
+            console.error('鍔犺浇閫氱煡澶辫触:', error);
+            this.notifications = [];
+            this.updateStats();
+            window.appShell.toast('閫氱煡鍔犺浇澶辫触', 'error');
+          } finally {
+            this.loading = false;
+          }
+        },
+        updateStats() {
+          const now = new Date();
+          const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+          const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+          this.stats = {
+            total: this.notifications.length,
+            unread: this.notifications.filter((n) => !n.is_read).length,
+            today: this.notifications.filter((n) => new Date(n.created_at) >= today).length,
+            week: this.notifications.filter((n) => new Date(n.created_at) >= weekAgo).length,
+          };
+        },
+        getTypeText(type) {
+          return ({ info: '淇℃伅', warning: '鎻愰啋', success: '鎴愬姛', error: '寮傚父' }[type]) || '淇℃伅';
+        },
+        formatTime(timestamp) {
+          if (!timestamp) return '-';
+          const date = new Date(timestamp);
+          if (Number.isNaN(date.getTime())) return timestamp;
+          const now = new Date();
+          const diff = now - date;
+          if (diff < 60000) return '鍒氬垰';
+          if (diff < 3600000) return `${Math.floor(diff / 60000)} 鍒嗛挓鍓峘;
+          if (diff < 86400000) return `${Math.floor(diff / 3600000)} 灏忔椂鍓峘;
+          if (diff < 604800000) return `${Math.floor(diff / 86400000)} 澶╁墠`;
+          return date.toLocaleString('zh-CN');
+        },
+        async markAsRead(notificationId) {
+          try {
+            const response = await fetch(`/api/notifications/${notificationId}/read`, {
+              method: 'PUT',
+              credentials: 'include',
+            });
+            if (response.status === 401) {
+              window.appShell.handleUnauthorized();
+              return;
+            }
+            if (!response.ok) {
+              throw new Error('鏍囪澶辫触');
+            }
+            const notification = this.notifications.find((n) => n.id === notificationId);
+            if (notification) {
+              notification.is_read = true;
+              this.updateStats();
+              window.appShell.toast('閫氱煡宸叉爣璁颁负宸茶', 'success');
+            }
+          } catch (error) {
+            console.error('鏍囪閫氱煡宸茶澶辫触:', error);
+            window.appShell.toast('鏍囪閫氱煡澶辫触', 'error');
+          }
+        },
+        async markAllAsRead() {
+          const unread = this.notifications.filter((item) => !item.is_read);
+          for (const item of unread) {
+            await this.markAsRead(item.id);
+          }
+          if (unread.length) {
+            window.appShell.toast('鏈閫氱煡宸插叏閮ㄥ鐞?, 'success');
+          }
+        },
+        refreshNotifications() {
+          this.loadNotifications();
+          window.appShell.toast('姝ｅ湪鍒锋柊閫氱煡', 'info');
+        },
+        goBack() {
+          window.appShell.goBackOrHome();
+        },
+      },
+    }).mount('#app');
+  </script>
+</body>
+</html>
+

@@ -1,0 +1,183 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>瀹℃壒璁板綍</title>
+  <link rel="stylesheet" href="/admin_theme.css">
+  <script src="/app_shell.js"></script>
+  <script src="/vendor/vue.global.prod.js"></script>
+  <script src="/vendor/axios.min.js"></script>
+  <link rel="stylesheet" href="/vendor/element-plus/index.css">
+  <script src="/vendor/element-plus/index.full.min.js"></script>
+  <style>
+    body { margin: 0; min-height: 100vh; padding: 22px; }
+    [v-cloak] { display: none; }
+    #app { max-width: 1540px; margin: 0 auto; border-radius: 22px; overflow: hidden; }
+    .header, .content { padding: 24px 28px; }
+    .header { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; align-items: flex-start; background: linear-gradient(90deg, rgba(13, 43, 70, 0.96), rgba(20, 58, 95, 0.84)); border-bottom: 1px solid rgba(64, 158, 255, 0.18); }
+    .header h1 { margin: 0; font-size: 30px; }
+    .header p { margin: 8px 0 0; line-height: 1.8; font-size: 14px; max-width: 920px; }
+    .stats { display: grid; grid-template-columns: repeat(4, minmax(170px, 1fr)); gap: 14px; margin-bottom: 18px; }
+    .stat, .panel { padding: 18px; border-radius: 18px; position: relative; overflow: hidden; }
+    .stat::before, .panel::before { content: ""; position: absolute; left: 0; top: 0; width: 100%; height: 4px; border-radius: 18px 18px 0 0; opacity: 0.95; }
+    .stat-total::before, .panel-history::before { background: linear-gradient(90deg, #4da8ff, #7fd6ff); }
+    .stat-approve::before { background: linear-gradient(90deg, #29d0c4, #7ce9d2); }
+    .stat-operate::before { background: linear-gradient(90deg, #8d84ff, #b2adff); }
+    .stat-batch::before { background: linear-gradient(90deg, #ffb14d, #ffd36d); }
+    .filters { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr auto; gap: 12px; margin-bottom: 16px; }
+    .alert { margin-bottom: 14px; padding: 12px 14px; border-radius: 12px; background: rgba(245, 108, 108, 0.12); border: 1px solid rgba(245, 108, 108, 0.22); color: #ffd0d0; }
+    .table-wrap { overflow: hidden; border-radius: 16px; border: 1px solid rgba(64, 158, 255, 0.16); }
+    .type-tag { display: inline-flex; align-items: center; justify-content: center; min-width: 88px; padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; }
+    .type-approve { background: rgba(64, 158, 255, 0.18); color: #9bd0ff; }
+    .type-reject { background: rgba(245, 108, 108, 0.18); color: #ffb7b7; }
+    .type-operate { background: rgba(103, 194, 58, 0.18); color: #c8f2af; }
+    .type-batch { background: rgba(230, 162, 60, 0.18); color: #ffd38e; }
+    .meta { color: #abdfff; font-size: 12px; line-height: 1.7; }
+    @media (max-width: 980px) { .stats { grid-template-columns: 1fr 1fr; } .filters { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 680px) { .stats, .filters { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div id="app" v-cloak>
+    <div class="header">
+      <div>
+        <h1>瀹℃壒璁板綍</h1>
+        <p>杩欓噷鍙睍绀轰粛鍦ㄦ祦杞腑鐨勫伐鍗曟棩蹇楋紝閫傚悎璺熻釜褰撳墠瀹℃壒銆侀獙鐢点€佹淇€侀€佺數鍜屾寕鐗岃繘搴︺€傚凡瀹屾垚宸ュ崟璇峰埌鈥滃凡瀹屾垚璁板綍鈥濇煡鐪嬨€?/p>
+      </div>
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <el-button @click="fetchHistory">鍒锋柊</el-button>
+        <el-button type="primary" @click="goBack">杩斿洖</el-button>
+      </div>
+    </div>
+    <div class="content">
+      <div class="stats">
+        <div class="stat card stat-total"><div class="metric-num">{{ stats.total }}</div><div class="metric-label">鍦ㄩ€旀棩蹇楁暟</div></div>
+        <div class="stat card stat-approve"><div class="metric-num">{{ stats.approvals }}</div><div class="metric-label">瀹℃壒鍔ㄤ綔</div></div>
+        <div class="stat card stat-operate"><div class="metric-num">{{ stats.operations }}</div><div class="metric-label">娴佺▼鎿嶄綔</div></div>
+        <div class="stat card stat-batch"><div class="metric-num">{{ stats.batch }}</div><div class="metric-label">娑夊強鎵规</div></div>
+      </div>
+      <section class="panel card panel-history">
+        <div class="filters">
+          <el-input v-model="filters.applicationId" clearable placeholder="鎸夊伐鍗?ID 杩囨护" />
+          <el-input v-model="filters.deviceId" clearable placeholder="鎸夎澶囩紪鍙疯繃婊? />
+          <el-input v-model="filters.batchId" clearable placeholder="鎸夋壒娆?ID 杩囨护" />
+          <el-select v-model="filters.operationType" clearable placeholder="鎸夋搷浣滅被鍨嬭繃婊?>
+            <el-option v-for="item in operationOptions" :key="item.value" :label="item.label" :value="item.value" />
+          </el-select>
+          <el-button type="primary" @click="fetchHistory">鏌ヨ</el-button>
+        </div>
+        <div v-if="errorMessage" class="alert">{{ errorMessage }}</div>
+        <div class="table-wrap">
+          <el-table :data="historyList" border height="640" v-loading="loading" empty-text="褰撳墠娌℃湁杩涜涓殑瀹℃壒鏃ュ織">
+            <el-table-column prop="log_id" label="鏃ュ織ID" width="100" />
+            <el-table-column prop="application_id" label="宸ュ崟" width="90">
+              <template #default="{ row }">#{{ row.application_id }}</template>
+            </el-table-column>
+            <el-table-column label="璁惧/鎵规" min-width="240">
+              <template #default="{ row }">
+                <div>{{ row.device_name || row.deviceId || '-' }}</div>
+                <div class="meta">
+                  {{ row.deviceId || '-' }}
+                  <span v-if="row.power_room"> / {{ row.power_room }}</span>
+                  <span v-if="row.cabinet"> / {{ row.cabinet }}</span>
+                  <span v-if="row.batch_name"> / 鎵规锛歿{ row.batch_name }}</span>
+                </div>
+              </template>
+            </el-table-column>
+            <el-table-column prop="applicant" label="鐢宠浜? width="120" />
+            <el-table-column prop="operator" label="鎿嶄綔浜? width="120" />
+            <el-table-column label="鎿嶄綔绫诲瀷" width="140">
+              <template #default="{ row }"><span class="type-tag" :class="operationClass(row.operation_type)">{{ operationText(row.operation_type) }}</span></template>
+            </el-table-column>
+            <el-table-column label="鐘舵€佹祦杞? min-width="180">
+              <template #default="{ row }">{{ statusText(row.old_status) }} -> {{ statusText(row.new_status) }}</template>
+            </el-table-column>
+            <el-table-column prop="operation_comment" label="璇存槑" min-width="220" show-overflow-tooltip />
+            <el-table-column label="鏃堕棿" width="180">
+              <template #default="{ row }">{{ formatDateTime(row.operation_time) }}</template>
+            </el-table-column>
+            <el-table-column label="鏌ョ湅" width="110">
+              <template #default="{ row }"><el-button type="primary" size="small" @click="viewDetail(row.application_id)">璇︽儏</el-button></template>
+            </el-table-column>
+          </el-table>
+        </div>
+      </section>
+    </div>
+  </div>
+  <script>
+    if (!localStorage.getItem('user_realname') && !localStorage.getItem('user_username')) { window.appShell.handleUnauthorized(); }
+    axios.defaults.withCredentials = true;
+    const { createApp, ref, computed, onMounted } = Vue;
+    createApp({
+      setup() {
+        const { ElMessage } = ElementPlus;
+        const loading = ref(false);
+        const historyList = ref([]);
+        const errorMessage = ref('');
+        const filters = ref({ applicationId: '', deviceId: '', batchId: '', operationType: '' });
+        const operationOptions = [
+          { label: '宸插け鐢佃浆鍏ュ畨鍏ㄧ‘璁ゆ寕鐗?, value: 'auto_skip_power_off_approval' },
+          { label: '鍒涘缓鐢宠', value: 'create' },
+          { label: '鍋滅數瀹℃壒', value: 'power_off_approve' },
+          { label: '閫佺數瀹℃壒', value: 'power_on_approve' },
+          { label: '楠岀數', value: 'electrician_verify' },
+          { label: '寮€濮嬫淇?, value: 'repair_start' },
+          { label: '瀹屾垚妫€淇?, value: 'repair_end' },
+          { label: '鐢宠閫佺數', value: 'power_on_apply' },
+          { label: '瑙ｉ櫎鎸傜墝', value: 'tag_release' },
+        ];
+        const stats = computed(() => ({
+          total: historyList.value.length,
+          approvals: historyList.value.filter((item) => ['power_off_approve', 'power_on_approve'].includes(item.operation_type)).length,
+          operations: historyList.value.filter((item) => ['electrician_verify', 'repair_start', 'repair_end', 'power_on_apply', 'tag_release', 'create', 'auto_skip_power_off_approval'].includes(item.operation_type)).length,
+          batch: historyList.value.filter((item) => item.batch_name || String(item.operation_type || '').includes('batch')).length,
+        }));
+        const statusMap = { pending: '寰呭仠鐢靛鎵?, approved: '鍋滅數瀹℃壒閫氳繃', rejected: '鍋滅數瀹℃壒椹冲洖', verified: '宸查獙鐢?, repairing: '妫€淇腑', repair_completed: '妫€淇畬鎴?, power_on_applied: '寰呴€佺數瀹℃壒', power_on_rejected: '閫佺數瀹℃壒椹冲洖', completed: '宸插畬鎴?, '': '鍒濆鐘舵€?, null: '鍒濆鐘舵€? };
+        const operationMap = { auto_skip_power_off_approval: '宸插け鐢佃浆鍏ュ畨鍏ㄧ‘璁ゆ寕鐗?, create: '鍒涘缓鐢宠', power_off_approve: '鍋滅數瀹℃壒', power_on_approve: '閫佺數瀹℃壒', electrician_verify: '楠岀數', repair_start: '寮€濮嬫淇?, repair_end: '瀹屾垚妫€淇?, power_on_apply: '鐢宠閫佺數', tag_release: '瑙ｉ櫎鎸傜墝' };
+        const statusText = (status) => statusMap[status] || status || '鏈煡鐘舵€?;
+        const operationText = (type) => operationMap[type] || type;
+        const operationClass = (type) => {
+          if (['power_off_approve', 'power_on_approve'].includes(type)) return 'type-approve';
+          if (['repair_start', 'repair_end', 'electrician_verify', 'power_on_apply', 'tag_release', 'auto_skip_power_off_approval'].includes(type)) return 'type-operate';
+          if (String(type || '').includes('reject')) return 'type-reject';
+          return 'type-batch';
+        };
+        const formatDateTime = (value) => {
+          if (!value) return '-';
+          const date = new Date(value);
+          return Number.isNaN(date.getTime()) ? value : date.toLocaleString('zh-CN');
+        };
+        const fetchHistory = async () => {
+          loading.value = true;
+          errorMessage.value = '';
+          try {
+            const params = {};
+            if (filters.value.applicationId) params.application_id = filters.value.applicationId;
+            if (filters.value.deviceId) params.device_id = filters.value.deviceId;
+            if (filters.value.batchId) params.batch_id = filters.value.batchId;
+            if (filters.value.operationType) params.operation_type = filters.value.operationType;
+            const res = await axios.get('/api/approval-history', { params });
+            historyList.value = Array.isArray(res.data) ? res.data.filter((item) => item.current_status !== 'completed') : [];
+          } catch (error) {
+            if (error?.response?.status === 401) {
+              errorMessage.value = '鐧诲綍鎬佸凡澶辨晥锛岃閲嶆柊鐧诲綍鍚庡啀鏌ョ湅瀹℃壒璁板綍銆?;
+              window.appShell.handleUnauthorized(errorMessage.value, 800);
+              return;
+            }
+            errorMessage.value = error?.response?.data?.msg || '瀹℃壒璁板綍鍔犺浇澶辫触';
+            ElMessage.error(errorMessage.value);
+          } finally {
+            loading.value = false;
+          }
+        };
+        const viewDetail = (id) => window.open(`/detail.html?id=${id}`, '_blank');
+        const goBack = () => window.appShell.goBackOrHome();
+        onMounted(fetchHistory);
+        return { loading, historyList, errorMessage, filters, operationOptions, stats, statusText, operationText, operationClass, formatDateTime, fetchHistory, viewDetail, goBack };
+      },
+    }).use(ElementPlus).mount('#app');
+  </script>
+</body>
+</html>
+

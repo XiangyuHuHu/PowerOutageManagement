@@ -1,0 +1,71 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>绠＄悊鍛樻帶鍒跺彴</title>
+  <link rel="stylesheet" href="/admin_theme.css">
+  <script src="/app_shell.js"></script>
+  <style>
+    body { margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; }
+    .wrap { width: 1080px; max-width: 100%; border-radius: 24px; padding: 34px; }
+    .header { margin-bottom: 26px; }
+    .header h1 { margin: 0 0 10px; font-size: 34px; color: #eef9ff; }
+    .header p { margin: 0; color: #bfe8ff; line-height: 1.8; }
+    .user-box { margin-bottom: 24px; padding: 18px; border-radius: 18px; background: rgba(255,255,255,0.05); border: 1px solid rgba(118,200,255,0.14); }
+    .user-box h2 { margin: 0 0 14px; font-size: 22px; }
+    .user-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+    .user-item { padding: 12px 14px; border-radius: 14px; background: rgba(255,255,255,0.05); line-height: 1.7; }
+    .nav { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+    .nav button { width: 100%; border: 1px solid rgba(118,200,255,0.14); border-radius: 18px; padding: 20px 22px; color: #fff; font-size: 18px; font-weight: 800; cursor: pointer; transition: transform 0.18s ease; text-align: left; }
+    .nav button:hover { transform: translateY(-2px); }
+    .blue { background: linear-gradient(180deg, rgba(77,168,255,0.16), rgba(255,255,255,0.03)); box-shadow: inset 0 4px 0 #4da8ff; }
+    .green { background: linear-gradient(180deg, rgba(41,208,196,0.16), rgba(255,255,255,0.03)); box-shadow: inset 0 4px 0 #29d0c4; }
+    .gold { background: linear-gradient(180deg, rgba(255,177,77,0.16), rgba(255,255,255,0.03)); box-shadow: inset 0 4px 0 #ffb14d; }
+    .purple { background: linear-gradient(180deg, rgba(141,132,255,0.16), rgba(255,255,255,0.03)); box-shadow: inset 0 4px 0 #8d84ff; }
+    .orange { background: linear-gradient(180deg, rgba(255,130,87,0.16), rgba(255,255,255,0.03)); box-shadow: inset 0 4px 0 #ff8d5b; }
+    .logout { margin-top: 18px; width: 100%; border: none; border-radius: 16px; padding: 16px 18px; background: linear-gradient(135deg, #d25c5c, #f07878); color: #fff; font-size: 18px; font-weight: 800; cursor: pointer; }
+    @media (max-width: 720px) { .wrap { padding: 24px; } .user-grid, .nav { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="header">
+      <h1>绠＄悊鍛樻帶鍒跺彴</h1>
+      <p>浠庤繖閲岃繘鍏ュ鎵圭鐞嗐€佸鎵硅褰曘€佸凡瀹屾垚璁板綍銆佸ぇ妫€淇壒娆°€佺敤鎴锋潈闄愩€佽澶囩洃鎺у拰绯荤粺閫氱煡銆傜鐞嗗憳椤甸潰淇濈暀鍏ㄥ眬鍏ュ彛锛屼究浜庡揩閫熷垏鎹㈠拰婕旂ず銆?/p>
+    </div>
+    <section class="user-box">
+      <h2>褰撳墠鐢ㄦ埛淇℃伅</h2>
+      <div class="user-grid">
+        <div class="user-item"><strong>鐢ㄦ埛鍚嶏細</strong><span id="username">绠＄悊鍛?/span></div>
+        <div class="user-item"><strong>瑙掕壊锛?/strong><span id="role">admin</span></div>
+        <div class="user-item"><strong>鏉冮檺锛?/strong><span id="permissions">鍏ㄩ儴鏉冮檺</span></div>
+      </div>
+    </section>
+    <div class="nav">
+      <button class="blue" onclick="location.href='approval.html'">瀹℃壒绠＄悊</button>
+      <button class="purple" onclick="location.href='approval_history.html'">瀹℃壒璁板綍</button>
+      <button class="green" onclick="location.href='completed_history.html'">宸插畬鎴愯褰?/button>
+      <button class="gold" onclick="location.href='maintenance_batches.html'">澶ф淇壒娆?/button>
+      <button class="orange" onclick="location.href='user_management.html'">鐢ㄦ埛鏉冮檺</button>
+      <button class="blue" onclick="location.href='device_monitor.html'">璁惧鐩戞帶</button>
+      <button class="purple" onclick="location.href='notifications.html'">绯荤粺閫氱煡</button>
+    </div>
+    <button class="logout" onclick="logout()">閫€鍑虹櫥褰?/button>
+  </div>
+  <script>
+    if (localStorage.getItem('user_role') !== 'admin') {
+      window.appShell.handleUnauthorized('鍙湁绠＄悊鍛樺彲浠ヨ繘鍏ョ鐞嗗憳鎺у埗鍙般€?, 400);
+    }
+    document.getElementById('username').textContent =
+      localStorage.getItem('user_realname') ||
+      localStorage.getItem('user_username') ||
+      '绠＄悊鍛?;
+    document.getElementById('role').textContent = localStorage.getItem('user_role') || 'admin';
+    const permissions = JSON.parse(localStorage.getItem('user_function_permissions') || '[]');
+    document.getElementById('permissions').textContent = permissions.length ? `${permissions.length} 椤瑰姛鑳芥潈闄恅 : '鍏ㄩ儴鏉冮檺';
+    function logout() { window.appShell.logout(); }
+  </script>
+</body>
+</html>
+

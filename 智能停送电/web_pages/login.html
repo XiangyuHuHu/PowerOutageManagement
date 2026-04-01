@@ -1,167 +1,86 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>智能停送电 - 登录</title>
-  <script src="https://unpkg.com/vue@3"></script>
-  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <title>智能停送电系统登录</title>
+  <script src="/vendor/vue.global.prod.js"></script>
+  <script src="/vendor/axios.min.js"></script>
   <style>
     body {
-      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      margin: 0;
+      min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
-      height: 100vh;
-      font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
-      margin: 0;
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      font-family: "Segoe UI", "Microsoft YaHei", sans-serif;
+      color: #fff;
     }
-
     .login-box {
-      background: rgba(16, 33, 47, 0.9);
-      padding: 40px;
-      border-radius: 16px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
-      width: 400px;
-      color: #fff;
-      border: 1px solid rgba(64, 158, 255, 0.3);
+      width: 440px;
+      max-width: calc(100vw - 32px);
+      background: rgba(16, 33, 47, 0.92);
+      border-radius: 18px;
+      padding: 36px;
+      border: 1px solid rgba(64, 158, 255, 0.28);
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.34);
     }
-
-    .login-box h2 {
+    h1 {
+      margin: 0 0 14px;
       text-align: center;
-      margin-bottom: 30px;
-      background: linear-gradient(to right, #409eff, #a0d9ff);
-      -webkit-background-clip: text;
-      color: transparent;
       font-size: 24px;
+      color: #dff3ff;
     }
-
-    .login-box input {
-      width: 100%;
-      padding: 14px;
-      font-size: 16px;
-      margin-bottom: 20px;
-      border-radius: 8px;
-      border: none;
-      background-color: rgba(255, 255, 255, 0.1);
-      color: #fff;
-      box-sizing: border-box;
-    }
-
-    .login-box input::placeholder {
-      color: #ccc;
-    }
-
-    .login-box button {
-      width: 100%;
-      padding: 14px;
-      background: linear-gradient(135deg, #409eff, #2a6bc5);
-      color: #fff;
-      border: none;
-      border-radius: 8px;
-      font-weight: bold;
-      font-size: 16px;
-      cursor: pointer;
-      transition: transform 0.2s ease;
-      margin-bottom: 15px;
-    }
-
-    .login-box button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 12px rgba(64, 158, 255, 0.4);
-    }
-
-    .register-btn {
-      background: linear-gradient(135deg, #67c23a, #4a8c2c) !important;
-    }
-
-    .register-btn:hover {
-      background: linear-gradient(135deg, #4a8c2c, #67c23a) !important;
-      box-shadow: 0 6px 12px rgba(103, 194, 58, 0.4) !important;
-    }
-
-    .error {
-      color: #f56c6c;
-      margin-top: 10px;
+    .sub {
+      margin: 0 0 24px;
       text-align: center;
-    }
-
-    .divider {
-      text-align: center;
-      margin: 20px 0;
-      position: relative;
-    }
-
-    .divider::before {
-      content: '';
-      position: absolute;
-      top: 50%;
-      left: 0;
-      right: 0;
-      height: 1px;
-      background: rgba(255, 255, 255, 0.2);
-    }
-
-    .divider span {
-      background: rgba(16, 33, 47, 0.9);
-      padding: 0 15px;
-      color: #a0d9ff;
+      color: #a8d9ff;
       font-size: 14px;
+      line-height: 1.7;
     }
-
-    @media (max-width: 768px) {
-      .login-box {
-        width: 90%;
-        max-width: 350px;
-        padding: 30px 20px;
-      }
-      
-      .login-box h2 {
-        font-size: 20px;
-      }
-      
-      input, button {
-        font-size: 16px; /* 防止iOS缩放 */
-      }
-      
-      .divider {
-        margin: 20px 0;
-      }
+    input, button {
+      width: 100%;
+      padding: 14px;
+      border-radius: 10px;
+      border: none;
+      box-sizing: border-box;
+      font-size: 15px;
     }
-    
-    @media (max-width: 480px) {
-      .login-box {
-        padding: 25px 15px;
-      }
-      
-      .login-box h2 {
-        font-size: 18px;
-      }
-      
-      .register-btn {
-        padding: 12px;
-        font-size: 14px;
-      }
+    input {
+      margin-bottom: 16px;
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+    }
+    input::placeholder {
+      color: rgba(255, 255, 255, 0.6);
+    }
+    button {
+      cursor: pointer;
+      color: #fff;
+      font-weight: 700;
+      background: linear-gradient(135deg, #409eff, #2a6bc5);
+      margin-bottom: 12px;
+    }
+    .sub-btn {
+      background: linear-gradient(135deg, #67c23a, #4a8c2c);
+    }
+    .error {
+      min-height: 22px;
+      text-align: center;
+      color: #ff9f9f;
     }
   </style>
 </head>
 <body>
   <div id="app">
     <div class="login-box">
-      <h2><i class="fas fa-bolt"></i> 智能停送电系统登录</h2>
-      <input v-model="form.username" placeholder="用户名" />
-      <input type="password" v-model="form.password" placeholder="密码" />
+      <h1>智能停送电系统登录</h1>
+      <div class="sub">登录后会根据角色自动进入管理员、调度员或电工工作台。</div>
+      <input v-model="form.username" placeholder="用户名">
+      <input v-model="form.password" type="password" placeholder="密码" @keyup.enter="login">
       <button @click="login">登录</button>
-      
-      <div class="divider">
-        <span>或</span>
-      </div>
-      
-      <button class="register-btn" @click="goToRegister">
-        <i class="fas fa-user-plus"></i> 注册新用户
-      </button>
-      
+      <button class="sub-btn" @click="goToRegister">注册新用户</button>
       <div class="error">{{ error }}</div>
     </div>
   </div>
@@ -169,40 +88,42 @@
   <script>
     const { createApp, ref } = Vue;
     axios.defaults.withCredentials = true;
+
     createApp({
       setup() {
         const form = ref({ username: '', password: '' });
         const error = ref('');
 
+        const redirectToHome = () => {
+          window.location.href = 'home.html';
+        };
+
+        const persistUser = (data) => {
+          localStorage.setItem('user_id', data.id);
+          localStorage.setItem('user_username', data.username);
+          localStorage.setItem('user_realname', data.realname || '');
+          localStorage.setItem('user_role', data.role);
+          localStorage.setItem('user_function_permissions', JSON.stringify(data.function_permissions || []));
+          localStorage.setItem('user_room_scopes', JSON.stringify(data.room_scopes || []));
+          localStorage.setItem('user_access_all_rooms', String(data.access_all_rooms !== false));
+        };
+
+        if (localStorage.getItem('user_role')) {
+          redirectToHome();
+        }
+
         const login = async () => {
           error.value = '';
           if (!form.value.username || !form.value.password) {
-            error.value = "请输入用户名和密码";
+            error.value = '请输入用户名和密码';
             return;
           }
-
           try {
             const res = await axios.post('/api/login', form.value);
-            if (res.status === 200) {
-              const { role } = res.data;
-              localStorage.setItem('user_id', res.data.id);
-              localStorage.setItem('user_username', res.data.username);
-              localStorage.setItem('user_realname', res.data.realname);
-              localStorage.setItem('user_role', role);
-              if (role === 'dispatcher') {
-                window.location.href = 'dispatcher_home.html';
-              } else if (role === 'electrician') {
-                window.location.href = 'electrician_home.html';
-              } else if (role === 'admin') {
-                window.location.href = 'admin.html';
-              } else {
-                window.location.href = 'apply.html';
-              }
-            } else {
-              error.value = "登录失败：" + (res.data?.msg || res.message);
-            }
+            persistUser(res.data);
+            redirectToHome();
           } catch (err) {
-            error.value = "登录失败：" + (err.response?.data?.msg || err.message);
+            error.value = err?.response?.data?.msg || '登录失败';
           }
         };
 
@@ -210,8 +131,8 @@
           window.location.href = 'register.html';
         };
 
-        return { form, login, error, goToRegister };
-      }
+        return { form, error, login, goToRegister };
+      },
     }).mount('#app');
   </script>
 </body>

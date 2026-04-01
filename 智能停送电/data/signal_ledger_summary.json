@@ -1,0 +1,10 @@
+{
+  "workbook": "C:\\Temp\\signal_ledger_input.xlsx",
+  "device_rows": 428,
+  "signal_rows": 167,
+  "unique_device_ids": 406,
+  "signal_types": {
+    "remote_local": 164,
+    "remote_switch_binding": 3
+  }
+}

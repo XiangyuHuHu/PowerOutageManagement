@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>大检修批次</title>
+  <link rel="stylesheet" href="/admin_theme.css">
+  <script src="/app_shell.js"></script>
+  <script src="/vendor/vue.global.prod.js"></script>
+  <script src="/vendor/axios.min.js"></script>
+  <link rel="stylesheet" href="/vendor/element-plus/index.css">
+  <script src="/vendor/element-plus/index.full.min.js"></script>
+  <style>
+    body { margin: 0; min-height: 100vh; padding: 22px; }
+    #app { max-width: 1560px; margin: 0 auto; border-radius: 26px; overflow: hidden; }
+    .header, .content { padding: 24px 28px; }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      background: linear-gradient(90deg, rgba(9, 28, 42, 0.98), rgba(28, 91, 113, 0.85));
+      border-bottom: 1px solid rgba(118, 200, 255, 0.14);
+    }
+    .header h1 { margin: 0; font-size: 32px; }
+    .header p { margin: 10px 0 0; max-width: 920px; line-height: 1.8; font-size: 14px; }
+    .header-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    .overview { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 14px; margin-bottom: 18px; }
+    .card, .panel { padding: 18px; border-radius: 18px; position: relative; overflow: hidden; }
+    .card::before, .panel::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 4px;
+      border-radius: 18px 18px 0 0;
+      opacity: 0.95;
+    }
+    .metric-batches::before, .panel-create::before { background: linear-gradient(90deg, #4da8ff, #7fd6ff); }
+    .metric-generated::before, .panel-workbench::before { background: linear-gradient(90deg, #29d0c4, #7ce9d2); }
+    .metric-devices::before { background: linear-gradient(90deg, #8d84ff, #b2adff); }
+    .metric-pending::before { background: linear-gradient(90deg, #ffb14d, #ffd36d); }
+    .metric-progress::before { background: linear-gradient(90deg, #4ed29c, #8df0c1); }
+    .metric-risk-card::before { background: linear-gradient(90deg, #ff8d5b, #ffbf73); }
+    .metric-warn { color: #ffcf73; }
+    .workspace { display: grid; grid-template-columns: 460px minmax(0, 1fr); gap: 16px; }
+    .panel h2 { margin: 0 0 14px; font-size: 28px; }
+    .panel-desc { margin-bottom: 14px; font-size: 13px; line-height: 1.8; }
+    .note, .warn {
+      margin-bottom: 14px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      font-size: 13px;
+      line-height: 1.7;
+    }
+    .note {
+      background: rgba(84, 176, 255, 0.08);
+      border: 1px solid rgba(84, 176, 255, 0.18);
+      color: #cdeeff;
+    }
+    .warn {
+      background: rgba(255, 145, 107, 0.12);
+      border: 1px solid rgba(255, 145, 107, 0.2);
+      color: #ffd3c3;
+    }
+    .toolbar {
+      display: grid;
+      grid-template-columns: 1.1fr 0.8fr 0.8fr auto;
+      gap: 10px;
+      margin-bottom: 16px;
+      align-items: center;
+    }
+    .quick-filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+    .device-box {
+      max-height: 320px;
+      overflow: auto;
+      padding: 12px;
+      border-radius: 14px;
+      background: rgba(7, 17, 27, 0.62);
+      border: 1px solid rgba(118, 200, 255, 0.12);
+    }
+    .device-summary {
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+      font-size: 12px;
+      color: #b8e5ff;
+    }
+    .device-row {
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.04);
+      margin-bottom: 10px;
+    }
+    .device-row:hover { background: rgba(78, 163, 255, 0.1); }
+    .device-row:last-child { margin-bottom: 0; }
+    .device-meta {
+      margin-top: 6px;
+      font-size: 12px;
+      line-height: 1.7;
+      color: #abdfff;
+    }
+    .batch-tags { display: flex; gap: 8px; flex-wrap: wrap; }
+    .batch-tag {
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      background: rgba(255, 255, 255, 0.08);
+      color: #e5f5ff;
+    }
+    .status-chip {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .status-generated { background: rgba(103, 194, 58, 0.16); color: #9ae96d; }
+    .status-draft { background: rgba(230, 162, 60, 0.16); color: #ffd38b; }
+    .status-in-progress { background: rgba(64, 158, 255, 0.16); color: #8fd0ff; }
+    .status-completed { background: rgba(180, 127, 255, 0.16); color: #d6bbff; }
+    .status-other { background: rgba(144, 147, 153, 0.16); color: #d4d7dd; }
+    .risk-text { color: #ffcf73; font-weight: 600; }
+    .table-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+    @media (max-width: 1260px) {
+      .overview { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .workspace { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 760px) {
+      .overview { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .toolbar { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div class="header">
+      <div>
+        <h1>大检修批次</h1>
+        <p>这里统一管理按配电室建立的大检修任务。左侧负责批次建单，右侧负责批次筛选、风险识别和看板入口。</p>
+      </div>
+      <div class="header-actions">
+        <el-button @click="fetchData">刷新</el-button>
+        <el-button type="primary" @click="goBack">返回</el-button>
+      </div>
+    </div>
+    <div class="content">
+      <div class="overview">
+        <div class="card metric-batches"><div class="metric-num">{{ summary.total_batches || 0 }}</div><div class="metric-label">批次总数</div></div>
+        <div class="card metric-generated"><div class="metric-num">{{ summary.generated_batches || 0 }}</div><div class="metric-label">已生成批次</div></div>
+        <div class="card metric-devices"><div class="metric-num">{{ summary.device_count || 0 }}</div><div class="metric-label">批次设备总数</div></div>
+        <div class="card metric-pending"><div class="metric-num">{{ summary.pending_count || 0 }}</div><div class="metric-label">待停电审批</div></div>
+        <div class="card metric-progress"><div class="metric-num">{{ summary.in_progress_count || 0 }}</div><div class="metric-label">处理中</div></div>
+        <div class="card metric-risk-card"><div class="metric-num metric-warn">{{ summary.risk_count || 0 }}</div><div class="metric-label">挂牌风险设备</div></div>
+      </div>
+
+      <div class="workspace">
+        <section class="panel card panel-create">
+          <h2>创建批次</h2>
+          <div class="panel-desc">建议先按配电室组织设备，再一次性生成停电工单。后续审批、挂牌、送电和看板统计都会自动串到同一批次。</div>
+          <div v-if="errorMessage" class="warn">{{ errorMessage }}</div>
+          <div class="note">当前会为选中的每台设备生成一张待停电审批工单，并在审批记录中保留“批次建单”轨迹。</div>
+
+          <el-form label-width="98px">
+            <el-form-item label="批次名称"><el-input v-model="form.batch_name" placeholder="例如：一号配电室 4 月大检修" /></el-form-item>
+            <el-form-item label="配电室">
+              <el-select v-model="form.power_room" style="width:100%" @change="onRoomChange" placeholder="请选择配电室">
+                <el-option v-for="room in roomOptions" :key="room" :label="room" :value="room" />
+              </el-select>
+            </el-form-item>
+            <el-form-item label="计划开始"><el-input v-model="form.planned_start_time" placeholder="例如：2026-03-25 08:00" /></el-form-item>
+            <el-form-item label="计划结束"><el-input v-model="form.planned_end_time" placeholder="例如：2026-03-25 18:00" /></el-form-item>
+            <el-form-item label="停电原因"><el-input v-model="form.reason" type="textarea" :rows="3" placeholder="例如：高压柜检修、母线清扫、保护试验" /></el-form-item>
+            <el-form-item label="批次说明"><el-input v-model="form.description" type="textarea" :rows="3" placeholder="补充检修范围、班组、风险说明" /></el-form-item>
+            <el-form-item label="批次设备">
+              <div class="device-box" style="width:100%">
+                <div class="device-summary">
+                  <span>当前配电室设备：{{ filteredDevices.length }}</span>
+                  <span>已选：{{ form.device_ids.length }}</span>
+                </div>
+                <el-checkbox-group v-model="form.device_ids" style="width:100%">
+                  <div class="device-row" v-for="device in filteredDevices" :key="device.device_id">
+                    <el-checkbox :label="device.device_id">{{ device.device_name || device.device_id }}</el-checkbox>
+                    <div class="device-meta">{{ device.device_id }} / {{ device.cabinet || '未配置柜号' }} / {{ device.line_name || '未配置线路' }}</div>
+                  </div>
+                </el-checkbox-group>
+                <div v-if="!filteredDevices.length" class="device-meta">当前配电室下暂无可选设备</div>
+              </div>
+            </el-form-item>
+            <el-form-item><el-button type="primary" @click="createBatch">创建批次并生成工单</el-button></el-form-item>
+          </el-form>
+        </section>
+
+        <section class="panel card panel-workbench">
+          <div class="table-top">
+            <div>
+              <h2 style="margin-bottom:6px;">批次工作台</h2>
+              <div class="panel-desc" style="margin:0;">支持按配电室、状态和关键字筛选批次，优先识别风险批次和待处理批次。</div>
+            </div>
+            <div class="batch-tags">
+              <span class="batch-tag">已完成 {{ summary.completed_count || 0 }}</span>
+              <span class="batch-tag">待处理 {{ summary.pending_count || 0 }}</span>
+              <span class="batch-tag">风险 {{ summary.risk_count || 0 }}</span>
+            </div>
+          </div>
+
+          <div class="toolbar">
+            <el-input v-model="filters.keyword" placeholder="搜索批次名称或说明" clearable />
+            <el-select v-model="filters.power_room" placeholder="全部配电室" clearable>
+              <el-option v-for="room in roomOptions" :key="room" :label="room" :value="room" />
+            </el-select>
+            <el-select v-model="filters.batch_status" placeholder="全部状态" clearable>
+              <el-option label="草稿" value="draft" />
+              <el-option label="已生成" value="generated" />
+              <el-option label="执行中" value="in_progress" />
+              <el-option label="已完成" value="completed" />
+            </el-select>
+            <el-button type="primary" @click="fetchData">查询</el-button>
+          </div>
+
+          <div class="quick-filters">
+            <el-button size="small" @click="applyQuickFilter('all')">全部批次</el-button>
+            <el-button size="small" type="warning" @click="applyQuickFilter('pending')">只看待处理</el-button>
+            <el-button size="small" type="danger" @click="applyQuickFilter('risk')">只看有风险</el-button>
+            <el-button size="small" type="success" @click="applyQuickFilter('completed')">只看已完成</el-button>
+          </div>
+
+          <div v-if="summary.risk_count > 0" class="warn">当前筛选结果下有 {{ summary.risk_count }} 台设备存在挂牌风险，送电前需要重点确认。</div>
+          <div v-else class="note">当前筛选结果下没有挂牌风险设备，可以优先处理待停电审批和处理中批次。</div>
+
+          <el-table :data="batches" border height="620" v-loading="loading" empty-text="当前没有批次记录">
+            <el-table-column prop="batch_name" label="批次" min-width="240">
+              <template #default="{ row }">
+                <div>{{ row.batch_name }}</div>
+                <div class="device-meta">{{ row.power_room || '未配置配电室' }} / {{ formatDateTime(row.created_at) }}</div>
+              </template>
+            </el-table-column>
+            <el-table-column label="状态" width="120">
+              <template #default="{ row }"><span class="status-chip" :class="statusClass(row.batch_status)">{{ batchStatusText(row.batch_status) }}</span></template>
+            </el-table-column>
+            <el-table-column label="设备/工单" min-width="180">
+              <template #default="{ row }">
+                <div>{{ row.generated_count || 0 }} / {{ row.device_count || 0 }}</div>
+                <div class="device-meta">已生成工单 / 批次设备</div>
+              </template>
+            </el-table-column>
+            <el-table-column label="流程进度" min-width="220">
+              <template #default="{ row }">
+                <div>待审 {{ row.pending_count || 0 }} / 处理中 {{ row.in_progress_count || 0 }} / 完成 {{ row.completed_count || 0 }}</div>
+                <div class="device-meta">驳回 {{ row.rejected_count || 0 }}</div>
+              </template>
+            </el-table-column>
+            <el-table-column label="风险" width="120">
+              <template #default="{ row }"><span :class="{ 'risk-text': Number(row.risk_count || 0) > 0 }">{{ row.risk_count || 0 }} 台</span></template>
+            </el-table-column>
+            <el-table-column label="操作" width="180" fixed="right">
+              <template #default="{ row }">
+                <el-button size="small" type="primary" @click="openBatch(row.id)">看板</el-button>
+                <el-button size="small" @click="fillFormFromBatch(row)">复用</el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    if (!localStorage.getItem('user_realname') && !localStorage.getItem('user_username')) window.appShell.handleUnauthorized();
+    axios.defaults.withCredentials = true;
+    const { createApp, ref, computed, onMounted } = Vue;
+
+    createApp({
+      setup() {
+        const { ElMessage } = ElementPlus;
+        const loading = ref(false);
+        const devices = ref([]);
+        const batches = ref([]);
+        const rawBatches = ref([]);
+        const summary = ref({});
+        const errorMessage = ref('');
+        const filters = ref({ keyword: '', power_room: '', batch_status: '' });
+        const form = ref({ batch_name: '', power_room: '', planned_start_time: '', planned_end_time: '', reason: '', description: '', device_ids: [] });
+        const roomOptions = computed(() => [...new Set(devices.value.map(item => item.power_room).filter(Boolean))]);
+        const filteredDevices = computed(() => devices.value.filter(item => item.power_room === form.value.power_room));
+
+        const statusClass = (status) => {
+          if (status === 'generated') return 'status-generated';
+          if (status === 'draft') return 'status-draft';
+          if (status === 'in_progress') return 'status-in-progress';
+          if (status === 'completed') return 'status-completed';
+          return 'status-other';
+        };
+
+        const batchStatusText = (status) => ({
+          draft: '草稿',
+          generated: '已生成',
+          in_progress: '执行中',
+          completed: '已完成',
+        }[status] || (status || '未知'));
+
+        const formatDateTime = (value) => {
+          if (!value) return '-';
+          const date = new Date(value);
+          return Number.isNaN(date.getTime()) ? value : date.toLocaleString('zh-CN');
+        };
+
+        const onRoomChange = () => { form.value.device_ids = []; };
+
+        const fetchData = async () => {
+          loading.value = true;
+          errorMessage.value = '';
+          try {
+            const [deviceRes, batchRes] = await Promise.all([
+              axios.get('/api/devices'),
+              axios.get('/api/maintenance-batches', { params: filters.value }),
+            ]);
+            devices.value = Array.isArray(deviceRes.data) ? deviceRes.data : [];
+            rawBatches.value = Array.isArray(batchRes.data?.items) ? batchRes.data.items : [];
+            batches.value = rawBatches.value;
+            summary.value = batchRes.data?.summary || {};
+          } catch (error) {
+            devices.value = [];
+            rawBatches.value = [];
+            batches.value = [];
+            summary.value = {};
+            if (error?.response?.status === 401) {
+              errorMessage.value = '登录态已失效，请重新登录后再查看或创建批次。';
+              window.appShell.handleUnauthorized(errorMessage.value, 800);
+              return;
+            }
+            errorMessage.value = error?.response?.data?.msg || '批次数据加载失败';
+            ElMessage.error(errorMessage.value);
+          } finally {
+            loading.value = false;
+          }
+        };
+
+        const createBatch = async () => {
+          if (!form.value.batch_name.trim() || !form.value.power_room || !form.value.reason.trim() || !form.value.device_ids.length) {
+            ElMessage.warning('请填写批次名称、配电室、停电原因并选择设备');
+            return;
+          }
+          try {
+            await axios.post('/api/maintenance-batches', form.value);
+            ElMessage.success('大检修批次已创建');
+            form.value = { batch_name: '', power_room: '', planned_start_time: '', planned_end_time: '', reason: '', description: '', device_ids: [] };
+            await fetchData();
+          } catch (error) {
+            ElMessage.error(error?.response?.data?.msg || '创建批次失败');
+          }
+        };
+
+        const applyQuickFilter = (type) => {
+          let list = [...rawBatches.value];
+          if (type === 'pending') {
+            list = list.filter((row) => Number(row.pending_count || 0) > 0 || Number(row.in_progress_count || 0) > 0);
+          } else if (type === 'risk') {
+            list = list.filter((row) => Number(row.risk_count || 0) > 0);
+          } else if (type === 'completed') {
+            list = list.filter((row) => row.batch_status === 'completed');
+          }
+          batches.value = list;
+        };
+
+        const openBatch = (id) => window.open(`/maintenance_batch_detail.html?id=${id}`, '_blank');
+
+        const fillFormFromBatch = (row) => {
+          form.value.batch_name = `${row.batch_name}-复制`;
+          form.value.power_room = row.power_room || '';
+          form.value.device_ids = [];
+          ElMessage.success('已将批次信息带回左侧表单，可继续补充设备后创建新批次');
+        };
+
+        const goBack = () => window.appShell.goBackOrHome();
+
+        onMounted(fetchData);
+
+        return {
+          loading,
+          devices,
+          batches,
+          rawBatches,
+          summary,
+          errorMessage,
+          filters,
+          form,
+          roomOptions,
+          filteredDevices,
+          statusClass,
+          batchStatusText,
+          formatDateTime,
+          onRoomChange,
+          fetchData,
+          createBatch,
+          applyQuickFilter,
+          openBatch,
+          fillFormFromBatch,
+          goBack,
+        };
+      },
+    }).use(ElementPlus).mount('#app');
+  </script>
+</body>
+</html>

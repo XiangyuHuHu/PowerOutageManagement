@@ -1,0 +1,317 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>绯荤粺缁熻</title>
+  <link rel="stylesheet" href="/admin_theme.css">
+  <script src="/app_shell.js"></script>
+  <script src="/vendor/vue.global.prod.js"></script>
+  <script src="/vendor/axios.min.js"></script>
+  <link rel="stylesheet" href="/vendor/element-plus/index.css">
+  <script src="/vendor/element-plus/index.full.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body { margin: 0; min-height: 100vh; padding: 22px; }
+    #app { max-width: 1480px; margin: 0 auto; border-radius: 24px; overflow: hidden; }
+    .header, .content { padding: 24px 28px; }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      background: linear-gradient(90deg, rgba(8, 27, 42, 0.96), rgba(24, 79, 103, 0.84));
+      border-bottom: 1px solid rgba(114, 197, 255, 0.14);
+    }
+    .header h1 { margin: 0; font-size: 30px; }
+    .header p { margin: 8px 0 0; line-height: 1.8; font-size: 14px; max-width: 920px; color: #bfe8ff; }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(180px, 1fr));
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+    .stat-card, .panel {
+      padding: 18px;
+      border-radius: 18px;
+      position: relative;
+      overflow: hidden;
+    }
+    .stat-card::before, .panel::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 4px;
+      border-radius: 18px 18px 0 0;
+      opacity: 0.95;
+    }
+    .stat-total::before { background: linear-gradient(90deg, #4da8ff, #7fd6ff); }
+    .stat-approved::before { background: linear-gradient(90deg, #29d0c4, #7ce9d2); }
+    .stat-pending::before { background: linear-gradient(90deg, #ffb14d, #ffd36d); }
+    .stat-users::before { background: linear-gradient(90deg, #8d84ff, #b2adff); }
+    .panel-distribution::before { background: linear-gradient(90deg, #4da8ff, #7fd6ff); }
+    .panel-roles::before { background: linear-gradient(90deg, #8d84ff, #b2adff); }
+    .panel-activity::before { background: linear-gradient(90deg, #29d0c4, #7ce9d2); }
+    .metric-num { font-size: 34px; font-weight: 800; margin-bottom: 8px; }
+    .metric-label { font-size: 15px; }
+    .metric-trend { margin-top: 8px; font-size: 13px; color: #bfe8ff; }
+    .charts {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    .panel h2 {
+      margin: 0 0 14px;
+      font-size: 22px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .summary-box {
+      min-height: 220px;
+      border-radius: 16px;
+      border: 1px solid rgba(114, 197, 255, 0.14);
+      background: rgba(255, 255, 255, 0.04);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 20px;
+    }
+    .summary-box i { font-size: 38px; margin-bottom: 12px; color: #8ecfff; }
+    .summary-box .line { margin-top: 8px; color: #bfe8ff; }
+    .activity-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 0;
+      border-bottom: 1px solid rgba(114, 197, 255, 0.1);
+    }
+    .activity-item:last-child { border-bottom: none; }
+    .activity-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      flex: none;
+    }
+    .activity-title { font-weight: 700; margin-bottom: 4px; }
+    .activity-time { font-size: 12px; color: #abdfff; }
+    .empty-state { padding: 36px 12px; text-align: center; color: #abdfff; }
+    .loading { padding: 50px 12px; text-align: center; color: #abdfff; }
+    @media (max-width: 980px) { .stats-grid, .charts { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 720px) { .stats-grid, .charts { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div class="header">
+      <div>
+        <h1>绯荤粺缁熻</h1>
+        <p>闆嗕腑灞曠ず鍋滈€佺數瀹℃壒骞冲彴鐨勫伐鍗曟暟閲忋€佸鎵规晥鐜囥€佺敤鎴疯鑹插垎甯冨拰鏈€杩戞椿鍔紝渚夸簬绠＄悊鍛樺揩閫熶簡瑙ｇ郴缁熻繍琛屾儏鍐点€?/p>
+      </div>
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <el-button @click="fetchStats">鍒锋柊</el-button>
+        <el-button type="primary" @click="goBack">杩斿洖</el-button>
+      </div>
+    </div>
+
+    <div class="content">
+      <div v-if="loading" class="loading">
+        <i class="fas fa-spinner fa-spin" style="font-size: 24px; margin-bottom: 10px;"></i>
+        <div>姝ｅ湪鍔犺浇缁熻鏁版嵁...</div>
+      </div>
+
+      <template v-else>
+        <div class="stats-grid">
+          <div class="stat-card card stat-total">
+            <div class="metric-num">{{ stats.totalApplications }}</div>
+            <div class="metric-label">鎬荤敵璇锋暟</div>
+            <div class="metric-trend">浠婃棩鏂板 {{ stats.newApplications }}</div>
+          </div>
+          <div class="stat-card card stat-approved">
+            <div class="metric-num">{{ stats.approvedApplications }}</div>
+            <div class="metric-label">宸插鎵?/div>
+            <div class="metric-trend">瀹℃壒鐜?{{ stats.approvalRate }}%</div>
+          </div>
+          <div class="stat-card card stat-pending">
+            <div class="metric-num">{{ stats.pendingApplications }}</div>
+            <div class="metric-label">寰呭鎵?/div>
+            <div class="metric-trend">闇€瑕侀噸鐐瑰鐞?/div>
+          </div>
+          <div class="stat-card card stat-users">
+            <div class="metric-num">{{ stats.totalUsers }}</div>
+            <div class="metric-label">娉ㄥ唽鐢ㄦ埛</div>
+            <div class="metric-trend">褰撳墠绯荤粺璐﹀彿鎬绘暟</div>
+          </div>
+        </div>
+
+        <div class="charts">
+          <section class="panel card panel-distribution">
+            <h2><i class="fas fa-chart-pie"></i>鐢宠鐘舵€佸垎甯?/h2>
+            <div class="summary-box">
+              <div>
+                <i class="fas fa-layer-group"></i>
+                <div class="line">宸插鎵癸細{{ stats.approvedApplications }}</div>
+                <div class="line">寰呭鎵癸細{{ stats.pendingApplications }}</div>
+                <div class="line">宸查┏鍥烇細{{ stats.rejectedApplications }}</div>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel card panel-roles">
+            <h2><i class="fas fa-user-shield"></i>鐢ㄦ埛瑙掕壊鍒嗗竷</h2>
+            <div class="summary-box">
+              <div>
+                <i class="fas fa-users-cog"></i>
+                <div class="line">绠＄悊鍛橈細{{ stats.adminUsers }}</div>
+                <div class="line">璋冨害鍛橈細{{ stats.dispatcherUsers }}</div>
+                <div class="line">鐢靛伐锛歿{ stats.electricianUsers }}</div>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <section class="panel card panel-activity">
+          <h2><i class="fas fa-history"></i>鏈€杩戞椿鍔?/h2>
+          <div v-if="recentActivities.length === 0" class="empty-state">褰撳墠娌℃湁鏈€杩戞椿鍔ㄨ褰?/div>
+          <div v-else>
+            <div v-for="activity in recentActivities" :key="activity.id" class="activity-item">
+              <div class="activity-icon" :style="{ background: getActivityColor(activity.type) }">
+                <i :class="getActivityIcon(activity.type)"></i>
+              </div>
+              <div>
+                <div class="activity-title">{{ activity.title }}</div>
+                <div class="activity-time">{{ formatDateTime(activity.time) }}</div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </template>
+    </div>
+  </div>
+
+  <script>
+    if (!localStorage.getItem('user_realname') && !localStorage.getItem('user_username')) {
+      window.appShell.handleUnauthorized();
+    }
+    if (localStorage.getItem('user_role') !== 'admin') {
+      window.appShell.handleUnauthorized('鍙湁绠＄悊鍛樺彲浠ユ煡鐪嬬郴缁熺粺璁°€?, 400);
+    }
+
+    axios.defaults.withCredentials = true;
+    const { createApp, ref, onMounted } = Vue;
+
+    createApp({
+      setup() {
+        const loading = ref(true);
+        const stats = ref({
+          totalApplications: 0,
+          approvedApplications: 0,
+          pendingApplications: 0,
+          rejectedApplications: 0,
+          newApplications: 0,
+          approvalRate: 0,
+          totalUsers: 0,
+          adminUsers: 0,
+          dispatcherUsers: 0,
+          electricianUsers: 0,
+        });
+        const recentActivities = ref([]);
+
+        const formatDateTime = (timestamp) => {
+          if (!timestamp) return '-';
+          const date = new Date(timestamp);
+          return Number.isNaN(date.getTime()) ? timestamp : date.toLocaleString('zh-CN');
+        };
+
+        const getActivityColor = (type) => ({
+          apply: 'linear-gradient(135deg, #4da8ff, #2f7de0)',
+          approve: 'linear-gradient(135deg, #29d0c4, #1cae9e)',
+          reject: 'linear-gradient(135deg, #f56c6c, #d64c4c)',
+          user: 'linear-gradient(135deg, #ffb14d, #d58d2f)',
+        }[type] || 'linear-gradient(135deg, #4da8ff, #2f7de0)');
+
+        const getActivityIcon = (type) => ({
+          apply: 'fas fa-file-signature',
+          approve: 'fas fa-check-circle',
+          reject: 'fas fa-times-circle',
+          user: 'fas fa-user-plus',
+        }[type] || 'fas fa-info-circle');
+
+        const fetchStats = async () => {
+          loading.value = true;
+          try {
+            const [applicationsRes, usersRes] = await Promise.all([
+              axios.get('/api/list'),
+              axios.get('/api/users'),
+            ]);
+            const applications = Array.isArray(applicationsRes.data) ? applicationsRes.data : [];
+            const users = Array.isArray(usersRes.data) ? usersRes.data : [];
+
+            stats.value.totalApplications = applications.length;
+            stats.value.approvedApplications = applications.filter((item) => ['approved', 'verified', 'repairing', 'repair_completed', 'power_on_applied', 'completed'].includes(item.status)).length;
+            stats.value.pendingApplications = applications.filter((item) => ['pending', 'power_on_applied'].includes(item.status)).length;
+            stats.value.rejectedApplications = applications.filter((item) => ['rejected', 'power_on_rejected'].includes(item.status)).length;
+            stats.value.newApplications = applications.filter((item) => {
+              if (!item.created_at) return false;
+              const created = new Date(item.created_at);
+              const today = new Date();
+              return created.toDateString() === today.toDateString();
+            }).length;
+            stats.value.approvalRate = stats.value.totalApplications
+              ? Math.round((stats.value.approvedApplications / stats.value.totalApplications) * 100)
+              : 0;
+            stats.value.totalUsers = users.length;
+            stats.value.adminUsers = users.filter((item) => item.role === 'admin').length;
+            stats.value.dispatcherUsers = users.filter((item) => item.role === 'dispatcher').length;
+            stats.value.electricianUsers = users.filter((item) => item.role === 'electrician').length;
+
+            recentActivities.value = applications.slice(0, 8).map((item) => ({
+              id: item.id,
+              type: item.status === 'rejected' || item.status === 'power_on_rejected'
+                ? 'reject'
+                : item.status === 'pending'
+                  ? 'apply'
+                  : 'approve',
+              title: `宸ュ崟 #${item.id} - ${item.deviceId || '鏈煡璁惧'} - ${item.reason || '鏃犲師鍥?}`,
+              time: item.updated_at || item.created_at,
+            }));
+          } catch (error) {
+            if (error?.response?.status === 401) {
+              window.appShell.handleUnauthorized();
+              return;
+            }
+            window.appShell.toast(error?.response?.data?.msg || '缁熻鏁版嵁鍔犺浇澶辫触', 'error');
+          } finally {
+            loading.value = false;
+          }
+        };
+
+        const goBack = () => window.appShell.goBackOrHome();
+
+        onMounted(fetchStats);
+
+        return {
+          loading,
+          stats,
+          recentActivities,
+          fetchStats,
+          goBack,
+          formatDateTime,
+          getActivityColor,
+          getActivityIcon,
+        };
+      },
+    }).use(ElementPlus).mount('#app');
+  </script>
+</body>
+</html>
+

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>管理员控制台</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background:
+        radial-gradient(circle at top left, rgba(79, 172, 254, 0.14), transparent 28%),
+        linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      color: #fff;
+      font-family: "Segoe UI", "Microsoft YaHei", sans-serif;
+    }
+    .wrap {
+      width: 620px;
+      max-width: 100%;
+      background: rgba(16, 33, 47, 0.95);
+      border-radius: 22px;
+      border: 1px solid rgba(64, 158, 255, 0.25);
+      padding: 34px;
+      box-shadow: 0 24px 48px rgba(0, 0, 0, 0.34);
+    }
+    .header {
+      margin-bottom: 26px;
+    }
+    .header h1 {
+      margin: 0 0 10px;
+      font-size: 30px;
+      color: #ff9d4d;
+    }
+    .header p {
+      margin: 0;
+      color: #a9d5f5;
+      line-height: 1.8;
+    }
+    .user-panel {
+      margin-bottom: 24px;
+      padding: 18px 20px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+    .user-panel h2 {
+      margin: 0 0 14px;
+      font-size: 18px;
+      color: #ffc14d;
+    }
+    .user-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .user-item {
+      padding: 10px 12px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.05);
+      color: #dff1ff;
+      font-size: 14px;
+      line-height: 1.7;
+    }
+    .menu {
+      display: grid;
+      gap: 16px;
+    }
+    .menu button {
+      border: none;
+      border-radius: 14px;
+      padding: 18px 20px;
+      color: #fff;
+      font-size: 18px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+    }
+    .menu button:hover {
+      transform: translateY(-2px);
+    }
+    .blue { background: linear-gradient(135deg, #409eff, #2a6bc5); box-shadow: 0 10px 22px rgba(64, 158, 255, 0.28); }
+    .green { background: linear-gradient(135deg, #67c23a, #4a8c2c); box-shadow: 0 10px 22px rgba(103, 194, 58, 0.28); }
+    .gold { background: linear-gradient(135deg, #e6a23c, #b88230); box-shadow: 0 10px 22px rgba(230, 162, 60, 0.28); }
+    .purple { background: linear-gradient(135deg, #9c27b0, #6a1b9a); box-shadow: 0 10px 22px rgba(156, 39, 176, 0.28); }
+    .orange { background: linear-gradient(135deg, #ff9800, #f57c00); box-shadow: 0 10px 22px rgba(255, 152, 0, 0.28); }
+    .logout {
+      margin-top: 20px;
+      width: 100%;
+      border: none;
+      border-radius: 14px;
+      padding: 18px 20px;
+      color: #fff;
+      font-size: 18px;
+      font-weight: 700;
+      cursor: pointer;
+      background: linear-gradient(135deg, #f56c6c, #c45656);
+      box-shadow: 0 10px 22px rgba(245, 108, 108, 0.28);
+    }
+    @media (max-width: 720px) {
+      .wrap { padding: 24px; }
+      .user-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="header">
+      <h1>管理员控制台</h1>
+      <p>管理员可以从这里进入审批管理、批次管理、用户权限、设备监控和系统通知页面。</p>
+    </div>
+
+    <section class="user-panel">
+      <h2>当前用户信息</h2>
+      <div class="user-grid">
+        <div class="user-item"><strong>用户名：</strong><span id="username">管理员</span></div>
+        <div class="user-item"><strong>角色：</strong><span id="role">admin</span></div>
+        <div class="user-item"><strong>权限：</strong><span id="permissions">全部权限</span></div>
+      </div>
+    </section>
+
+    <div class="menu">
+      <button class="blue" onclick="location.href='approval.html'">审批管理</button>
+      <button class="green" onclick="location.href='maintenance_batches.html'">大检修批次</button>
+      <button class="gold" onclick="location.href='user_management.html'">用户权限</button>
+      <button class="purple" onclick="location.href='device_monitor.html'">设备监控</button>
+      <button class="orange" onclick="location.href='notifications.html'">系统通知</button>
+    </div>
+
+    <button class="logout" onclick="logout()">退出登录</button>
+  </div>
+
+  <script>
+    if (!localStorage.getItem('user_realname') && !localStorage.getItem('user_username')) {
+      window.location.href = '/login.html';
+    }
+
+    document.getElementById('username').textContent =
+      localStorage.getItem('user_realname') ||
+      localStorage.getItem('user_username') ||
+      '管理员';
+    document.getElementById('role').textContent =
+      localStorage.getItem('user_role') || 'admin';
+
+    const permissions = JSON.parse(localStorage.getItem('user_function_permissions') || '[]');
+    document.getElementById('permissions').textContent = permissions.length ? `${permissions.length} 项功能权限` : '全部权限';
+
+    function logout() {
+      localStorage.clear();
+      window.location.href = '/login.html';
+    }
+  </script>
+</body>
+</html>

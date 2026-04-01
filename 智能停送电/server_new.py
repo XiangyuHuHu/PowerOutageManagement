@@ -36,9 +36,24 @@ def create_app():
     from app.database import init_database
     init_database()
     
-    # 启动MQTT监听器
-    from app.mqtt_client import start_mqtt_listener
-    start_mqtt_listener()
+    # 启动设备数据监听器（支持 mqtt / opcua / both）
+    source = os.environ.get('DEVICE_DATA_SOURCE', 'mqtt').strip().lower()
+    if source in ('mqtt', 'both'):
+        from app.mqtt_client import start_mqtt_listener
+        start_mqtt_listener()
+        logger.info("Device data source enabled: MQTT")
+
+    if source in ('opcua', 'both'):
+        from app.opcua_client import start_opcua_listener
+        start_opcua_listener()
+        logger.info("Device data source enabled: OPC UA")
+
+    if source not in ('mqtt', 'opcua', 'both'):
+        logger.warning(
+            "Unknown DEVICE_DATA_SOURCE=%s, fallback to mqtt", source
+        )
+        from app.mqtt_client import start_mqtt_listener
+        start_mqtt_listener()
     
     return app
 

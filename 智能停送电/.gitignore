@@ -1,0 +1,14 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+.env
+
+flask_session/
+app.log
+
+# OPC UA 测试工具可能生成的私钥，勿提交
+opcua_release/*.pem
+
+miniprogram/unpackage/

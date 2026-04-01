@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>系统通知 - 智能停送电系统</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://unpkg.com/element-plus/dist/index.full.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            color: #fff;
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            background: rgba(16, 33, 47, 0.95);
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+            border: 1px solid rgba(64, 158, 255, 0.3);
+        }
+        
+        .header h1 {
+            background: linear-gradient(to right, #409eff, #2a6bc5);
+            -webkit-background-clip: text;
+            color: transparent;
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            color: #a0d9ff;
+            font-size: 16px;
+            opacity: 0.8;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: rgba(16, 33, 47, 0.95);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid rgba(64, 158, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(64, 158, 255, 0.3);
+        }
+        
+        .stat-number {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .stat-total { color: #409eff; }
+        .stat-unread { color: #e6a23c; }
+        .stat-today { color: #67c23a; }
+        .stat-week { color: #9c27b0; }
+        
+        .main-content {
+            background: rgba(16, 33, 47, 0.95);
+            border-radius: 16px;
+            padding: 30px;
+            border: 1px solid rgba(64, 158, 255, 0.3);
+        }
+        
+        .content-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .content-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #409eff;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .action-btn {
+            background: linear-gradient(135deg, #409eff, #2a6bc5);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+        
+        .action-btn:hover {
+            background: linear-gradient(135deg, #2a6bc5, #409eff);
+            transform: translateY(-2px);
+        }
+        
+        .action-btn.danger {
+            background: linear-gradient(135deg, #f56c6c, #c45656);
+        }
+        
+        .action-btn.danger:hover {
+            background: linear-gradient(135deg, #c45656, #f56c6c);
+        }
+        
+        .notification-item {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .notification-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(5px);
+        }
+        
+        .notification-item.unread {
+            border-left: 4px solid #409eff;
+            background: rgba(64, 158, 255, 0.1);
+        }
+        
+        .notification-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+        
+        .notification-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .notification-time {
+            font-size: 12px;
+            color: #a0d9ff;
+            white-space: nowrap;
+        }
+        
+        .notification-content {
+            color: #e0e0e0;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+        
+        .notification-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+        
+        .notification-btn {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 12px;
+        }
+        
+        .notification-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .notification-btn.primary {
+            background: rgba(64, 158, 255, 0.2);
+            border-color: #409eff;
+        }
+        
+        .notification-btn.primary:hover {
+            background: rgba(64, 158, 255, 0.3);
+        }
+        
+        .notification-btn.danger {
+            background: rgba(245, 108, 108, 0.2);
+            border-color: #f56c6c;
+        }
+        
+        .notification-btn.danger:hover {
+            background: rgba(245, 108, 108, 0.3);
+        }
+        
+        .notification-type {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        
+        .type-info {
+            background: rgba(64, 158, 255, 0.2);
+            color: #409eff;
+            border: 1px solid #409eff;
+        }
+        
+        .type-warning {
+            background: rgba(230, 162, 60, 0.2);
+            color: #e6a23c;
+            border: 1px solid #e6a23c;
+        }
+        
+        .type-success {
+            background: rgba(103, 194, 58, 0.2);
+            color: #67c23a;
+            border: 1px solid #67c23a;
+        }
+        
+        .type-error {
+            background: rgba(245, 108, 108, 0.2);
+            color: #f56c6c;
+            border: 1px solid #f56c6c;
+        }
+        
+        .back-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: linear-gradient(135deg, #409eff, #2a6bc5);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+        
+        .back-btn:hover {
+            background: linear-gradient(135deg, #2a6bc5, #409eff);
+            transform: translateY(-2px);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #a0d9ff;
+        }
+        
+        .empty-state i {
+            font-size: 64px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+        
+        .empty-state h3 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        
+        .empty-state p {
+            font-size: 16px;
+            opacity: 0.7;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #a0d9ff;
+        }
+        
+        .loading i {
+            font-size: 32px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .content-header {
+                flex-direction: column;
+                gap: 15px;
+                align-items: flex-start;
+            }
+            
+            .action-buttons {
+                width: 100%;
+                justify-content: space-between;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <button class="back-btn" @click="goBack">
+            <i class="fas fa-arrow-left"></i> 返回
+        </button>
+        
+        <div class="container">
+            <div class="header">
+                <h1><i class="fas fa-bell"></i> 系统通知</h1>
+                <p>查看和管理系统通知消息</p>
+            </div>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number stat-total">{{ stats.total }}</div>
+                    <div>总通知数</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number stat-unread">{{ stats.unread }}</div>
+                    <div>未读通知</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number stat-today">{{ stats.today }}</div>
+                    <div>今日通知</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number stat-week">{{ stats.week }}</div>
+                    <div>本周通知</div>
+                </div>
+            </div>
+            
+            <div class="main-content">
+                <div class="content-header">
+                    <div class="content-title">
+                        <i class="fas fa-list"></i> 通知列表
+                    </div>
+                    <div class="action-buttons">
+                        <button class="action-btn" @click="refreshNotifications">
+                            <i class="fas fa-sync-alt"></i> 刷新
+                        </button>
+                        <button class="action-btn" @click="markAllAsRead">
+                            <i class="fas fa-check-double"></i> 全部已读
+                        </button>
+                        <button class="action-btn danger" @click="clearAllNotifications">
+                            <i class="fas fa-trash"></i> 清空
+                        </button>
+                    </div>
+                </div>
+                
+                <div v-if="loading" class="loading">
+                    <i class="fas fa-spinner"></i>
+                    <div>加载中...</div>
+                </div>
+                
+                <div v-else-if="notifications.length === 0" class="empty-state">
+                    <i class="fas fa-bell-slash"></i>
+                    <h3>暂无通知</h3>
+                    <p>当前没有系统通知消息</p>
+                </div>
+                
+                <div v-else>
+                    <div v-for="notification in notifications" :key="notification.id" 
+                         :class="['notification-item', { 'unread': !notification.is_read }]">
+                        <div class="notification-header">
+                            <div class="notification-title">
+                                <i :class="getNotificationIcon(notification.type)"></i>
+                                {{ notification.title }}
+                                <span :class="['notification-type', 'type-' + notification.type]">
+                                    {{ getTypeText(notification.type) }}
+                                </span>
+                            </div>
+                            <div class="notification-time">{{ formatTime(notification.created_at) }}</div>
+                        </div>
+                        
+                        <div class="notification-content">
+                            {{ notification.content }}
+                        </div>
+                        
+                        <div class="notification-actions">
+                            <button v-if="!notification.is_read" 
+                                    class="notification-btn primary" 
+                                    @click="markAsRead(notification.id)">
+                                <i class="fas fa-check"></i> 标记已读
+                            </button>
+                            <button class="notification-btn danger" 
+                                    @click="deleteNotification(notification.id)">
+                                <i class="fas fa-trash"></i> 删除
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+        
+        createApp({
+            data() {
+                return {
+                    notifications: [],
+                    stats: {
+                        total: 0,
+                        unread: 0,
+                        today: 0,
+                        week: 0
+                    },
+                    loading: false
+                }
+            },
+            mounted() {
+                this.loadNotifications();
+                // 每60秒自动刷新
+                setInterval(() => {
+                    this.loadNotifications();
+                }, 60000);
+            },
+            methods: {
+                async loadNotifications() {
+                    this.loading = true;
+                    try {
+                        const response = await fetch('/api/notifications');
+                        if (response.ok) {
+                            const data = await response.json();
+                            this.notifications = data.notifications || [];
+                            this.updateStats();
+                        }
+                    } catch (error) {
+                        console.error('加载通知失败:', error);
+                    } finally {
+                        this.loading = false;
+                    }
+                },
+                updateStats() {
+                    const now = new Date();
+                    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                    const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+                    
+                    this.stats = {
+                        total: this.notifications.length,
+                        unread: this.notifications.filter(n => !n.is_read).length,
+                        today: this.notifications.filter(n => new Date(n.created_at) >= today).length,
+                        week: this.notifications.filter(n => new Date(n.created_at) >= weekAgo).length
+                    };
+                },
+                getNotificationIcon(type) {
+                    const iconMap = {
+                        'info': 'fas fa-info-circle',
+                        'warning': 'fas fa-exclamation-triangle',
+                        'success': 'fas fa-check-circle',
+                        'error': 'fas fa-times-circle'
+                    };
+                    return iconMap[type] || 'fas fa-bell';
+                },
+                getTypeText(type) {
+                    const typeMap = {
+                        'info': '信息',
+                        'warning': '警告',
+                        'success': '成功',
+                        'error': '错误'
+                    };
+                    return typeMap[type] || type;
+                },
+                formatTime(timestamp) {
+                    if (!timestamp) return 'N/A';
+                    const date = new Date(timestamp);
+                    const now = new Date();
+                    const diff = now - date;
+                    
+                    if (diff < 60000) return '刚刚';
+                    if (diff < 3600000) return Math.floor(diff / 60000) + '分钟前';
+                    if (diff < 86400000) return Math.floor(diff / 3600000) + '小时前';
+                    if (diff < 604800000) return Math.floor(diff / 86400000) + '天前';
+                    
+                    return date.toLocaleDateString('zh-CN');
+                },
+                async markAsRead(notificationId) {
+                    try {
+                        const response = await fetch(`/api/notifications/${notificationId}/read`, {
+                            method: 'PUT'
+                        });
+                        if (response.ok) {
+                            // 更新本地状态
+                            const notification = this.notifications.find(n => n.id === notificationId);
+                            if (notification) {
+                                notification.is_read = true;
+                                this.updateStats();
+                            }
+                        }
+                    } catch (error) {
+                        console.error('标记已读失败:', error);
+                    }
+                },
+                async markAllAsRead() {
+                    try {
+                        for (const notification of this.notifications) {
+                            if (!notification.is_read) {
+                                await this.markAsRead(notification.id);
+                            }
+                        }
+                    } catch (error) {
+                        console.error('全部标记已读失败:', error);
+                    }
+                },
+                async deleteNotification(notificationId) {
+                    if (confirm('确定要删除这条通知吗？')) {
+                        try {
+                            const response = await fetch(`/api/notifications/${notificationId}`, {
+                                method: 'DELETE'
+                            });
+                            if (response.ok) {
+                                this.notifications = this.notifications.filter(n => n.id !== notificationId);
+                                this.updateStats();
+                            }
+                        } catch (error) {
+                            console.error('删除通知失败:', error);
+                        }
+                    }
+                },
+                async clearAllNotifications() {
+                    if (confirm('确定要清空所有通知吗？此操作不可恢复！')) {
+                        try {
+                            // 这里需要后端提供批量删除接口
+                            // 暂时逐个删除
+                            for (const notification of this.notifications) {
+                                await this.deleteNotification(notification.id);
+                            }
+                        } catch (error) {
+                            console.error('清空通知失败:', error);
+                        }
+                    }
+                },
+                refreshNotifications() {
+                    this.loadNotifications();
+                },
+                goBack() {
+                    // 根据用户角色返回不同页面
+                    const userRole = localStorage.getItem('user_role');
+                    if (userRole === 'admin') {
+                        window.location.href = 'admin.html';
+                    } else if (userRole === 'dispatcher') {
+                        window.location.href = 'dispatcher_home.html';
+                    } else if (userRole === 'electrician') {
+                        window.location.href = 'electrician_home.html';
+                    } else {
+                        window.location.href = 'login.html';
+                    }
+                }
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html> 

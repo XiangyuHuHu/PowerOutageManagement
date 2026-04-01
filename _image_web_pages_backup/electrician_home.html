@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>电工首页</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      color: #fff;
+      min-height: 100vh;
+      margin: 0;
+      font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+      padding: 20px;
+    }
+    .main {
+      max-width: 980px;
+      margin: 0 auto;
+      background: rgba(16,33,47,0.92);
+      border-radius: 16px;
+      border: 1px solid rgba(64, 158, 255, 0.3);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+      padding: 30px;
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+      border-bottom: 1px solid rgba(255,255,255,0.16);
+      padding-bottom: 16px;
+    }
+    h2 { margin: 0; font-size: 28px; }
+    .header p { margin: 6px 0 0; color: #a0d9ff; font-size: 14px; }
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .chip {
+      border: 1px solid rgba(64, 158, 255, 0.4);
+      background: rgba(64, 158, 255, 0.15);
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 13px;
+      color: #d6ecff;
+    }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(140px, 1fr));
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .stat-card {
+      border: 1px solid rgba(64, 158, 255, 0.22);
+      background: rgba(9, 25, 39, 0.7);
+      border-radius: 10px;
+      padding: 14px;
+      text-align: center;
+    }
+    .stat-value { font-size: 24px; font-weight: 700; color: #67c23a; }
+    .stat-label { font-size: 13px; color: #b8ddff; margin-top: 4px; }
+    .section-title {
+      font-size: 16px;
+      color: #9ccfff;
+      margin-bottom: 14px;
+    }
+    .btn-group {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(240px, 1fr));
+      gap: 14px;
+    }
+    .main-btn {
+      display: flex; align-items: center; justify-content: center;
+      gap: 12px; font-size: 18px; font-weight: bold;
+      background: linear-gradient(135deg, #409eff, #2a6bc5);
+      color: #fff; border: none; border-radius: 10px; padding: 18px 0;
+      cursor: pointer; transition: background 0.2s, transform 0.2s;
+    }
+    .main-btn:hover { background: linear-gradient(135deg, #2a6bc5, #409eff); transform: translateY(-2px);}
+    @media (max-width: 768px) {
+      .btn-group { grid-template-columns: 1fr; }
+      .stats { grid-template-columns: repeat(2, 1fr); }
+      .header { flex-direction: column; align-items: flex-start; gap: 10px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="main">
+    <div class="header">
+      <div>
+        <h2><i class="fas fa-user-cog"></i> 电工操作首页</h2>
+        <p>停电申请、检修处理、送电申请与设备状态监视的统一工作台</p>
+      </div>
+      <div class="top-actions">
+        <span class="chip"><i class="fas fa-user"></i> 电工角色</span>
+      </div>
+    </div>
+    <div class="stats">
+      <div class="stat-card">
+        <div class="stat-value">5</div>
+        <div class="stat-label">核心功能入口</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">24h</div>
+        <div class="stat-label">实时状态监控</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">OPC UA</div>
+        <div class="stat-label">现场状态来源</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">在线</div>
+        <div class="stat-label">系统状态</div>
+      </div>
+    </div>
+    <div class="section-title">快捷入口</div>
+    <div class="btn-group">
+      <button class="main-btn" onclick="location.href='apply.html'">
+        <i class="fas fa-file-signature"></i> 停电申请
+      </button>
+      <button class="main-btn" onclick="location.href='power_on_apply.html'">
+        <i class="fas fa-plug"></i> 送电申请
+      </button>
+      <button class="main-btn" onclick="location.href='repair.html'">
+        <i class="fas fa-tasks"></i> 检修/我的申请
+      </button>
+      <button class="main-btn" onclick="location.href='device_monitor.html'" style="background: linear-gradient(135deg, #9c27b0, #6a1b9a);">
+        <i class="fas fa-tachometer-alt"></i> 设备监控
+      </button>
+      <button class="main-btn" onclick="location.href='notifications.html'" style="background: linear-gradient(135deg, #ff9800, #f57c00);">
+        <i class="fas fa-bell"></i> 系统通知
+      </button>
+    </div>
+  </div>
+</body>
+</html> 

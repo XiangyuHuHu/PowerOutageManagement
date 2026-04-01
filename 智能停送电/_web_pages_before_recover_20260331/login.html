@@ -1,0 +1,140 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>鏅鸿兘鍋滈€佺數绯荤粺鐧诲綍</title>
+  <script src="/vendor/vue.global.prod.js"></script>
+  <script src="/vendor/axios.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      font-family: "Segoe UI", "Microsoft YaHei", sans-serif;
+      color: #fff;
+    }
+    .login-box {
+      width: 440px;
+      max-width: calc(100vw - 32px);
+      background: rgba(16, 33, 47, 0.92);
+      border-radius: 18px;
+      padding: 36px;
+      border: 1px solid rgba(64, 158, 255, 0.28);
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.34);
+    }
+    h1 {
+      margin: 0 0 14px;
+      text-align: center;
+      font-size: 24px;
+      color: #dff3ff;
+    }
+    .sub {
+      margin: 0 0 24px;
+      text-align: center;
+      color: #a8d9ff;
+      font-size: 14px;
+      line-height: 1.7;
+    }
+    input, button {
+      width: 100%;
+      padding: 14px;
+      border-radius: 10px;
+      border: none;
+      box-sizing: border-box;
+      font-size: 15px;
+    }
+    input {
+      margin-bottom: 16px;
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+    }
+    input::placeholder {
+      color: rgba(255, 255, 255, 0.6);
+    }
+    button {
+      cursor: pointer;
+      color: #fff;
+      font-weight: 700;
+      background: linear-gradient(135deg, #409eff, #2a6bc5);
+      margin-bottom: 12px;
+    }
+    .sub-btn {
+      background: linear-gradient(135deg, #67c23a, #4a8c2c);
+    }
+    .error {
+      min-height: 22px;
+      text-align: center;
+      color: #ff9f9f;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div class="login-box">
+      <h1>鏅鸿兘鍋滈€佺數绯荤粺鐧诲綍</h1>
+      <div class="sub">鐧诲綍鍚庝細鏍规嵁瑙掕壊鑷姩杩涘叆绠＄悊鍛樸€佽皟搴﹀憳鎴栫數宸ュ伐浣滃彴銆?/div>
+      <input v-model="form.username" placeholder="鐢ㄦ埛鍚?>
+      <input v-model="form.password" type="password" placeholder="瀵嗙爜" @keyup.enter="login">
+      <button @click="login">鐧诲綍</button>
+      <button class="sub-btn" @click="goToRegister">娉ㄥ唽鏂扮敤鎴?/button>
+      <div class="error">{{ error }}</div>
+    </div>
+  </div>
+
+  <script>
+    const { createApp, ref } = Vue;
+    axios.defaults.withCredentials = true;
+
+    createApp({
+      setup() {
+        const form = ref({ username: '', password: '' });
+        const error = ref('');
+
+        const redirectToHome = () => {
+          window.location.href = 'home.html';
+        };
+
+        const persistUser = (data) => {
+          localStorage.setItem('user_id', data.id);
+          localStorage.setItem('user_username', data.username);
+          localStorage.setItem('user_realname', data.realname || '');
+          localStorage.setItem('user_role', data.role);
+          localStorage.setItem('user_function_permissions', JSON.stringify(data.function_permissions || []));
+          localStorage.setItem('user_room_scopes', JSON.stringify(data.room_scopes || []));
+          localStorage.setItem('user_access_all_rooms', String(data.access_all_rooms !== false));
+        };
+
+        if (localStorage.getItem('user_role')) {
+          redirectToHome();
+        }
+
+        const login = async () => {
+          error.value = '';
+          if (!form.value.username || !form.value.password) {
+            error.value = '璇疯緭鍏ョ敤鎴峰悕鍜屽瘑鐮?;
+            return;
+          }
+          try {
+            const res = await axios.post('/api/login', form.value);
+            persistUser(res.data);
+            redirectToHome();
+          } catch (err) {
+            error.value = err?.response?.data?.msg || '鐧诲綍澶辫触';
+          }
+        };
+
+        const goToRegister = () => {
+          window.location.href = 'register.html';
+        };
+
+        return { form, error, login, goToRegister };
+      },
+    }).mount('#app');
+  </script>
+</body>
+</html>
+

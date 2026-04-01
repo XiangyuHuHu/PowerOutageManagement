@@ -1,0 +1,160 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>宸插畬鎴愯褰?/title>
+  <link rel="stylesheet" href="/admin_theme.css">
+  <script src="/app_shell.js"></script>
+  <script src="/vendor/vue.global.prod.js"></script>
+  <script src="/vendor/axios.min.js"></script>
+  <link rel="stylesheet" href="/vendor/element-plus/index.css">
+  <script src="/vendor/element-plus/index.full.min.js"></script>
+  <style>
+    body { margin: 0; min-height: 100vh; padding: 22px; }
+    [v-cloak] { display: none; }
+    #app { max-width: 1540px; margin: 0 auto; border-radius: 22px; overflow: hidden; }
+    .header, .content { padding: 24px 28px; }
+    .header { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; align-items: flex-start; background: linear-gradient(90deg, rgba(13, 43, 70, 0.96), rgba(20, 58, 95, 0.84)); border-bottom: 1px solid rgba(64, 158, 255, 0.18); }
+    .header h1 { margin: 0; font-size: 30px; }
+    .header p { margin: 8px 0 0; line-height: 1.8; font-size: 14px; max-width: 920px; }
+    .stats { display: grid; grid-template-columns: repeat(4, minmax(170px, 1fr)); gap: 14px; margin-bottom: 18px; }
+    .stat, .panel { padding: 18px; border-radius: 18px; position: relative; overflow: hidden; }
+    .stat::before, .panel::before { content: ""; position: absolute; left: 0; top: 0; width: 100%; height: 4px; border-radius: 18px 18px 0 0; opacity: 0.95; }
+    .stat-total::before, .panel-history::before { background: linear-gradient(90deg, #4da8ff, #7fd6ff); }
+    .stat-device::before { background: linear-gradient(90deg, #29d0c4, #7ce9d2); }
+    .stat-batch::before { background: linear-gradient(90deg, #8d84ff, #b2adff); }
+    .stat-tag::before { background: linear-gradient(90deg, #ffb14d, #ffd36d); }
+    .filters { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)) auto; gap: 12px; margin-bottom: 16px; }
+    .alert { margin-bottom: 14px; padding: 12px 14px; border-radius: 12px; background: rgba(245, 108, 108, 0.12); border: 1px solid rgba(245, 108, 108, 0.22); color: #ffd0d0; }
+    .table-wrap { overflow: hidden; border-radius: 16px; border: 1px solid rgba(64, 158, 255, 0.16); }
+    .meta { color: #abdfff; font-size: 12px; line-height: 1.7; }
+    @media (max-width: 1180px) { .stats { grid-template-columns: 1fr 1fr; } .filters { grid-template-columns: 1fr 1fr 1fr; } }
+    @media (max-width: 760px) { .stats, .filters { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div id="app" v-cloak>
+    <div class="header">
+      <div>
+        <h1>宸插畬鎴愯褰?/h1>
+        <p>杩欓噷涓撻棬鏌ョ湅宸插畬鎴愮殑鍋滈€佺數宸ュ崟鍘嗗彶锛岀敤浜庡綊妗ｃ€佽拷婧拰灞曠ず瀹屾垚鎯呭喌锛屼笉鍐嶄笌杩涜涓殑瀹℃壒鏃ュ織娣峰湪涓€璧枫€?/p>
+      </div>
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <el-button @click="fetchCompleted">鍒锋柊</el-button>
+        <el-button type="primary" @click="goBack">杩斿洖</el-button>
+      </div>
+    </div>
+    <div class="content">
+      <div class="stats">
+        <div class="stat card stat-total"><div class="metric-num">{{ stats.total }}</div><div class="metric-label">宸插畬鎴愬伐鍗?/div></div>
+        <div class="stat card stat-device"><div class="metric-num">{{ stats.devices }}</div><div class="metric-label">娑夊強璁惧</div></div>
+        <div class="stat card stat-batch"><div class="metric-num">{{ stats.batch }}</div><div class="metric-label">娑夊強鎵规</div></div>
+        <div class="stat card stat-tag"><div class="metric-num">{{ stats.tagged }}</div><div class="metric-label">浠嶆湁鎸傜墝</div></div>
+      </div>
+      <section class="panel card panel-history">
+        <div class="filters">
+          <el-input v-model="filters.applicationId" clearable placeholder="宸ュ崟ID" />
+          <el-input v-model="filters.deviceId" clearable placeholder="璁惧缂栧彿" />
+          <el-input v-model="filters.applicant" clearable placeholder="鐢宠浜? />
+          <el-input v-model="filters.batchId" clearable placeholder="鎵规ID" />
+          <el-date-picker v-model="filters.dateFrom" type="date" value-format="YYYY-MM-DD" placeholder="寮€濮嬫棩鏈? />
+          <el-date-picker v-model="filters.dateTo" type="date" value-format="YYYY-MM-DD" placeholder="缁撴潫鏃ユ湡" />
+          <el-button type="primary" @click="fetchCompleted">鏌ヨ</el-button>
+        </div>
+        <div v-if="errorMessage" class="alert">{{ errorMessage }}</div>
+        <div class="table-wrap">
+          <el-table :data="completedList" border height="640" v-loading="loading" empty-text="褰撳墠娌℃湁宸插畬鎴愬伐鍗曡褰?>
+            <el-table-column prop="id" label="宸ュ崟" width="90">
+              <template #default="{ row }">#{{ row.id }}</template>
+            </el-table-column>
+            <el-table-column label="璁惧" min-width="240">
+              <template #default="{ row }">
+                <div>{{ row.device_name || row.deviceId }}</div>
+                <div class="meta">
+                  {{ row.deviceId }}
+                  <span v-if="row.power_room"> / {{ row.power_room }}</span>
+                  <span v-if="row.cabinet"> / {{ row.cabinet }}</span>
+                  <span v-if="row.batch_name"> / 鎵规锛歿{ row.batch_name }}</span>
+                </div>
+              </template>
+            </el-table-column>
+            <el-table-column prop="applicant" label="鐢宠浜? width="120" />
+            <el-table-column prop="reason" label="鍋滅數鍘熷洜" min-width="220" show-overflow-tooltip />
+            <el-table-column label="鍋滅數瀹℃壒" width="160">
+              <template #default="{ row }">{{ row.power_off_approver || '-' }}</template>
+            </el-table-column>
+            <el-table-column label="閫佺數瀹℃壒" width="160">
+              <template #default="{ row }">{{ row.power_on_approver || '-' }}</template>
+            </el-table-column>
+            <el-table-column label="瀹屾垚鏃堕棿" width="180">
+              <template #default="{ row }">{{ formatDateTime(row.completed_time || row.created_at) }}</template>
+            </el-table-column>
+            <el-table-column label="鍓╀綑鎸傜墝" width="110">
+              <template #default="{ row }">{{ row.active_tag_count ?? 0 }}</template>
+            </el-table-column>
+            <el-table-column label="鏌ョ湅" width="110">
+              <template #default="{ row }"><el-button type="primary" size="small" @click="viewDetail(row.id)">璇︽儏</el-button></template>
+            </el-table-column>
+          </el-table>
+        </div>
+      </section>
+    </div>
+  </div>
+  <script>
+    if (!localStorage.getItem('user_realname') && !localStorage.getItem('user_username')) { window.appShell.handleUnauthorized(); }
+    axios.defaults.withCredentials = true;
+    const { createApp, ref, computed, onMounted } = Vue;
+    createApp({
+      setup() {
+        const { ElMessage } = ElementPlus;
+        const loading = ref(false);
+        const completedList = ref([]);
+        const errorMessage = ref('');
+        const filters = ref({ applicationId: '', deviceId: '', applicant: '', batchId: '', dateFrom: '', dateTo: '' });
+        const stats = computed(() => ({
+          total: completedList.value.length,
+          devices: new Set(completedList.value.map((item) => item.deviceId).filter(Boolean)).size,
+          batch: completedList.value.filter((item) => item.batch_id).length,
+          tagged: completedList.value.filter((item) => Number(item.active_tag_count || 0) > 0).length,
+        }));
+        const formatDateTime = (value) => {
+          if (!value) return '-';
+          const date = new Date(value);
+          return Number.isNaN(date.getTime()) ? value : date.toLocaleString('zh-CN');
+        };
+        const fetchCompleted = async () => {
+          loading.value = true;
+          errorMessage.value = '';
+          try {
+            const params = {};
+            if (filters.value.applicationId) params.application_id = filters.value.applicationId;
+            if (filters.value.deviceId) params.device_id = filters.value.deviceId;
+            if (filters.value.applicant) params.applicant = filters.value.applicant;
+            if (filters.value.batchId) params.batch_id = filters.value.batchId;
+            if (filters.value.dateFrom) params.date_from = filters.value.dateFrom;
+            if (filters.value.dateTo) params.date_to = filters.value.dateTo;
+            const res = await axios.get('/api/completed-applications-history', { params });
+            completedList.value = Array.isArray(res.data) ? res.data : [];
+          } catch (error) {
+            if (error?.response?.status === 401) {
+              errorMessage.value = '鐧诲綍鎬佸凡澶辨晥锛岃閲嶆柊鐧诲綍鍚庡啀鏌ョ湅宸插畬鎴愯褰曘€?;
+              window.appShell.handleUnauthorized(errorMessage.value, 800);
+              return;
+            }
+            errorMessage.value = error?.response?.data?.msg || '宸插畬鎴愯褰曞姞杞藉け璐?;
+            ElMessage.error(errorMessage.value);
+          } finally {
+            loading.value = false;
+          }
+        };
+        const viewDetail = (id) => window.open(`/detail.html?id=${id}`, '_blank');
+        const goBack = () => window.appShell.goBackOrHome();
+        onMounted(fetchCompleted);
+        return { loading, completedList, errorMessage, filters, stats, formatDateTime, fetchCompleted, viewDetail, goBack };
+      },
+    }).use(ElementPlus).mount('#app');
+  </script>
+</body>
+</html>
+

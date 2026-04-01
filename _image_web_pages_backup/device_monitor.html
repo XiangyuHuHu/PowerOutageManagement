@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>设备监控</title>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css">
+  <script src="https://unpkg.com/element-plus/dist/index.full.js"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; padding: 22px; background: radial-gradient(circle at top right, rgba(94, 176, 255, 0.16), transparent 26%), linear-gradient(135deg, #0c1a24, #17374c 56%, #235567); color: #eef9ff; font-family: "Segoe UI", "Microsoft YaHei", sans-serif; }
+    #app { max-width: 1520px; margin: 0 auto; background: rgba(10, 24, 36, 0.9); border-radius: 24px; overflow: hidden; border: 1px solid rgba(118, 200, 255, 0.16); box-shadow: 0 24px 50px rgba(0, 0, 0, 0.34); }
+    .header, .content { padding: 24px 28px; }
+    .header { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; align-items: flex-start; background: linear-gradient(90deg, rgba(8, 29, 42, 0.96), rgba(26, 78, 97, 0.84)); border-bottom: 1px solid rgba(118, 200, 255, 0.12); }
+    .header h1 { margin: 0; font-size: 30px; }
+    .header p { margin: 8px 0 0; color: #abdfff; line-height: 1.8; font-size: 14px; max-width: 920px; }
+    .stats { display: grid; grid-template-columns: repeat(5, minmax(160px, 1fr)); gap: 14px; margin-bottom: 16px; }
+    .stat { padding: 16px; border-radius: 18px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(118, 200, 255, 0.12); }
+    .stat .num { font-size: 30px; font-weight: 800; color: #6ec0ff; }
+    .stat .label { margin-top: 8px; color: #b9e4ff; font-size: 13px; }
+    .toolbar { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+    .toolbar .grow { flex: 1; min-width: 240px; }
+    .focus-bar { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; align-items: center; margin-bottom: 16px; padding: 14px 16px; border-radius: 16px; background: rgba(118, 200, 255, 0.11); border: 1px solid rgba(118, 200, 255, 0.18); color: #d4efff; }
+    .focus-bar strong { color: #ffffff; }
+    .panel { padding: 18px; border-radius: 18px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(118, 200, 255, 0.12); margin-bottom: 16px; }
+    .panel h2 { margin: 0 0 14px; }
+    .legend { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
+    .legend-item { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 999px; background: rgba(255, 255, 255, 0.06); font-size: 12px; color: #d1ecff; }
+    .legend-dot { width: 10px; height: 10px; border-radius: 50%; box-shadow: 0 0 10px currentColor; }
+    .state-chip { display: inline-flex; align-items: center; justify-content: center; min-width: 52px; height: 22px; border-radius: 999px; padding: 0 8px; background: rgba(255, 255, 255, 0.08); color: #eff9ff; font-size: 12px; line-height: 1; }
+    .state-powered { background: rgba(255, 214, 111, 0.18); color: #ffe29d; }
+    .state-tagged { background: rgba(245, 108, 108, 0.16); color: #ffbebe; }
+    .state-untagged { background: rgba(103, 194, 58, 0.16); color: #b8f59e; }
+    .diagram-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+    .room-card { position: relative; overflow: hidden; border-radius: 20px; padding: 18px; background: linear-gradient(180deg, rgba(23, 70, 94, 0.4), rgba(10, 24, 36, 0.82)), radial-gradient(circle at top right, rgba(118, 200, 255, 0.14), transparent 28%); border: 1px solid rgba(118, 200, 255, 0.18); }
+    .room-card.focus-room { border-color: rgba(255, 214, 111, 0.54); box-shadow: 0 0 0 1px rgba(255, 214, 111, 0.18), 0 0 22px rgba(255, 214, 111, 0.1); }
+    .room-title { display: flex; justify-content: space-between; gap: 10px; align-items: center; margin-bottom: 12px; }
+    .room-title strong { font-size: 20px; }
+    .room-meta { color: #abdfff; font-size: 13px; }
+    .busline { position: relative; height: 18px; margin: 16px 0 20px; border-radius: 999px; background: linear-gradient(90deg, rgba(118, 200, 255, 0.16), rgba(255, 214, 111, 0.3), rgba(118, 200, 255, 0.16)); box-shadow: inset 0 0 14px rgba(118, 200, 255, 0.12); }
+    .cabinet-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
+    .cabinet-card { border-radius: 16px; padding: 14px; min-height: 180px; background: rgba(8, 18, 28, 0.78); border: 1px solid rgba(118, 200, 255, 0.12); position: relative; transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease; }
+    .cabinet-card:hover { transform: translateY(-2px); border-color: rgba(118, 200, 255, 0.28); }
+    .cabinet-card.focus-device { border-color: rgba(255, 214, 111, 0.6); box-shadow: 0 0 0 1px rgba(255, 214, 111, 0.18), 0 0 24px rgba(255, 214, 111, 0.12); }
+    .cabinet-head { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 10px; align-items: flex-start; }
+    .cabinet-code { font-weight: 800; font-size: 18px; line-height: 1.4; }
+    .status-dot { width: 12px; height: 12px; border-radius: 50%; box-shadow: 0 0 10px currentColor; margin-top: 4px; }
+    .status-online { color: #67c23a; }
+    .status-warning { color: #e6a23c; }
+    .status-offline { color: #909399; }
+    .status-error { color: #f56c6c; }
+    .device-name { font-size: 14px; line-height: 1.6; min-height: 44px; }
+    .cabinet-meta { margin-top: 10px; display: grid; gap: 6px; font-size: 12px; color: #abdfff; }
+    .tag-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+    .tag-item { padding: 4px 8px; border-radius: 999px; background: rgba(255, 255, 255, 0.08); font-size: 11px; }
+    .table-wrap .el-table { background: rgba(8, 18, 28, 0.78) !important; border-radius: 18px !important; border: 1px solid rgba(118, 200, 255, 0.12) !important; }
+    .table-wrap .el-table th { background: rgba(22, 66, 88, 0.92) !important; color: #eef9ff !important; border: none !important; }
+    .table-wrap .el-table tr { background: rgba(12, 31, 46, 0.72) !important; }
+    .table-wrap .el-table td { color: #edf8ff !important; border-bottom: 1px solid rgba(118, 200, 255, 0.08) !important; }
+    .alerts { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+    .alert-card { padding: 14px; border-radius: 16px; background: rgba(245, 108, 108, 0.1); border: 1px solid rgba(245, 108, 108, 0.24); }
+    .empty { padding: 36px 14px; text-align: center; color: #abdfff; }
+    @media (max-width: 980px) { .stats { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 680px) { .stats { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div class="header">
+      <div>
+        <h1>设备监控</h1>
+        <p>监控页支持系统图和列表两种模式。现在可以从检修批次直接跳转过来，并自动定位对应配电室和设备，方便在审批、挂牌和现场状态之间快速核对。</p>
+      </div>
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <el-button @click="refreshData">刷新</el-button>
+        <el-button type="primary" @click="goBack">返回</el-button>
+      </div>
+    </div>
+    <div class="content">
+      <div class="stats">
+        <div class="stat"><div class="num">{{ stats.total }}</div><div class="label">设备总数</div></div>
+        <div class="stat"><div class="num">{{ stats.online }}</div><div class="label">在线设备</div></div>
+        <div class="stat"><div class="num">{{ stats.warning }}</div><div class="label">告警设备</div></div>
+        <div class="stat"><div class="num">{{ stats.tagged }}</div><div class="label">挂牌设备</div></div>
+        <div class="stat"><div class="num">{{ stats.powered }}</div><div class="label">当前带电</div></div>
+      </div>
+      <div class="focus-bar" v-if="focusRoom || focusDeviceId">
+        <div>
+          <strong>定位模式</strong>
+          <span v-if="focusRoom">当前聚焦配电室：{{ focusRoom }}</span>
+          <span v-if="focusRoom && focusDeviceId"> / </span>
+          <span v-if="focusDeviceId">当前聚焦设备：{{ focusDeviceId }}</span>
+        </div>
+        <el-button size="small" @click="clearFocus">清除定位</el-button>
+      </div>
+      <div class="toolbar">
+        <el-radio-group v-model="viewMode">
+          <el-radio-button label="diagram">系统图模式</el-radio-button>
+          <el-radio-button label="table">列表模式</el-radio-button>
+        </el-radio-group>
+        <el-input v-model="keyword" class="grow" clearable placeholder="搜索配电室 / 柜号 / 设备 / 编号 / 线路" />
+      </div>
+      <section class="panel" v-if="viewMode === 'diagram'">
+        <h2>系统图</h2>
+        <div class="legend">
+          <div class="legend-item"><span class="legend-dot status-online"></span><span>在线</span></div>
+          <div class="legend-item"><span class="legend-dot status-warning"></span><span>告警或挂牌风险</span></div>
+          <div class="legend-item"><span class="legend-dot status-offline"></span><span>离线</span></div>
+          <div class="legend-item"><span class="legend-dot status-error"></span><span>错误</span></div>
+          <div class="legend-item"><span class="state-chip state-powered">带电</span></div>
+          <div class="legend-item"><span class="state-chip state-tagged">挂牌</span></div>
+          <div class="legend-item"><span class="state-chip state-untagged">未挂牌</span></div>
+        </div>
+        <div v-if="groupedRooms.length" class="diagram-grid">
+          <div class="room-card" :class="{ 'focus-room': isFocusedRoom(room.name) }" v-for="room in groupedRooms" :key="room.name">
+            <div class="room-title">
+              <div>
+                <strong>{{ room.name }}</strong>
+                <div class="room-meta">柜数 {{ room.items.length }} 台<br>在线 {{ room.onlineCount }} / 挂牌 {{ room.taggedCount }}</div>
+              </div>
+              <el-tag type="info">{{ room.poweredCount }} 台带电</el-tag>
+            </div>
+            <div class="busline"></div>
+            <div class="cabinet-grid">
+              <div class="cabinet-card" :class="{ 'focus-device': isFocusedDevice(device) }" v-for="device in room.items" :key="device.device_id">
+                <div class="cabinet-head">
+                  <div class="cabinet-code">{{ device.cabinet || device.device_id }}</div>
+                  <span class="status-dot" :class="statusClass(device.ui_status)"></span>
+                </div>
+                <div class="device-name">{{ device.device_name || device.device_id }}</div>
+                <div class="cabinet-meta">
+                  <span>设备编号：{{ device.device_id }}</span>
+                  <span>状态：{{ statusText(device.ui_status) }}</span>
+                  <span>带电：{{ boolText(device.power_status === 'powered') }}</span>
+                  <span>挂牌：{{ tagText(device.tag_status) }}</span>
+                  <span>最近更新：{{ formatTime(device.last_update) }}</span>
+                </div>
+                <div class="tag-list">
+                  <span class="tag-item" v-if="device.line_name">{{ device.line_name }}</span>
+                  <span class="tag-item state-powered" v-if="device.power_status === 'powered'">带电</span>
+                  <span class="tag-item state-tagged" v-if="device.tag_status === 'tagged'">挂牌中</span>
+                  <span class="tag-item state-untagged" v-if="device.tag_status === 'untagged'">未挂牌</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div v-else class="empty">暂无设备数据</div>
+      </section>
+      <section class="panel table-wrap" v-else>
+        <h2>设备列表</h2>
+        <el-table :data="filteredDevices" border height="520">
+          <el-table-column prop="device_name" label="设备" min-width="220">
+            <template #default="{ row }"><div>{{ row.device_name || row.device_id }}</div><div style="font-size:12px; color:#abdfff;">{{ row.device_id }}</div></template>
+          </el-table-column>
+          <el-table-column label="位置" min-width="220">
+            <template #default="{ row }">{{ row.power_room || '未配置配电室' }} / {{ row.cabinet || '未配置柜号' }}</template>
+          </el-table-column>
+          <el-table-column label="状态" width="120">
+            <template #default="{ row }"><el-tag :type="tagType(row.ui_status)">{{ statusText(row.ui_status) }}</el-tag></template>
+          </el-table-column>
+          <el-table-column label="带电" width="100">
+            <template #default="{ row }">{{ boolText(row.power_status === 'powered') }}</template>
+          </el-table-column>
+          <el-table-column label="挂牌" width="100">
+            <template #default="{ row }">{{ tagText(row.tag_status) }}</template>
+          </el-table-column>
+          <el-table-column prop="line_name" label="线路" width="150" />
+          <el-table-column label="最近更新" width="180">
+            <template #default="{ row }">{{ formatTime(row.last_update) }}</template>
+          </el-table-column>
+        </el-table>
+      </section>
+      <section class="panel">
+        <h2>告警信息</h2>
+        <div v-if="alerts.length" class="alerts">
+          <div class="alert-card" v-for="alert in alerts" :key="alert.id">
+            <div style="font-weight:700; margin-bottom:8px;">{{ alert.title }}</div>
+            <div style="font-size:14px; line-height:1.7;">{{ alert.message }}</div>
+            <div style="margin-top:10px; font-size:12px; color:#ffd3d3;">{{ formatTime(alert.timestamp) }}</div>
+          </div>
+        </div>
+        <div v-else class="empty">当前无告警</div>
+      </section>
+    </div>
+  </div>
+  <script>
+    axios.defaults.withCredentials = true;
+    const { createApp, ref, computed, onMounted } = Vue;
+    createApp({
+      setup() {
+        const { ElMessage } = ElementPlus;
+        const params = new URLSearchParams(window.location.search);
+        const devices = ref([]);
+        const alerts = ref([]);
+        const viewMode = ref('diagram');
+        const keyword = ref('');
+        const focusRoom = ref(params.get('power_room') || '');
+        const focusDeviceId = ref(params.get('device_id') || '');
+        const stats = ref({ total: 0, online: 0, warning: 0, tagged: 0, powered: 0 });
+        const deriveUiStatus = (device) => {
+          const base = device.status?.status || device.status || 'offline';
+          const powerStatus = device.status?.power_status || device.power_status;
+          const tagStatus = device.status?.tag_status || device.tag_status;
+          if (base === 'error') return 'error';
+          if (base === 'offline') return 'offline';
+          if (base === 'warning' || base === 'alert') return 'warning';
+          if (tagStatus === 'tagged') return 'warning';
+          if (powerStatus === 'powered' || base === 'online') return 'online';
+          return 'offline';
+        };
+        const normalizeDevice = (item) => {
+          const raw = item.status && typeof item.status === 'object' ? item.status : {};
+          return {
+            device_id: item.device_id || item.id || 'unknown',
+            device_name: item.device_name || `设备-${item.device_id || item.id || 'unknown'}`,
+            power_room: item.power_room || '',
+            cabinet: item.cabinet || '',
+            line_name: item.line_name || '',
+            status_code: raw.status || item.status || 'offline',
+            power_status: raw.power_status || item.power_status || null,
+            tag_status: raw.tag_status || item.tag_status || null,
+            last_update: raw.last_update || item.last_update || null,
+            ui_status: deriveUiStatus({ ...item, ...raw }),
+          };
+        };
+        const filteredDevices = computed(() => {
+          const kw = keyword.value.trim().toLowerCase();
+          return devices.value.filter((item) => {
+            const matchKeyword = !kw || [item.power_room, item.cabinet, item.device_name, item.device_id, item.line_name].some((value) => String(value || '').toLowerCase().includes(kw));
+            const matchRoom = !focusRoom.value || String(item.power_room || '') === focusRoom.value;
+            return matchKeyword && matchRoom;
+          });
+        });
+        const groupedRooms = computed(() => {
+          const groups = {};
+          filteredDevices.value.forEach((item) => {
+            const room = item.power_room || '未配置配电室';
+            if (!groups[room]) groups[room] = { name: room, items: [], onlineCount: 0, taggedCount: 0, poweredCount: 0 };
+            groups[room].items.push(item);
+            if (item.ui_status === 'online') groups[room].onlineCount += 1;
+            if (item.tag_status === 'tagged') groups[room].taggedCount += 1;
+            if (item.power_status === 'powered') groups[room].poweredCount += 1;
+          });
+          Object.values(groups).forEach((room) => room.items.sort((a, b) => String(a.cabinet || a.device_id).localeCompare(String(b.cabinet || b.device_id), 'zh-CN')));
+          return Object.values(groups).sort((a, b) => a.name.localeCompare(b.name, 'zh-CN'));
+        });
+        const updateStats = () => {
+          stats.value = {
+            total: devices.value.length,
+            online: devices.value.filter((item) => item.ui_status === 'online').length,
+            warning: devices.value.filter((item) => item.ui_status === 'warning').length,
+            tagged: devices.value.filter((item) => item.tag_status === 'tagged').length,
+            powered: devices.value.filter((item) => item.power_status === 'powered').length,
+          };
+        };
+        const applyUrlFocus = () => {
+          if (focusRoom.value) viewMode.value = 'diagram';
+          if (focusDeviceId.value && !keyword.value) keyword.value = focusDeviceId.value;
+        };
+        const loadData = async () => {
+          try {
+            const [statusRes, alertRes] = await Promise.all([axios.get('/api/device-status'), axios.get('/api/device-alerts')]);
+            devices.value = (Array.isArray(statusRes.data) ? statusRes.data : []).map(normalizeDevice);
+            alerts.value = (Array.isArray(alertRes.data) ? alertRes.data : []).map((item, idx) => ({
+              id: item.id || `${item.device_id || 'device'}-${idx}`,
+              title: item.title || `设备告警 - ${item.device_id || '未知设备'}`,
+              message: item.message || '设备状态异常',
+              timestamp: item.timestamp || null,
+            }));
+            updateStats();
+            applyUrlFocus();
+          } catch (error) {
+            ElMessage.error(error?.response?.data?.msg || '设备监控数据加载失败');
+          }
+        };
+        const statusText = (status) => ({ online: '在线', warning: '告警', offline: '离线', error: '错误' }[status] || status || '未知');
+        const boolText = (value) => (value ? '是' : '否');
+        const tagText = (status) => status === 'tagged' ? '已挂牌' : status === 'untagged' ? '未挂牌' : '未知';
+        const statusClass = (status) => `status-${status || 'offline'}`;
+        const tagType = (status) => status === 'online' ? 'success' : status === 'warning' ? 'warning' : status === 'error' ? 'danger' : 'info';
+        const isFocusedRoom = (roomName) => focusRoom.value && roomName === focusRoom.value;
+        const isFocusedDevice = (device) => focusDeviceId.value && device.device_id === focusDeviceId.value;
+        const formatTime = (timestamp) => {
+          if (!timestamp) return '未上报';
+          const date = new Date(timestamp);
+          return Number.isNaN(date.getTime()) ? String(timestamp) : date.toLocaleString('zh-CN');
+        };
+        const refreshData = async () => {
+          await loadData();
+          ElMessage.success('监控数据已刷新');
+        };
+        const clearFocus = () => {
+          focusRoom.value = '';
+          focusDeviceId.value = '';
+          keyword.value = '';
+          const url = new URL(window.location.href);
+          url.searchParams.delete('power_room');
+          url.searchParams.delete('device_id');
+          url.searchParams.delete('from');
+          window.history.replaceState({}, '', url.toString());
+        };
+        const goBack = () => {
+          if (params.get('from') === 'maintenance_batch') return window.history.back();
+          const role = localStorage.getItem('user_role');
+          if (role === 'admin') window.location.href = 'admin.html';
+          else if (role === 'dispatcher') window.location.href = 'dispatcher_home.html';
+          else if (role === 'electrician') window.location.href = 'electrician_home.html';
+          else window.location.href = 'login.html';
+        };
+        onMounted(() => {
+          applyUrlFocus();
+          loadData();
+          setInterval(loadData, 30000);
+        });
+        return { alerts, viewMode, keyword, stats, focusRoom, focusDeviceId, filteredDevices, groupedRooms, statusText, boolText, tagText, statusClass, tagType, isFocusedRoom, isFocusedDevice, formatTime, refreshData, clearFocus, goBack };
+      },
+    }).use(ElementPlus).mount('#app');
+  </script>
+</body>
+</html>
