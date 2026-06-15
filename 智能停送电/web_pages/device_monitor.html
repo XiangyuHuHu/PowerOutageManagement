@@ -87,7 +87,94 @@
     .tag-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
     .tag-item { padding: 4px 8px; border-radius: 999px; background: rgba(255, 255, 255, 0.08); font-size: 11px; }
     .empty { padding: 36px 14px; text-align: center; color: #abdfff; }
-    @media (max-width: 980px) { .stats { grid-template-columns: 1fr 1fr; } }
+    .cabinet-card.clickable { cursor: pointer; }
+    .info-section-title { margin: 0 0 12px; font-size: 16px; color: #eef9ff; }
+    .info-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-bottom: 16px; }
+    .info-item { padding: 10px 12px; border-radius: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(118,200,255,0.12); }
+    .info-item .k { font-size: 12px; color: #abdfff; margin-bottom: 4px; }
+    .info-item .v { font-size: 14px; color: #eef9ff; word-break: break-word; }
+    .signal-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    .signal-table th, .signal-table td { border: 1px solid rgba(118,200,255,0.14); padding: 8px 10px; text-align: left; vertical-align: top; }
+    .signal-table th { color: #d7f0ff; background: rgba(16,52,74,0.55); }
+    .signal-table td { color: #e7f6ff; }
+    .signal-live { color: #ffe29d; font-weight: 700; }
+    .drawer-note { margin-bottom: 12px; padding: 10px 12px; border-radius: 12px; background: rgba(118,200,255,0.1); color: #cbeaff; font-size: 13px; line-height: 1.7; }
+    .drawer-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
+    .status-overview { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; margin-bottom: 18px; }
+    .status-card {
+      padding: 12px 14px;
+      border-radius: 14px;
+      background: rgba(8, 18, 28, 0.9);
+      border: 1px solid rgba(118, 200, 255, 0.16);
+    }
+    .status-card .label { font-size: 12px; color: #8ecfff; margin-bottom: 6px; }
+    .status-card .value { font-size: 18px; font-weight: 800; color: #f4fbff; }
+    .status-card.ok .value { color: #b8f59e; }
+    .status-card.warn .value { color: #ffe29d; }
+    .status-card.danger .value { color: #ff9b9b; }
+    .status-card.muted .value { color: #9ec8e8; }
+    .section-badge {
+      display: inline-block;
+      margin-left: 8px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 600;
+      color: #ffe29d;
+      background: rgba(255, 214, 111, 0.14);
+      border: 1px solid rgba(255, 214, 111, 0.28);
+      vertical-align: middle;
+    }
+    .prot-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-bottom: 12px; }
+    .prot-metric {
+      padding: 12px;
+      border-radius: 12px;
+      background: rgba(8, 18, 28, 0.88);
+      border: 1px dashed rgba(118, 200, 255, 0.22);
+      text-align: center;
+    }
+    .prot-metric .label { display: block; font-size: 12px; color: #8ecfff; margin-bottom: 6px; }
+    .prot-metric .value { display: block; font-size: 20px; font-weight: 800; color: #eef9ff; }
+    .prot-metric .unit { display: block; font-size: 11px; color: #7eb8dc; margin-top: 4px; }
+    .prot-metric.live { border-style: solid; border-color: rgba(103, 194, 58, 0.35); }
+    .prot-hint {
+      margin-bottom: 16px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: rgba(141, 132, 255, 0.1);
+      border: 1px solid rgba(141, 132, 255, 0.22);
+      color: #d5d0ff;
+      font-size: 12px;
+      line-height: 1.7;
+    }
+    .val-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .val-badge.ok { background: rgba(103, 194, 58, 0.2); color: #c8f2af; }
+    .val-badge.warn { background: rgba(255, 214, 111, 0.2); color: #ffe29d; }
+    .val-badge.danger { background: rgba(245, 108, 108, 0.2); color: #ffb7b7; }
+    .val-badge.muted { background: rgba(255, 255, 255, 0.08); color: #abdfff; }
+    .device-detail-drawer.el-drawer { background: linear-gradient(180deg, #102a3d 0%, #0a1520 100%) !important; }
+    .device-detail-drawer .el-drawer__header {
+      margin-bottom: 0;
+      padding: 18px 20px 14px;
+      border-bottom: 1px solid rgba(118, 200, 255, 0.2);
+      color: #eef9ff;
+    }
+    .device-detail-drawer .el-drawer__title { color: #eef9ff !important; font-size: 18px; font-weight: 800; }
+    .device-detail-drawer .el-drawer__body {
+      padding: 16px 20px 28px;
+      background: transparent;
+      color: #eef9ff;
+    }
+    .device-detail-drawer .el-drawer__close-btn { color: #abdfff !important; }
+    .device-detail-drawer .el-drawer__close-btn:hover { color: #fff !important; }
+    @media (max-width: 980px) { .stats { grid-template-columns: 1fr 1fr; } .info-grid { grid-template-columns: 1fr; } .prot-grid { grid-template-columns: repeat(2, 1fr); } }
     @media (max-width: 680px) { .stats { grid-template-columns: 1fr; } }
   </style>
 </head>
@@ -96,10 +183,11 @@
     <div class="header">
       <div>
         <h1>设备监控</h1>
-        <p>当前监控页保留系统图模式和列表模式，重点展示设备是否带电、当前挂牌数量以及按配电室定位设备，便于与停送电流程、挂牌风险和现场状态核对一致。</p>
+        <p>系统图/列表展示带电、挂牌与配电室定位；点击设备可查看全部 Kep 点位实时值，并跳转历史数据查询（故障、运行、分合闸、流程）。</p>
       </div>
       <div style="display:flex; gap:10px; flex-wrap:wrap;">
         <el-button @click="refreshData">刷新</el-button>
+        <el-button @click="goHistory()">历史查询</el-button>
         <el-button type="primary" @click="goBack">返回</el-button>
       </div>
     </div>
@@ -168,7 +256,7 @@
               <el-tag type="info">{{ room.totalTags }} 个挂牌</el-tag>
             </div>
             <div class="cabinet-grid">
-              <div class="cabinet-card" :class="{ 'focus-device': isFocusedDevice(device) }" v-for="device in room.items" :key="device.device_id">
+              <div class="cabinet-card clickable" :class="{ 'focus-device': isFocusedDevice(device) }" v-for="device in room.items" :key="device.device_id" @click="openDeviceInfo(device)">
                 <div class="cabinet-head">
                   <div class="device-title-block">
                     <div class="device-title">{{ device.device_name || device.device_id }}</div>
@@ -178,7 +266,7 @@
                 </div>
                 <div class="cabinet-meta">
                   <span>挂牌数量：{{ device.active_tag_count }}</span>
-                  <span>最近更新：{{ formatTime(device.last_update) }}</span>
+                  <span title="该设备状态最后一次从 OPC/MQTT 采集成功的时间">状态更新：{{ formatTime(device.last_update) }}</span>
                 </div>
                 <div class="tag-list">
                   <span class="tag-item" v-if="device.power_room">{{ device.power_room }}</span>
@@ -198,9 +286,12 @@
         <el-table :data="filteredDevices" border height="560">
           <el-table-column prop="device_name" label="设备" min-width="220">
             <template #default="{ row }">
-              <div>{{ row.device_name || row.device_id }}</div>
+              <el-button link type="primary" @click="openDeviceInfo(row)">{{ row.device_name || row.device_id }}</el-button>
               <div style="font-size:12px; color:#abdfff;">{{ row.device_id }}</div>
             </template>
+          </el-table-column>
+          <el-table-column label="信号点" width="90">
+            <template #default="{ row }">{{ row.signal_points_count || 0 }}</template>
           </el-table-column>
           <el-table-column label="位置" min-width="220">
             <template #default="{ row }">{{ row.power_room || '未配置配电室' }} / {{ row.cabinet || '未配置柜号' }}</template>
@@ -218,6 +309,112 @@
         </el-table>
       </section>
     </div>
+
+    <el-drawer
+      v-model="infoDrawerVisible"
+      :title="infoDrawerTitle"
+      size="56%"
+      direction="rtl"
+      class="device-detail-drawer"
+    >
+      <div v-if="selectedDevice" class="device-detail-body">
+        <div class="drawer-actions">
+          <el-button size="small" type="primary" @click="goHistory(selectedDevice.device_id)">历史数据 / 故障记录</el-button>
+          <el-button size="small" @click="infoDrawerVisible = false">关闭</el-button>
+        </div>
+        <h3 class="info-section-title">运行概览</h3>
+        <div class="status-overview">
+          <div
+            v-for="item in statusOverviewCards"
+            :key="item.key"
+            class="status-card"
+            :class="item.tone"
+          >
+            <div class="label">{{ item.label }}</div>
+            <div class="value">{{ item.value }}</div>
+          </div>
+        </div>
+        <h3 class="info-section-title">基础信息</h3>
+        <div class="info-grid">
+          <div class="info-item"><div class="k">设备编号</div><div class="v">{{ selectedDevice.device_id }}</div></div>
+          <div class="info-item"><div class="k">设备名称</div><div class="v">{{ selectedDevice.device_name }}</div></div>
+          <div class="info-item"><div class="k">配电室 / 柜号</div><div class="v">{{ selectedDevice.power_room || '—' }} / {{ selectedDevice.cabinet || '—' }}</div></div>
+          <div class="info-item"><div class="k">线路</div><div class="v">{{ selectedDevice.line_name || '—' }}</div></div>
+          <div class="info-item"><div class="k">状态更新时间</div><div class="v">{{ formatTime(selectedDevice.last_update) }}</div></div>
+          <div class="info-item"><div class="k">配置点位</div><div class="v">{{ selectedDevice.signal_points_count || sortedSignalPoints.length }} 个</div></div>
+        </div>
+        <h3 class="info-section-title">
+          综保监测
+          <span class="section-badge" v-if="!lowVoltageSignalPoints.length">模拟量待接入</span>
+        </h3>
+        <div class="prot-hint" v-if="lowVoltageSignalPoints.length">
+          以下数据来自低压后台综保（通讯管理机 CSV），已与设备台账关联；状态量仍来自洗煤厂设备新0601。
+        </div>
+        <div class="prot-hint" v-else>
+          导入低压后台 CSV 后，此处显示三相电流/电压、功率、功率因数等实时值。
+        </div>
+        <div class="prot-grid">
+          <div
+            v-for="metric in protectionMetrics"
+            :key="metric.key"
+            class="prot-metric"
+            :class="{ live: metric.live }"
+          >
+            <span class="label">{{ metric.label }}</span>
+            <span class="value">{{ metric.value }}</span>
+            <span class="unit">{{ metric.unit }}</span>
+          </div>
+        </div>
+        <h3 class="info-section-title">停送电状态信号（{{ statusSignalPoints.length }}）</h3>
+        <table class="signal-table" v-if="statusSignalPoints.length">
+          <thead>
+            <tr>
+              <th>名称</th>
+              <th>类型</th>
+              <th>实时值</th>
+              <th>OPC 地址</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="point in statusSignalPoints" :key="'st-'+point.signal_type + '-' + point.signal_name">
+              <td>{{ point.signal_name }}</td>
+              <td>{{ signalTypeLabel(point) }}</td>
+              <td>
+                <span class="val-badge" :class="signalValueTone(selectedDevice, point)">
+                  {{ formatSignalLiveValue(selectedDevice, point) }}
+                </span>
+              </td>
+              <td style="font-size:11px; color:#9ec8e8;">{{ point.signal_address || '—' }}</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="empty" v-else>暂无停送电状态点位</div>
+        <h3 class="info-section-title" style="margin-top:18px;">综保详细点位（{{ lowVoltageSignalPoints.length }}）</h3>
+        <table class="signal-table" v-if="lowVoltageSignalPoints.length">
+          <thead>
+            <tr>
+              <th>测点名称</th>
+              <th>实时值</th>
+              <th>通讯管理机</th>
+              <th>OPC 地址</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="point in lowVoltageSignalPoints" :key="'pr-'+point.signal_type + '-' + point.signal_name">
+              <td>{{ point.signal_name }}</td>
+              <td>
+                <span class="val-badge" :class="signalValueTone(selectedDevice, point)">
+                  {{ formatSignalLiveValue(selectedDevice, point) }}
+                </span>
+              </td>
+              <td style="font-size:11px;">{{ point.source_sheet || '—' }}</td>
+              <td style="font-size:11px; color:#9ec8e8;">{{ point.signal_address || '—' }}</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="empty" v-else>该设备暂无低压后台综保点位（可能为电源柜或未配置通讯管理机3/4）</div>
+      </div>
+    </el-drawer>
   </div>
   <script>
     if (!localStorage.getItem('user_realname') && !localStorage.getItem('user_username')) { window.appShell.handleUnauthorized(); }
@@ -234,14 +431,35 @@
         const selectedStateFilter = ref('all');
         const focusRoom = ref(params.get('power_room') || '');
         const focusDeviceId = ref(params.get('device_id') || '');
+        const infoDrawerVisible = ref(false);
+        const selectedDevice = ref(null);
         const stats = ref({ total: 0, powered: 0, unpowered: 0, tagged: 0, totalTags: 0 });
         let timer = null;
+        const SIGNAL_TYPE_LABELS = {
+          power_feedback: '带电反馈',
+          tag_count: '挂牌数量',
+          overheat: '过热',
+          emergency_stop: '急停',
+          leakage: '漏电',
+          run_status: '运行状态',
+          power_supply: '电源',
+          protection_fault: '综保故障',
+        };
+        const STATUS_SIGNAL_TYPES = new Set(['power_feedback','tag_count','overheat','emergency_stop','leakage','run_status','power_supply','protection_fault']);
+        const PROTECTION_KEY_TYPES = new Set(['ia','ib','ic','u_ab','u_bc','u_ca','p_active','q_reactive','s_apparent','pf','energy_kwh','freq','leakage_a','breaker_close','breaker_open']);
+        const SIGNAL_SORT_ORDER = ['power_feedback', 'tag_count', 'run_status', 'overheat', 'emergency_stop', 'leakage', 'power_supply', 'protection_fault', 'ia', 'ib', 'ic', 'u_ab', 'u_bc', 'u_ca', 'p_active', 'pf', 'energy_kwh', 'freq'];
         const ROOM_ORDER = ['主厂房660V系统图一', '主厂房660V系统图二', '主厂房660V系统图三', '主厂房660V系统图四', '其他'];
-        const ROOM_LABEL_MAP = { '?????': '其他', '待归类': '其他', '产品仓660V系统图': '主厂房660V系统图四' };
+        const ROOM_LABEL_MAP = {
+          '未归类': '其他',
+          '待归类': '其他',
+          '产品仓660V系统图': '主厂房660V系统图四',
+          '选煤厂二号配电室': '选煤厂660V系统图',
+        };
         const normalizeRoom = (value) => ROOM_LABEL_MAP[value] || value || '其他';
         const normalizeDevice = (item) => {
           const raw = item.status && typeof item.status === 'object' ? item.status : {};
           const powerStatus = raw.power_status || item.power_status || 'unpowered';
+          const signalPoints = Array.isArray(item.signal_points) ? item.signal_points : [];
           return {
             device_id: item.device_id || item.id || 'unknown',
             device_name: item.device_name || `设备-${item.device_id || item.id || 'unknown'}`,
@@ -250,8 +468,148 @@
             line_name: item.line_name || '',
             power_status: powerStatus,
             active_tag_count: Number(item.active_tag_count || 0),
-            last_update: raw.last_update || item.last_update || null
+            signal_points: signalPoints,
+            signal_points_count: Number(item.signal_points_count || signalPoints.length || 0),
+            live_signals: item.live_signals || raw.data?.signals || {},
+            status_payload: raw.data || item.status?.data || {},
+            last_update: item.last_update || raw.last_update || null,
           };
+        };
+        const infoDrawerTitle = computed(() => {
+          if (!selectedDevice.value) return '设备信息';
+          return `设备信息 · ${selectedDevice.value.device_name || selectedDevice.value.device_id}`;
+        });
+        const sortedSignalPoints = computed(() => {
+          const points = selectedDevice.value?.signal_points || [];
+          return [...points].sort((a, b) => {
+            const ai = SIGNAL_SORT_ORDER.indexOf(a.signal_type);
+            const bi = SIGNAL_SORT_ORDER.indexOf(b.signal_type);
+            return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi) || String(a.signal_name).localeCompare(String(b.signal_name), 'zh-CN');
+          });
+        });
+        const statusSignalPoints = computed(() => sortedSignalPoints.value.filter((p) => STATUS_SIGNAL_TYPES.has(p.signal_type)));
+        const protectionSignalPoints = computed(() => sortedSignalPoints.value.filter((p) => !STATUS_SIGNAL_TYPES.has(p.signal_type)));
+        const isLowVoltagePoint = (point) => String(point?.source_sheet || '').startsWith('通讯管理机');
+        const lowVoltageSignalPoints = computed(() => protectionSignalPoints.value.filter(isLowVoltagePoint));
+        const otherProtectionPoints = computed(() => protectionSignalPoints.value.filter((p) => !isLowVoltagePoint(p)));
+        const readLiveBool = (device, type) => {
+          const live = device?.live_signals || {};
+          if (!Object.prototype.hasOwnProperty.call(live, type)) return null;
+          return Boolean(live[type]);
+        };
+        const statusOverviewCards = computed(() => {
+          const device = selectedDevice.value;
+          if (!device) return [];
+          const cards = [
+            { key: 'power', label: '带电状态', type: 'power_feedback', fallback: device.power_status === 'powered' },
+            { key: 'tag', label: '挂牌数量', type: 'tag_count', isCount: true, fallback: Number(device.active_tag_count || 0) },
+            { key: 'run', label: '运行状态', type: 'run_status' },
+            { key: 'fault', label: '综保故障', type: 'protection_fault' },
+            { key: 'overheat', label: '过热', type: 'overheat' },
+            { key: 'estop', label: '急停', type: 'emergency_stop' },
+            { key: 'leak', label: '漏电', type: 'leakage' },
+          ];
+          return cards.map((item) => {
+            let value = '未采集';
+            let tone = 'muted';
+            if (item.isCount) {
+              const count = Object.prototype.hasOwnProperty.call(device.live_signals || {}, 'tag_count')
+                ? Number(device.live_signals.tag_count ?? 0)
+                : Number(item.fallback || 0);
+              value = String(count);
+              tone = count > 0 ? 'warn' : 'ok';
+              return { ...item, value, tone };
+            }
+            const live = readLiveBool(device, item.type);
+            const on = live !== null ? live : Boolean(item.fallback);
+            if (live === null && item.type !== 'power_feedback') {
+              return { ...item, value, tone };
+            }
+            if (item.type === 'power_feedback') {
+              value = on ? '带电' : '失电';
+              tone = on ? 'warn' : 'ok';
+            } else if (item.type === 'run_status') {
+              value = on ? '运行' : '停止';
+              tone = on ? 'ok' : 'muted';
+            } else if (item.type === 'protection_fault' || item.type === 'overheat' || item.type === 'emergency_stop' || item.type === 'leakage') {
+              value = on ? '告警' : '正常';
+              tone = on ? 'danger' : 'ok';
+            }
+            return { ...item, value, tone };
+          });
+        });
+        const protectionMetrics = computed(() => {
+          const device = selectedDevice.value;
+          const live = device?.live_signals || {};
+          const defs = [
+            { key: 'ia', label: 'A相电流', unit: 'A', type: 'ia' },
+            { key: 'ib', label: 'B相电流', unit: 'A', type: 'ib' },
+            { key: 'ic', label: 'C相电流', unit: 'A', type: 'ic' },
+            { key: 'u_ab', label: 'AB线电压', unit: 'V', type: 'u_ab' },
+            { key: 'u_bc', label: 'BC线电压', unit: 'V', type: 'u_bc' },
+            { key: 'u_ca', label: 'CA线电压', unit: 'V', type: 'u_ca' },
+            { key: 'p_active', label: '有功功率', unit: 'kW', type: 'p_active' },
+            { key: 'pf', label: '功率因数', unit: '', type: 'pf' },
+            { key: 'energy_kwh', label: '有功电能', unit: 'kWh', type: 'energy_kwh' },
+          ];
+          return defs.map((item) => {
+            const has = Object.prototype.hasOwnProperty.call(live, item.type);
+            const raw = live[item.type];
+            let value = '—';
+            if (has && raw !== null && raw !== undefined) {
+              value = typeof raw === 'number' ? (Number.isInteger(raw) ? String(raw) : raw.toFixed(2)) : String(raw);
+            }
+            return { ...item, value, live: has };
+          });
+        });
+        const signalTypeLabel = (point) => {
+          const type = typeof point === 'string' ? point : point?.signal_type;
+          const name = typeof point === 'object' ? point?.signal_name : '';
+          return SIGNAL_TYPE_LABELS[type] || name || type || '—';
+        };
+        const signalValueTone = (device, point) => {
+          const text = formatSignalLiveValue(device, point);
+          if (text === '未采集' || text === '—') return 'muted';
+          if (['告警', '是', '带电'].includes(text)) return point.signal_type === 'power_feedback' ? 'warn' : 'danger';
+          if (['正常', '否', '失电', '停止', '0'].includes(text)) return 'ok';
+          if (Number(text) > 0) return 'warn';
+          return 'ok';
+        };
+        const formatPowerStatus = (status) => (status === 'powered' ? '带电' : '失电');
+        const formatSignalLiveValue = (device, point) => {
+          if (!device || !point) return '—';
+          const live = device.live_signals || {};
+          const read = (key) => (Object.prototype.hasOwnProperty.call(live, key) ? live[key] : undefined);
+          let value = read(point.signal_type);
+          if (value === undefined && point.signal_name) value = read(`${point.signal_type}#${point.signal_name}`);
+          if (value !== undefined && value !== null) {
+            if (point.data_type === 'float' || point.data_type === 'int') {
+              const num = Number(value);
+              if (!Number.isNaN(num)) return point.data_type === 'float' ? num.toFixed(2) : String(num);
+            }
+            if (point.signal_type === 'power_feedback') return value ? '带电' : '失电';
+            if (point.signal_type === 'tag_count') return String(value ?? 0);
+            if (point.signal_type === 'run_status') return value ? '运行' : '停止';
+            if (typeof value === 'boolean') return value ? '是' : '否';
+            return String(value);
+          }
+          if (point.signal_type === 'power_feedback') {
+            return device.power_status === 'powered' ? '带电' : '失电';
+          }
+          if (point.signal_type === 'tag_count') {
+            return String(device.active_tag_count ?? 0);
+          }
+          return '未采集';
+        };
+        const goHistory = (deviceId) => {
+          const id = deviceId || focusDeviceId.value || '';
+          window.location.href = id
+            ? `/device_history.html?device_id=${encodeURIComponent(id)}`
+            : '/device_history.html';
+        };
+        const openDeviceInfo = (device) => {
+          selectedDevice.value = device;
+          infoDrawerVisible.value = true;
         };
         const facilityOptions = computed(() => {
           const counts = devices.value.reduce((acc, item) => {
@@ -339,15 +697,42 @@
         };
         const isFocusedRoom = (roomName) => focusRoom.value && roomName === focusRoom.value;
         const isFocusedDevice = (device) => focusDeviceId.value && device.device_id === focusDeviceId.value;
+        const parseTimestampMs = (timestamp) => {
+          if (timestamp === null || timestamp === undefined || timestamp === '') return null;
+          if (typeof timestamp === 'string') {
+            const trimmed = timestamp.trim();
+            if (!trimmed) return null;
+            if (/^\d+(\.\d+)?$/.test(trimmed)) {
+              const num = Number(trimmed);
+              if (!Number.isFinite(num) || num <= 0) return null;
+              return num < 1e12 ? num * 1000 : num;
+            }
+            const parsed = Date.parse(trimmed);
+            return Number.isNaN(parsed) ? null : parsed;
+          }
+          const num = Number(timestamp);
+          if (!Number.isFinite(num) || num <= 0) return null;
+          return num < 1e12 ? num * 1000 : num;
+        };
         const formatTime = (timestamp) => {
-          if (!timestamp) return '未上报';
-          const date = new Date(timestamp);
-          return Number.isNaN(date.getTime()) ? String(timestamp) : date.toLocaleString('zh-CN');
+          const ms = parseTimestampMs(timestamp);
+          if (ms === null) return '未上报';
+          const date = new Date(ms);
+          if (Number.isNaN(date.getTime())) return '未上报';
+          if (date.getFullYear() < 2000) return '未上报';
+          return date.toLocaleString('zh-CN');
         };
         const goBack = () => window.appShell.goBackOrHome();
         onMounted(() => { applyUrlFocus(); loadData(); timer = setInterval(() => loadData(true), 30000); });
         onBeforeUnmount(() => { if (timer) clearInterval(timer); });
-        return { devices, viewMode, keyword, selectedFacility, selectedStateFilter, facilityOptions, stateFilterOptions, focusRoom, focusDeviceId, stats, filteredDevices, groupedRooms, refreshData, clearFocus, isFocusedRoom, isFocusedDevice, formatTime, goBack };
+        return {
+          devices, viewMode, keyword, selectedFacility, selectedStateFilter, facilityOptions, stateFilterOptions,
+          focusRoom, focusDeviceId, stats, filteredDevices, groupedRooms, refreshData, clearFocus,
+          isFocusedRoom, isFocusedDevice, formatTime, goBack,
+          infoDrawerVisible, selectedDevice, infoDrawerTitle, sortedSignalPoints, statusSignalPoints, protectionSignalPoints, lowVoltageSignalPoints,
+          statusOverviewCards, protectionMetrics,
+          signalTypeLabel, signalValueTone, formatPowerStatus, formatSignalLiveValue, openDeviceInfo, goHistory,
+        };
       },
     }).use(ElementPlus).mount('#app');
   </script>

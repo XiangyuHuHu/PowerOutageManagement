@@ -29,6 +29,7 @@ RUN pip install -r requirements.txt
 COPY server_new.py ./
 COPY app ./app
 COPY web_pages ./web_pages
+COPY tools ./tools
 COPY shared/common ./common
 
 EXPOSE 5050

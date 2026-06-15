@@ -5,6 +5,6 @@ PyMySQL==1.1.0
 paho-mqtt==1.6.1
 opcua==0.98.13
 Werkzeug==2.3.7
-prometheus-client==0.17.1
 cryptography>=3.4.8
 zeroconf==0.131.0
+openpyxl==3.1.2

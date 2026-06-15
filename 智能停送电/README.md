@@ -2,6 +2,17 @@
 
 一套完整的智能停送电管理系统，支持Web端和小程序端，采用前后端分离架构。
 
+## 📚 文档索引
+
+| 文档 | 说明 |
+|------|------|
+| [INSTALL.md](INSTALL.md) | Docker 部署与安装步骤 |
+| [DEPLOYMENT_GUIDE_SIMPLE.md](DEPLOYMENT_GUIDE_SIMPLE.md) | 现场精简生产部署 |
+| [PROJECT_STRUCTURE_V2.md](PROJECT_STRUCTURE_V2.md) | 目录结构与模块说明 |
+| [SYSTEM_FUNCTION_AND_FLOW_GUIDE.md](SYSTEM_FUNCTION_AND_FLOW_GUIDE.md) | 业务流程与功能说明 |
+| [DEVICE_LEDGER_DESIGN.md](DEVICE_LEDGER_DESIGN.md) | 设备信号台账设计 |
+| [REALTIME_STATUS_ARCHITECTURE.md](REALTIME_STATUS_ARCHITECTURE.md) | 实时状态与数据源架构 |
+
 ## 📁 项目结构
 
 ```
@@ -97,7 +108,6 @@ uni build
 - **Python**: Flask框架
 - **数据库**: MySQL 8.0
 - **消息队列**: MQTT
-- **监控**: Prometheus + Grafana
 - **容器化**: Docker + Docker Compose
 
 ### 前端技术
@@ -121,8 +131,6 @@ docker compose up -d
 
 访问地址：
 - Web应用: http://localhost:5050
-- Prometheus: http://localhost:9090
-- Grafana: http://localhost:3000
 
 ### 小程序部署
 1. 微信小程序：上传到微信公众平台

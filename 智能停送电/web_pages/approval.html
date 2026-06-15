@@ -99,9 +99,13 @@
       background: rgba(255,255,255,0.05);
       color: #eef9ff;
     }
+    /* 主厂房一至四 + 选煤厂 + 未配置 最多 6 张，宽屏下一行排满 */
     .room-grid {
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      grid-template-columns: repeat(6, minmax(0, 1fr));
       margin-bottom: 18px;
+    }
+    @media (max-width: 1480px) {
+      .room-grid { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
     }
     .room-card h3 { margin: 0 0 10px; font-size: 18px; }
     .room-lines {
@@ -211,7 +215,7 @@
     <div class="header">
       <div>
         <h1>审批中心</h1>
-        <p>集中处理待停电审批和待送电审批。审批中心默认只显示当前进行中的审批工单；当前已存在挂牌、因此跳过停电审批的工单不会进入这里。</p>
+        <p>集中处理待停电审批和待送电审批。下方卡片按设备台账中的<strong>所属系统图</strong>（字段 <code>power_room</code>）分组，并与设备监控一致：固定展示<strong>主厂房660V系统图一至四</strong>（台账中「产品仓660V系统图」会归入<strong>系统图四</strong>）；其余配电室名称排在后面。</p>
       </div>
       <div class="header-actions">
         <span class="pill">当前用户：{{ currentUser }}</span>
@@ -226,13 +230,13 @@
         <div class="stat stat-pending-off"><div class="num">{{ stats.pendingPowerOff }}</div><div class="label">待停电审批</div></div>
         <div class="stat stat-pending-on"><div class="num">{{ stats.pendingPowerOn }}</div><div class="label">待送电审批</div></div>
         <div class="stat stat-risk"><div class="num">{{ stats.riskItems }}</div><div class="label">挂牌风险工单</div></div>
-        <div class="stat stat-rooms"><div class="num">{{ stats.rooms }}</div><div class="label">涉及配电室</div></div>
+        <div class="stat stat-rooms"><div class="num">{{ stats.rooms }}</div><div class="label">涉及系统图</div></div>
       </div>
 
       <div class="warning-strip">调度员审批前请优先查看挂牌风险。若工单属于“已有挂牌免停电审批”路径，不会在此页显示为待停电审批。</div>
 
       <div class="toolbar">
-        <input v-model="keyword" placeholder="按配电室、柜号、设备、申请人、原因搜索">
+        <input v-model="keyword" placeholder="按系统图、柜号、设备、申请人、原因搜索">
         <select v-model="statusFilter">
           <option value="">全部状态</option>
           <option value="pending">待停电审批</option>
@@ -240,8 +244,8 @@
         </select>
       </div>
 
-      <div class="room-grid" v-if="roomGroups.length">
-        <div class="room-card" :class="room.riskItems > 0 ? 'room-risk' : (room.pendingPowerOn > 0 ? 'room-on' : 'room-off')" v-for="room in roomGroups" :key="room.name">
+      <div class="room-grid" v-if="roomCards.length">
+        <div class="room-card" :class="room.riskItems > 0 ? 'room-risk' : (room.pendingPowerOn > 0 ? 'room-on' : 'room-off')" v-for="room in roomCards" :key="room.name">
           <h3>{{ room.name }}</h3>
           <div class="room-lines">
             <div>工单总数：{{ room.total }}</div>
@@ -264,7 +268,7 @@
           <template #default="{ row }">
             <div class="device-cell">
               <span class="device-name">{{ row.device_name || row.deviceId }}</span>
-              <span class="sub">{{ row.power_room || '未配置配电室' }} / {{ row.cabinet || '未配置柜号' }}</span>
+              <span class="sub">{{ row.power_room || '未配置系统图' }} / {{ row.cabinet || '未配置柜号' }}</span>
               <span class="sub">{{ row.deviceId }}</span>
             </div>
           </template>
@@ -331,6 +335,41 @@
         const functionPermissions = JSON.parse(localStorage.getItem('user_function_permissions') || '[]');
         const canBatchApprove = functionPermissions.includes('batch_approval') || localStorage.getItem('user_role') === 'admin';
 
+        /** 与 device_monitor.html 一致：别名映射 + 主厂房一至四 + 选煤厂 + 其余 */
+        const ROOM_LABEL_MAP = {
+          '产品仓660V系统图': '主厂房660V系统图四',
+          '选煤厂二号配电室': '选煤厂660V系统图',
+        };
+        const normalizePowerRoom = (raw) => {
+          if (!raw || !String(raw).trim()) return '未配置系统图';
+          const s = String(raw).trim();
+          return ROOM_LABEL_MAP[s] || s;
+        };
+        const PRIMARY_SYSTEM_DIAGRAMS = [
+          '主厂房660V系统图一',
+          '主厂房660V系统图二',
+          '主厂房660V系统图三',
+          '主厂房660V系统图四',
+        ];
+        const SYSTEM_DIAGRAM_ORDER = [
+          ...PRIMARY_SYSTEM_DIAGRAMS,
+          '选煤厂660V系统图',
+        ];
+        const primarySet = new Set(PRIMARY_SYSTEM_DIAGRAMS);
+        const sortSystemDiagramRooms = (rooms) => {
+          return [...rooms].sort((a, b) => {
+            const ia = SYSTEM_DIAGRAM_ORDER.indexOf(a.name);
+            const ib = SYSTEM_DIAGRAM_ORDER.indexOf(b.name);
+            if (ia !== -1 && ib !== -1) return ia - ib;
+            if (ia !== -1) return -1;
+            if (ib !== -1) return 1;
+            const unk = '未配置系统图';
+            if (a.name === unk) return 1;
+            if (b.name === unk) return -1;
+            return a.name.localeCompare(b.name, 'zh-CN');
+          });
+        };
+
         const statusMap = {
           pending: '待停电审批',
           approved: '停电审批通过',
@@ -381,10 +420,18 @@
           return list;
         });
 
+        const emptyRoom = (name) => ({
+          name,
+          total: 0,
+          pendingPowerOff: 0,
+          pendingPowerOn: 0,
+          riskItems: 0,
+        });
+
         const roomGroups = computed(() => {
           const groups = {};
           filteredList.value.forEach((item) => {
-            const roomName = item.power_room || '未配置配电室';
+            const roomName = normalizePowerRoom(item.power_room);
             if (!groups[roomName]) {
               groups[roomName] = { name: roomName, total: 0, pendingPowerOff: 0, pendingPowerOn: 0, riskItems: 0 };
             }
@@ -393,7 +440,17 @@
             if (item.status === 'power_on_applied') groups[roomName].pendingPowerOn += 1;
             if (Number(item.active_tag_count || 0) > 0) groups[roomName].riskItems += 1;
           });
-          return Object.values(groups).sort((a, b) => a.name.localeCompare(b.name, 'zh-CN'));
+          return sortSystemDiagramRooms(Object.values(groups));
+        });
+
+        /** 与设备监控相同：始终展示主厂房一至四，再跟其余系统图 / 未配置 */
+        const roomCards = computed(() => {
+          const byName = Object.fromEntries(roomGroups.value.map((r) => [r.name, r]));
+          const primary = PRIMARY_SYSTEM_DIAGRAMS.map((name) => byName[name] || emptyRoom(name));
+          const rest = sortSystemDiagramRooms(
+            roomGroups.value.filter((r) => !primarySet.has(r.name)),
+          );
+          return [...primary, ...rest];
         });
 
         const stats = computed(() => ({
@@ -495,6 +552,7 @@
           canBatchApprove,
           filteredList,
           roomGroups,
+          roomCards,
           stats,
           fetchData,
           statusText,

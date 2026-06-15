@@ -9,17 +9,23 @@ from pathlib import Path
 from opcua import Client, ua
 
 
-NODE_PREFIX = "洗煤厂PLC.洗煤厂设备新"
+def build_nodeids(device_id: str, device_name: str = ""):
+    import sys
+    from pathlib import Path
 
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+    from app.kep_opcua_address import build_nodeid, build_tag_name
 
-def build_nodeids(device_id: str):
-    device_id = device_id.strip()
+    device_id = (device_id or "").strip()
     if not device_id:
         return []
-    return [
-        ("带电", f"ns=2;s={NODE_PREFIX}.{device_id}.带电"),
-        ("挂牌", f"ns=2;s={NODE_PREFIX}.{device_id}.挂牌"),
-    ]
+    device_name = (device_name or "").strip()
+    out = []
+    for label, st in (("带电", "power_feedback"), ("挂牌", "tag_count")):
+        tag = build_tag_name(device_id, device_name, st)
+        if tag:
+            out.append((label, build_nodeid(tag)))
+    return out
 
 
 def load_device_ids(device_id_arg: str, devices_file: str):

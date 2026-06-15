@@ -8,12 +8,7 @@
 - Flask 后端
 - Web 前端（由 Flask 直接托管）
 
-不包含：
-
-- Prometheus
-- Grafana
-
-如果现场设备状态已经通过 KEPServer 提供，本方案已经足够支撑业务运行。
+主仓库默认 `docker-compose.yml` 与之一致（无独立监控栈）。若现场设备状态已通过 KEPServer/OPC UA 接入，本方案已足够支撑业务运行。
 
 ---
 

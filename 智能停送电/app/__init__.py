@@ -1,9 +1,41 @@
-from flask import Flask
-from flask_cors import CORS
-from flask_session import Session
 import os
 import logging
 import time
+from pathlib import Path
+
+
+def _load_dotenv_from_file():
+    """在建立数据库连接之前，把项目根目录 .env 写入 os.environ。"""
+    root = Path(__file__).resolve().parent.parent
+    for env_path in (root / ".env", Path.cwd() / ".env"):
+        if env_path.is_file():
+            break
+    else:
+        return
+    try:
+        text = env_path.read_text(encoding="utf-8")
+    except OSError:
+        return
+    for line in text.splitlines():
+        line = line.strip()
+        if not line or line.startswith("#"):
+            continue
+        if "=" not in line:
+            continue
+        key, _, value = line.partition("=")
+        key = key.strip()
+        value = value.strip()
+        if len(value) >= 2 and value[0] == value[-1] and value[0] in "\"'":
+            value = value[1:-1]
+        if key:
+            os.environ[key] = value
+
+
+_load_dotenv_from_file()
+
+from flask import Flask
+from flask_cors import CORS
+from flask_session import Session
 
 
 def setup_logging():

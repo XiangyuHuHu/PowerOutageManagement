@@ -28,9 +28,6 @@ if __name__ == '__main__':
         print(f"\n🚀 启动智能停送电系统...")
         print(f"📱 本地访问: http://localhost:{port}")
         print(f"🌐 局域网访问: http://{ip}:{port}")
-        print(f"📊 监控面板: http://localhost:9090")
-        print(f"📈 可视化面板: http://localhost:3000")
-        print(f"🔧 系统指标: http://localhost:{port}/metrics")
         
         # 自动打开浏览器
         def open_browser():

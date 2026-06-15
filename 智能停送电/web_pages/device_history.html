@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>历史数据查询</title>
+  <link rel="stylesheet" href="/admin_theme.css">
+  <script src="/app_shell.js"></script>
+  <script src="/vendor/vue.global.prod.js"></script>
+  <script src="/vendor/axios.min.js"></script>
+  <link rel="stylesheet" href="/vendor/element-plus/index.css">
+  <script src="/vendor/element-plus/index.full.min.js"></script>
+  <style>
+    body { margin: 0; min-height: 100vh; padding: 22px; }
+    [v-cloak] { display: none; }
+    #app { max-width: 1540px; margin: 0 auto; border-radius: 22px; overflow: hidden; }
+    .header, .content { padding: 24px 28px; }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      background: linear-gradient(90deg, rgba(13, 43, 70, 0.96), rgba(20, 58, 95, 0.84));
+      border-bottom: 1px solid rgba(64, 158, 255, 0.18);
+    }
+    .header h1 { margin: 0; font-size: 30px; }
+    .header p { margin: 8px 0 0; line-height: 1.8; font-size: 14px; max-width: 920px; }
+    .stats { display: grid; grid-template-columns: repeat(4, minmax(170px, 1fr)); gap: 14px; margin-bottom: 18px; }
+    .stat, .panel { padding: 18px; border-radius: 18px; position: relative; overflow: hidden; }
+    .stat::before, .panel::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 4px;
+      border-radius: 18px 18px 0 0;
+      opacity: 0.95;
+    }
+    .stat-total::before, .panel-history::before { background: linear-gradient(90deg, #4da8ff, #7fd6ff); }
+    .stat-approve::before { background: linear-gradient(90deg, #29d0c4, #7ce9d2); }
+    .stat-operate::before { background: linear-gradient(90deg, #8d84ff, #b2adff); }
+    .stat-batch::before { background: linear-gradient(90deg, #ffb14d, #ffd36d); }
+    .filters { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr auto; gap: 12px; margin-bottom: 16px; }
+    .alert {
+      margin-bottom: 14px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      background: rgba(245, 108, 108, 0.12);
+      border: 1px solid rgba(245, 108, 108, 0.22);
+      color: #ffd0d0;
+    }
+    .table-wrap { overflow: hidden; border-radius: 16px; border: 1px solid rgba(64, 158, 255, 0.16); }
+    .type-tag {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 88px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .type-approve { background: rgba(64, 158, 255, 0.18); color: #9bd0ff; }
+    .type-reject { background: rgba(245, 108, 108, 0.18); color: #ffb7b7; }
+    .type-operate { background: rgba(103, 194, 58, 0.18); color: #c8f2af; }
+    .type-batch { background: rgba(230, 162, 60, 0.18); color: #ffd38e; }
+    .meta { color: #abdfff; font-size: 12px; line-height: 1.7; }
+    .cell-main { color: #eef9ff; font-weight: 700; }
+    .cell-sub { color: #abdfff; font-size: 12px; line-height: 1.7; margin-top: 4px; }
+    .el-table {
+      --el-table-bg-color: rgba(255,255,255,0.03);
+      --el-table-tr-bg-color: rgba(255,255,255,0.03);
+      --el-table-expanded-cell-bg-color: rgba(255,255,255,0.03);
+      --el-table-header-bg-color: rgba(16, 52, 74, 0.78);
+      --el-table-border-color: rgba(64, 158, 255, 0.16);
+      --el-table-row-hover-bg-color: rgba(77, 168, 255, 0.08);
+      background: rgba(255,255,255,0.03);
+      color: #eaf7ff;
+      border-radius: 16px;
+      overflow: hidden;
+    }
+    .el-table th.el-table__cell,
+    .el-table td.el-table__cell,
+    .el-table tr { background: transparent; color: #eaf7ff; }
+    .el-table th.el-table__cell { color: #d7eeff; font-weight: 800; }
+    .el-table__inner-wrapper::before,
+    .el-table__border-left-patch { background: rgba(64, 158, 255, 0.16) !important; }
+    .el-table__empty-block,
+    .el-table__empty-text,
+    .el-scrollbar__view,
+    .el-table__body-wrapper,
+    .el-table__header-wrapper,
+    .el-table__fixed,
+    .el-table__fixed-right,
+    .el-table__fixed-header-wrapper,
+    .el-table__fixed-body-wrapper,
+    .el-table__fixed-right-patch { background: transparent !important; color: #abdfff; }
+    .el-table__header-wrapper th,
+    .el-table__fixed-header-wrapper th,
+    .el-table__fixed-right-patch { background: rgba(16, 52, 74, 0.78) !important; }
+    .el-table__body-wrapper td,
+    .el-table__fixed-body-wrapper td { background: rgba(255,255,255,0.03) !important; }
+    @media (max-width: 980px) {
+      .stats { grid-template-columns: 1fr 1fr; }
+      .filters { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 680px) {
+      .stats, .filters { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div id="app" v-cloak>
+    <div class="header">
+      <div>
+        <h1>历史数据查询</h1>
+        <p>查询设备故障、运行、分合闸（带电变化）、启停流程等历史记录。信号变化来自 OPC 采集存档；流程记录来自停送电工单日志。后续接入综合保护模拟量后可扩展曲线查询。</p>
+      </div>
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <el-button @click="fetchHistory">刷新</el-button>
+        <el-button type="primary" @click="goBack">返回</el-button>
+      </div>
+    </div>
+    <div class="content">
+      <div class="stats">
+        <div class="stat card stat-total"><div class="metric-num">{{ stats.total }}</div><div class="metric-label">记录条数</div></div>
+        <div class="stat card stat-approve"><div class="metric-num">{{ stats.fault }}</div><div class="metric-label">故障类</div></div>
+        <div class="stat card stat-operate"><div class="metric-num">{{ stats.run }}</div><div class="metric-label">运行/启停</div></div>
+        <div class="stat card stat-batch"><div class="metric-num">{{ stats.power }}</div><div class="metric-label">带电/分合闸</div></div>
+      </div>
+      <section class="panel card panel-history">
+        <div class="filters">
+          <el-date-picker v-model="filters.dateRange" type="datetimerange" range-separator="至" start-placeholder="开始时间" end-placeholder="结束时间" value-format="YYYY-MM-DD HH:mm:ss" style="width:100%;" />
+          <el-input v-model="filters.deviceId" clearable placeholder="设备编号" />
+          <el-select v-model="filters.category" placeholder="事件类型">
+            <el-option v-for="item in categoryOptions" :key="item.value" :label="item.label" :value="item.value" />
+          </el-select>
+          <el-button @click="goMonitor">设备监控</el-button>
+          <el-button type="primary" @click="fetchHistory">查询</el-button>
+        </div>
+        <div v-if="errorMessage" class="alert">{{ errorMessage }}</div>
+        <div class="table-wrap">
+          <el-table :data="historyList" border height="640" v-loading="loading" empty-text="暂无历史记录">
+            <el-table-column label="记录时间" width="180">
+              <template #default="{ row }">{{ formatDateTime(row.event_time) }}</template>
+            </el-table-column>
+            <el-table-column label="设备" min-width="200">
+              <template #default="{ row }">
+                <div class="cell-main">{{ row.device_name || row.device_id }}</div>
+                <div class="meta">{{ row.device_id }}</div>
+              </template>
+            </el-table-column>
+            <el-table-column label="类型" width="120">
+              <template #default="{ row }">
+                <span class="type-tag" :class="categoryClass(row.event_category)">{{ categoryLabel(row.event_category) }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column label="事件描述" min-width="420" show-overflow-tooltip prop="description" />
+            <el-table-column label="来源" width="100">
+              <template #default="{ row }">{{ row.source === 'workflow' ? '流程' : '信号' }}</template>
+            </el-table-column>
+          </el-table>
+        </div>
+      </section>
+    </div>
+  </div>
+  <script>
+    if (!localStorage.getItem('user_realname') && !localStorage.getItem('user_username')) {
+      window.appShell.handleUnauthorized();
+    }
+    axios.defaults.withCredentials = true;
+    const { createApp, ref, computed, onMounted } = Vue;
+    createApp({
+      setup() {
+        const { ElMessage } = ElementPlus;
+        const params = new URLSearchParams(window.location.search);
+        const loading = ref(false);
+        const historyList = ref([]);
+        const errorMessage = ref('');
+        const filters = ref({
+          dateRange: [],
+          deviceId: params.get('device_id') || '',
+          category: 'all',
+        });
+        const categoryOptions = [
+          { label: '全部', value: 'all' },
+          { label: '故障（综保/急停/漏电/过热）', value: 'fault' },
+          { label: '运行状态', value: 'run' },
+          { label: '带电/分合闸', value: 'breaker' },
+          { label: '停送电流程', value: 'workflow' },
+        ];
+        const stats = computed(() => ({
+          total: historyList.value.length,
+          fault: historyList.value.filter((item) => item.event_category === 'fault').length,
+          run: historyList.value.filter((item) => item.event_category === 'run' || item.event_category === 'workflow').length,
+          power: historyList.value.filter((item) => item.event_category === 'power').length,
+        }));
+        const categoryLabel = (value) => ({
+          fault: '故障',
+          run: '运行',
+          power: '带电',
+          workflow: '流程',
+        }[value] || value || '其他');
+        const categoryClass = (value) => {
+          if (value === 'fault') return 'type-reject';
+          if (value === 'run' || value === 'workflow') return 'type-operate';
+          if (value === 'power') return 'type-approve';
+          return 'type-batch';
+        };
+        const formatDateTime = (value) => {
+          if (!value) return '-';
+          const date = new Date(value);
+          return Number.isNaN(date.getTime()) ? value : date.toLocaleString('zh-CN');
+        };
+        const fetchHistory = async () => {
+          loading.value = true;
+          errorMessage.value = '';
+          try {
+            const query = { category: filters.value.category || 'all', limit: 500 };
+            if (filters.value.deviceId) query.device_id = filters.value.deviceId.trim();
+            if (Array.isArray(filters.value.dateRange) && filters.value.dateRange.length === 2) {
+              query.date_from = filters.value.dateRange[0];
+              query.date_to = filters.value.dateRange[1];
+            }
+            const res = await axios.get('/api/device-event-history', { params: query });
+            historyList.value = Array.isArray(res.data) ? res.data : [];
+          } catch (error) {
+            if (error?.response?.status === 401) {
+              errorMessage.value = '登录态已失效，请重新登录。';
+              window.appShell.handleUnauthorized(errorMessage.value, 800);
+              return;
+            }
+            errorMessage.value = error?.response?.data?.msg || '历史数据加载失败';
+            ElMessage.error(errorMessage.value);
+          } finally {
+            loading.value = false;
+          }
+        };
+        const goMonitor = () => {
+          const id = (filters.value.deviceId || '').trim();
+          window.location.href = id ? `/device_monitor.html?device_id=${encodeURIComponent(id)}` : '/device_monitor.html';
+        };
+        const goBack = () => window.appShell.goBackOrHome();
+        onMounted(fetchHistory);
+        return {
+          loading,
+          historyList,
+          errorMessage,
+          filters,
+          categoryOptions,
+          stats,
+          categoryLabel,
+          categoryClass,
+          formatDateTime,
+          fetchHistory,
+          goMonitor,
+          goBack,
+        };
+      },
+    }).use(ElementPlus).mount('#app');
+  </script>
+</body>
+</html>

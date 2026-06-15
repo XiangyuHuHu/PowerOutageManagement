@@ -10,7 +10,6 @@ import time
 import socket
 from functools import wraps
 from werkzeug.security import generate_password_hash, check_password_hash
-from prometheus_client import Counter, Histogram, Gauge, generate_latest, CONTENT_TYPE_LATEST
 import json
 import paho.mqtt.client as mqtt
 from zeroconf import ServiceBrowser, Zeroconf
@@ -24,12 +23,6 @@ app.config['SESSION_TYPE'] = 'filesystem'
 app.config['JSON_AS_ASCII'] = False  # 确保 JSON 响应支持中文
 Session(app)
 CORS(app, supports_credentials=True)  # 允许跨域带 cookie
-
-# Prometheus指标定义
-REQUEST_COUNT = Counter('flask_requests_total', 'Total Flask requests', ['method', 'endpoint', 'status'])
-REQUEST_DURATION = Histogram('flask_request_duration_seconds', 'Flask request duration')
-ACTIVE_CONNECTIONS = Gauge('flask_active_connections', 'Active connections')
-MQTT_MESSAGES = Counter('mqtt_messages_total', 'Total MQTT messages received', ['topic'])
 
 # MQTT 配置
 MQTT_BROKER = os.environ.get('MQTT_BROKER', '192.168.1.123')
@@ -52,10 +45,7 @@ DEVICE_HISTORY = []
 def on_message(client, userdata, msg):
     payload = msg.payload.decode(errors='ignore')  # 解码为字符串，忽略编码错误
     print(f"📥 收到 MQTT 消息：\n  Topic   : {msg.topic}")
-    
-    # 更新 Prometheus 指标
-    MQTT_MESSAGES.labels(topic=msg.topic).inc()
-    
+
     try:
         # 尝试按 JSON 解码
         data = json.loads(payload)
@@ -194,7 +184,6 @@ SYSTEM_METRICS = {
     'last_activity': {}
 }
 
-# 添加Prometheus中间件
 @app.before_request
 def before_request():
     # 小程序API无需认证检查
@@ -203,23 +192,21 @@ def before_request():
         SYSTEM_METRICS['total_requests'] += 1
         logger.info(f"Mini-program API: {request.method} {request.path}")
         g.start_time = time.time()
-        ACTIVE_CONNECTIONS.inc()
         return  # 直接返回，不进行认证检查
-    
+
     # 记录请求
     SYSTEM_METRICS['total_requests'] += 1
-    
+
     # 记录活跃用户
     if 'user' in session:
         user_id = session['user'].get('id')
         if user_id:
             SYSTEM_METRICS['active_users'].add(user_id)
             SYSTEM_METRICS['last_activity'][user_id] = datetime.now()
-    
+
     # 记录请求日志
     logger.info(f"Request: {request.method} {request.path} - User: {session.get('user', {}).get('username', 'anonymous')}")
     g.start_time = time.time()
-    ACTIVE_CONNECTIONS.inc()
 
 @app.after_request
 def after_request(response):
@@ -228,23 +215,8 @@ def after_request(response):
         SYSTEM_METRICS['successful_requests'] += 1
     else:
         SYSTEM_METRICS['failed_requests'] += 1
-    
-    REQUEST_COUNT.labels(
-        method=request.method,
-        endpoint=request.endpoint or 'unknown',
-        status=response.status_code
-    ).inc()
-    
-    if hasattr(g, 'start_time'):
-        REQUEST_DURATION.observe(time.time() - g.start_time)
-    
-    ACTIVE_CONNECTIONS.dec()
-    return response
 
-# Prometheus metrics端点
-@app.route('/metrics')
-def metrics():
-    return generate_latest(), 200, {'Content-Type': CONTENT_TYPE_LATEST}
+    return response
 
 # 数据库连接配置
 DB_CONFIG = {

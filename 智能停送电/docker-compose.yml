@@ -27,11 +27,12 @@ services:
     ports:
       - "5050:5050"
     environment:
-      - DB_HOST=${DB_HOST:-mysql}
+      # 容器内必须用服务名 mysql、端口 3306；勿用宿主机 .env 的 127.0.0.1:3307
+      - DB_HOST=mysql
       - DB_USER=${DB_USER:-root}
       - DB_PASSWORD=${DB_PASSWORD:-hxy19990606}
       - DB_NAME=${DB_NAME:-power_control}
-      - DB_PORT=${DB_PORT:-3306}
+      - DB_PORT=3306
       - FLASK_ENV=production
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - SECRET_KEY=${SECRET_KEY:-ChangeMe_Flask_Secret_2026!}
@@ -62,49 +63,9 @@ services:
       - power_network
     restart: unless-stopped
 
-  # Prometheus监控
-  prometheus:
-    image: prom/prometheus:latest
-    container_name: power_prometheus
-    ports:
-      - "9090:9090"
-    volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml
-      - prometheus_data:/prometheus
-    command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--storage.tsdb.path=/prometheus'
-      - '--web.console.libraries=/etc/prometheus/console_libraries'
-      - '--web.console.templates=/etc/prometheus/consoles'
-      - '--storage.tsdb.retention.time=200h'
-      - '--web.enable-lifecycle'
-    networks:
-      - power_network
-    restart: unless-stopped
-
-  # Grafana可视化
-  grafana:
-    image: grafana/grafana:latest
-    container_name: power_grafana
-    ports:
-      - "3000:3000"
-    environment:
-      - GF_SECURITY_ADMIN_USER=admin
-      - GF_SECURITY_ADMIN_PASSWORD=admin
-    volumes:
-      - grafana_data:/var/lib/grafana
-      - ./grafana/provisioning:/etc/grafana/provisioning
-      - ./grafana/dashboards:/var/lib/grafana/dashboards
-    networks:
-      - power_network
-    restart: unless-stopped
-
 volumes:
   mysql_data:
-  prometheus_data:
-  grafana_data:
 
 networks:
   power_network:
     driver: bridge
-

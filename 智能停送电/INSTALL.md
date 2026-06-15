@@ -1,6 +1,6 @@
 # 智能停送电系统 — Docker 安装与部署说明
 
-本文说明如何将本项目**整体文件夹**复制到其他电脑后，用 Docker Compose 一键启动（MySQL + Flask 后端 + Prometheus + Grafana）。
+本文说明如何将本项目**整体文件夹**复制到其他电脑后，用 Docker Compose 一键启动（MySQL + Flask 后端）。
 
 ---
 
@@ -12,8 +12,8 @@
 |------|------|
 | 已安装 Docker | 必须；推荐 **Docker Desktop**（Windows/macOS）或 **Docker Engine + Compose 插件**（Linux） |
 | 保留项目结构 | 至少包含 `docker-compose.yml`、`Dockerfile`、`app/`、`web_pages/`、`shared/`、`server_new.py` 等，与仓库一致 |
-| 首次构建会拉镜像 | 需能访问 Docker Hub（`python`、`mysql`、`prometheus`、`grafana` 等） |
-| 网络与端口 | 本机 **5050、3307、9090、3000** 未被占用（见下文「默认端口」） |
+| 首次构建会拉镜像 | 需能访问 Docker Hub（`python`、`mysql` 等） |
+| 网络与端口 | 本机 **5050、3307** 未被占用（见下文「默认端口」） |
 
 **不需要**在新机器上单独安装 Python 虚拟环境来跑后端；镜像内会 `pip install` 依赖并启动服务。
 
@@ -26,7 +26,7 @@
 ## 2. 环境要求
 
 - **操作系统**：Windows 10/11（Docker Desktop）、常见 Linux 发行版、macOS（Docker Desktop）
-- **内存**：建议 ≥ 4GB 可用内存（同时跑 MySQL、Flask、Prometheus、Grafana）
+- **内存**：建议 ≥ 4GB 可用内存（同时跑 MySQL、Flask）
 - **磁盘**：首次拉镜像与构建约需数 GB 空间
 
 ---
@@ -77,7 +77,7 @@
 docker compose up -d --build
 ```
 
-- 首次会**构建** `flask-backend` 镜像并**拉取** MySQL、Prometheus、Grafana 等镜像，可能需要几分钟。
+- 首次会**构建** `flask-backend` 镜像并**拉取** MySQL 等镜像，可能需要几分钟。
 - 仅重启后端（已构建过镜像时）可用：
 
   ```bash
@@ -101,8 +101,6 @@ docker logs power_backend --tail 50
 |------|--------|------------|------|
 | Web / API | `power_backend` | **5050** | 浏览器访问：`http://本机IP:5050` |
 | MySQL | `power_mysql` | **3307** → 容器 3306 | 外部工具连库时用 `3307` |
-| Prometheus | `power_prometheus` | **9090** | 指标界面 |
-| Grafana | `power_grafana` | **3000** | 默认账号见 `docker-compose.yml` 中 `GF_SECURITY_ADMIN_*` |
 
 防火墙或云安全组需放行上述端口（按实际对外开放范围配置）。
 

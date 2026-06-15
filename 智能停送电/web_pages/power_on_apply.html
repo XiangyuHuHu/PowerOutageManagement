@@ -11,8 +11,8 @@
   <link rel="stylesheet" href="/vendor/element-plus/index.css">
   <script src="/vendor/element-plus/index.full.min.js"></script>
   <style>
-    body { margin: 0; min-height: 100vh; padding: 22px; }
-    #app { max-width: 1500px; margin: 0 auto; border-radius: 24px; overflow: hidden; }
+    body { margin: 0; min-height: 100vh; padding: 16px; box-sizing: border-box; }
+    #app { max-width: min(100%, 1680px); margin: 0 auto; border-radius: 24px; overflow: hidden; }
     .header, .content { padding: 24px 28px; }
     .header { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; align-items: flex-start; background: linear-gradient(90deg, rgba(8, 28, 41, 0.96), rgba(22, 74, 99, 0.86)); border-bottom: 1px solid rgba(128, 203, 255, 0.14); }
     .header h1 { margin: 0; font-size: 30px; }
@@ -32,15 +32,24 @@
     .toolbar .grow { flex: 1; min-width: 260px; }
     .device-cell, .reason-cell { display: grid; gap: 4px; line-height: 1.6; }
     .device-cell .sub, .reason-cell .sub { color: #a7dbff; font-size: 12px; }
-    .tag-count { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 999px; background: rgba(255, 192, 76, 0.14); color: #ffd67b; font-weight: 700; font-size: 12px; }
+    .tag-count { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 999px; background: rgba(255, 192, 76, 0.14); color: #ffd67b; font-weight: 700; font-size: 11px; }
     .tag-count.safe { background: rgba(41, 208, 196, 0.14); color: #8df0df; }
-    .tag-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
-    .tag-item { padding: 4px 10px; border-radius: 999px; background: rgba(255, 255, 255, 0.08); color: #d5efff; font-size: 12px; }
+    .tag-cell-wrap { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; max-width: 100%; }
+    .tag-row { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; align-content: flex-start; }
+    .tag-list { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 0; align-items: center; }
+    .tag-item { padding: 1px 6px; border-radius: 6px; background: rgba(255, 255, 255, 0.08); color: #d5efff; font-size: 11px; line-height: 1.35; white-space: nowrap; }
     .tag-item.blocked { background: rgba(245, 108, 108, 0.16); color: #ffc0c0; }
+    .tag-empty { color: #8ab8d6; font-size: 11px; line-height: 1.35; margin: 0; }
     .table-note { color: #abdfff; font-size: 13px; line-height: 1.8; margin-bottom: 12px; }
-    .blocked-reason { color: #ffcc8c; font-size: 12px; line-height: 1.7; margin-top: 8px; }
-    .op-cell { display: flex; justify-content: center; align-items: center; min-height: 44px; }
-    .op-cell .el-button { width: 118px; padding-left: 0; padding-right: 0; }
+    .blocked-reason { color: #ffcc8c; font-size: 11px; line-height: 1.45; margin: 0; word-break: break-word; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+    .blocked-reason-plain { color: #9fe8d8; font-size: 11px; line-height: 1.45; margin: 0; }
+    .op-cell { display: flex; justify-content: center; align-items: center; min-height: 36px; }
+    .op-cell .el-button { width: 108px; padding: 5px 8px; font-size: 12px; }
+    /* 紧凑表格：减少单元格留白，避免整页横向滚动 */
+    .power-on-table.el-table { --el-table-font-size: 12px; }
+    .power-on-table.el-table .cell { padding: 6px 8px; line-height: 1.35; }
+    .power-on-table.el-table__body-wrapper table { table-layout: fixed; width: 100%; }
+    .power-on-table .el-tag { padding: 0 6px; height: 22px; font-size: 11px; }
     .dialog-note { margin-bottom: 10px; padding: 10px 12px; border-radius: 12px; background: #eef6ff; border: 1px solid #c8def6; color: #244766; font-size: 13px; line-height: 1.7; }
     .el-dialog { --el-dialog-bg-color: #f7fbff; border: 1px solid #d8e6f3; box-shadow: 0 18px 48px rgba(5, 19, 30, 0.32); }
     .el-dialog__header { margin-right: 0; padding: 18px 20px 12px; border-bottom: 1px solid #e7f0f8; }
@@ -89,36 +98,40 @@
           </el-select>
           <el-button type="primary" @click="fetchList">刷新</el-button>
         </div>
-        <el-table :data="filteredList" border v-loading="loading" height="580" empty-text="当前没有可处理的送电工单">
-          <el-table-column prop="id" label="工单" width="90"><template #default="{ row }">#{{ row.id }}</template></el-table-column>
-          <el-table-column label="设备" min-width="250"><template #default="{ row }"><div class="device-cell"><strong>{{ row.device_name || row.deviceId }}</strong><span class="sub">{{ row.deviceId }}</span></div></template></el-table-column>
-          <el-table-column label="配电室 / 柜号" min-width="200"><template #default="{ row }"><div class="device-cell"><strong>{{ row.power_room || '未配置配电室' }}</strong><span class="sub">{{ row.cabinet || '未配置柜号' }}</span></div></template></el-table-column>
-          <el-table-column prop="status" label="当前状态" width="140"><template #default="{ row }"><el-tag :type="row.status === 'repair_completed' ? 'success' : 'warning'">{{ statusText(row.status) }}</el-tag></template></el-table-column>
-          <el-table-column label="剩余挂牌" width="220">
+        <el-table class="power-on-table" :data="filteredList" border v-loading="loading" size="small" height="580" empty-text="当前没有可处理的送电工单">
+          <el-table-column prop="id" label="工单" width="72" align="center"><template #default="{ row }">#{{ row.id }}</template></el-table-column>
+          <el-table-column label="设备" min-width="150"><template #default="{ row }"><div class="device-cell"><strong>{{ row.device_name || row.deviceId }}</strong><span class="sub">{{ row.deviceId }}</span></div></template></el-table-column>
+          <el-table-column label="配电室 / 柜号" min-width="130"><template #default="{ row }"><div class="device-cell"><strong>{{ row.power_room || '未配置配电室' }}</strong><span class="sub">{{ row.cabinet || '未配置柜号' }}</span></div></template></el-table-column>
+          <el-table-column prop="status" label="当前状态" width="108" align="center"><template #default="{ row }"><el-tag :type="row.status === 'repair_completed' ? 'success' : 'warning'">{{ statusText(row.status) }}</el-tag></template></el-table-column>
+          <el-table-column label="剩余挂牌" width="168" align="left">
             <template #default="{ row }">
-              <div>
-                <span class="tag-count" :class="{ safe: !(row.active_tag_count > 0) }">{{ row.active_tag_count || 0 }} 个</span>
-                <div class="tag-list" v-if="row.active_tags && row.active_tags.length"><span class="tag-item blocked" v-for="tag in row.active_tags" :key="tag.id">{{ tag.electrician_name }}</span></div>
-                <div v-else class="blocked-reason">当前无有效挂牌</div>
+              <div class="tag-cell-wrap">
+                <div class="tag-row">
+                  <span class="tag-count" :class="{ safe: !(row.active_tag_count > 0) }">{{ row.active_tag_count || 0 }} 个</span>
+                  <template v-if="row.active_tags && row.active_tags.length">
+                    <span class="tag-item blocked" v-for="tag in row.active_tags" :key="tag.id">{{ tag.electrician_name }}</span>
+                  </template>
+                </div>
+                <p v-if="!row.active_tags || !row.active_tags.length" class="tag-empty">当前无有效挂牌</p>
               </div>
             </template>
           </el-table-column>
-          <el-table-column label="本人挂牌状态" width="150">
+          <el-table-column label="本人挂牌" width="100" align="center">
             <template #default="{ row }">
               <el-tag :type="row.my_tag_state === 'active' ? 'warning' : (row.my_tag_state === 'released' ? 'success' : 'info')">
                 {{ row.my_tag_state_text || '本人未挂牌' }}
               </el-tag>
             </template>
           </el-table-column>
-          <el-table-column label="申请人 / 原因" min-width="260"><template #default="{ row }"><div class="reason-cell"><strong>{{ row.applicant || '-' }}</strong><span class="sub">{{ row.reason || '-' }}</span></div></template></el-table-column>
-          <el-table-column label="阻塞原因" min-width="210">
+          <el-table-column label="申请人 / 原因" min-width="140"><template #default="{ row }"><div class="reason-cell"><strong>{{ row.applicant || '-' }}</strong><span class="sub">{{ row.reason || '-' }}</span></div></template></el-table-column>
+          <el-table-column label="阻塞原因" min-width="120">
             <template #default="{ row }">
               <div v-if="row.status !== 'repair_completed'" class="blocked-reason">当前流程未到送电申请阶段</div>
-              <div v-else-if="row.active_tag_count > 0" class="blocked-reason">仍有剩余挂牌，需要先完成解牌</div>
-              <div v-else class="blocked-reason" style="color:#9fe8d8;">当前可发起送电申请</div>
+              <div v-else-if="row.active_tag_count > 0" class="blocked-reason">仍有剩余挂牌，需先解牌</div>
+              <div v-else class="blocked-reason-plain">当前可发起送电申请</div>
             </template>
           </el-table-column>
-          <el-table-column label="操作" width="150" fixed="right"><template #default="{ row }"><div class="op-cell"><el-button type="primary" size="small" :disabled="row.status !== 'repair_completed'" @click="showDialog(row)">发起送电申请</el-button></div></template></el-table-column>
+          <el-table-column label="操作" width="118" align="center"><template #default="{ row }"><div class="op-cell"><el-button type="primary" size="small" :disabled="row.status !== 'repair_completed'" @click="showDialog(row)">发起送电申请</el-button></div></template></el-table-column>
         </el-table>
       </section>
     </div>

@@ -9,15 +9,18 @@ logger = logging.getLogger(__name__)
 TARGET_CHARSET = "utf8mb4"
 TARGET_COLLATION = "utf8mb4_0900_ai_ci"
 
-DB_CONFIG = {
-    "host": os.environ.get("DB_HOST", "localhost"),
-    "port": int(os.environ.get("DB_PORT", 3306)),
-    "user": os.environ.get("DB_USER", "root"),
-    "password": os.environ.get("DB_PASSWORD", "hxy19990606"),
-    "database": os.environ.get("DB_NAME", "power_control"),
-    "charset": TARGET_CHARSET,
-    "cursorclass": pymysql.cursors.DictCursor,
-}
+
+def get_db_config():
+    """每次连接重新读取环境变量，避免 .env 晚于模块导入时仍用默认 root。"""
+    return {
+        "host": os.environ.get("DB_HOST", "localhost"),
+        "port": int(os.environ.get("DB_PORT", "3306")),
+        "user": os.environ.get("DB_USER", "root"),
+        "password": os.environ.get("DB_PASSWORD", "hxy19990606"),
+        "database": os.environ.get("DB_NAME", "power_control"),
+        "charset": TARGET_CHARSET,
+        "cursorclass": pymysql.cursors.DictCursor,
+    }
 
 REAL_DEVICE_SEED = [
     ("316f", "风扇电机", "主厂房660V系统图一", "31MCC-01", "main-plant-01", "主厂房一段", 10, True),
@@ -80,6 +83,7 @@ REAL_DEVICE_SEED = [
     ("712CZ", "精煤配仓液压站", "主厂房660V系统图一", "31MCC-01", "main-plant-01", "主厂房三段", 580, True),
     ("338", "清水泵", "主厂房660V系统图一", "31MCC-01", "main-plant-01", "主厂房三段", 590, True),
     ("YSC", "沉淀池排水泵", "主厂房660V系统图一", "31MCC-01", "main-plant-01", "主厂房三段", 600, True),
+    ("127f", "风扇电机", "主厂房660V系统图二", "31MCC-08", "main-plant-08", "主厂房二号柜", 605, True),
     ("128f", "风扇电机", "主厂房660V系统图二", "31MCC-08", "main-plant-08", "主厂房二号柜", 610, True),
     ("129f", "风扇电机", "主厂房660V系统图二", "31MCC-08", "main-plant-08", "主厂房二号柜", 620, True),
     ("130f", "风扇电机", "主厂房660V系统图二", "31MCC-08", "main-plant-08", "主厂房二号柜", 630, True),
@@ -141,7 +145,7 @@ REAL_DEVICE_SEED = [
 def get_db():
     """Return a configured database connection."""
     try:
-        db = pymysql.connect(**DB_CONFIG)
+        db = pymysql.connect(**get_db_config())
         with db.cursor() as cursor:
             cursor.execute(f"SET NAMES {TARGET_CHARSET}")
             cursor.execute(f"SET CHARACTER SET {TARGET_CHARSET}")
@@ -222,6 +226,46 @@ def ensure_user_managed_devices_table(cursor):
             FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
         ) ENGINE=InnoDB DEFAULT CHARSET={TARGET_CHARSET} COLLATE={TARGET_COLLATION}
         """
+    )
+
+
+def sync_kep_opcua_signal_addresses(cursor):
+    """将 device_signal_points 中带电/挂牌地址统一为 Kep Tag Name 格式。"""
+    from app.kep_opcua_address import build_nodeid, build_tag_name, MONITORED_SIGNAL_TYPES
+
+    cursor.execute(
+        """
+        SELECT dsp.id, d.device_id, d.device_name, dsp.signal_type
+        FROM device_signal_points dsp
+        INNER JOIN devices d ON d.device_id = dsp.device_id
+        WHERE d.is_active = TRUE
+          AND dsp.is_active = TRUE
+          AND dsp.signal_type IN ('power_feedback', 'tag_count')
+        """
+    )
+    rows = cursor.fetchall()
+    updated = 0
+    for row in rows:
+        tag = build_tag_name(row["device_id"], row["device_name"], row["signal_type"])
+        if not tag:
+            continue
+        nodeid = build_nodeid(tag)
+        cursor.execute(
+            "UPDATE device_signal_points SET signal_address = %s WHERE id = %s",
+            (nodeid, row["id"]),
+        )
+        updated += 1
+    if updated:
+        logger.info("已同步 Kep OPC UA 信号地址 %s 条（带电/挂牌）", updated)
+
+
+def ensure_case_sensitive_device_ids(cursor):
+    """device_id 区分大小写，避免 111aL 与 111AL 被 MySQL 合并为同一设备。"""
+    cursor.execute(
+        "ALTER TABLE devices MODIFY device_id VARCHAR(100) COLLATE utf8mb4_bin NOT NULL"
+    )
+    cursor.execute(
+        "ALTER TABLE device_signal_points MODIFY device_id VARCHAR(100) COLLATE utf8mb4_bin NOT NULL"
     )
 
 
@@ -338,6 +382,7 @@ def init_database():
 
             ensure_user_managed_devices_table(cursor)
             ensure_device_signal_points_table(cursor)
+            ensure_case_sensitive_device_ids(cursor)
 
             cursor.execute(
                 f"""
@@ -417,6 +462,8 @@ def init_database():
                     cursor.execute(sql)
                 except Exception:
                     pass
+
+            sync_kep_opcua_signal_addresses(cursor)
 
         logger.info("数据库初始化完成")
         return True

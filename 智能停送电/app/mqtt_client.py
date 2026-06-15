@@ -7,6 +7,8 @@ import time
 import paho.mqtt.client as mqtt
 from zeroconf import ServiceBrowser, Zeroconf
 
+from app.time_utils import normalize_timestamp_to_iso
+
 # MQTT config
 MQTT_BROKER = os.environ.get("MQTT_BROKER", "192.168.1.123")
 MQTT_PORT = int(os.environ.get("MQTT_PORT", 1883))
@@ -147,7 +149,8 @@ def _normalize_status_fields(data, topic):
     """Normalize payload to internal fields used by the system."""
     device_id = _extract_device_id(data, topic)
     status = data.get("status", data.get("state", "unknown"))
-    timestamp = data.get("timestamp", data.get("ts", time.time()))
+    raw_ts = data.get("timestamp", data.get("ts", time.time()))
+    timestamp = normalize_timestamp_to_iso(raw_ts) or normalize_timestamp_to_iso(time.time())
 
     power_status = data.get("power_status", data.get("powerStatus"))
     tag_status = data.get("tag_status", data.get("tagStatus"))
@@ -224,14 +227,21 @@ def process_device_message(data, topic=None):
             status_data=data,
         )
 
-        if should_save_history(last_status, power_status, tag_status, active_tag_count):
+        status_payload = data.get("data") if isinstance(data.get("data"), dict) else data
+        if should_save_history(
+            last_status,
+            power_status,
+            tag_status,
+            active_tag_count,
+            status_data=status_payload,
+        ):
             save_device_status_history(
                 device_id=device_id,
                 power_status=power_status,
                 tag_status=tag_status,
                 active_tag_count=active_tag_count,
                 electrician_name=electrician_name,
-                status_data=data,
+                status_data=status_payload,
             )
 
         history_entry = {
@@ -265,13 +275,19 @@ def process_device_message(data, topic=None):
         logger.exception("Failed to process MQTT message")
 
 
-def should_save_history(last_status, power_status, tag_status, active_tag_count=None):
+def should_save_history(last_status, power_status, tag_status, active_tag_count=None, status_data=None):
     """Save history only on important state changes."""
     last_power = last_status.get("power_status")
     last_tag = last_status.get("tag_status")
     last_count = int(last_status.get("active_tag_count") or 0)
     current_count = int(active_tag_count or 0)
-    return (power_status != last_power) or (tag_status != last_tag) or (current_count != last_count)
+    if (power_status != last_power) or (tag_status != last_tag) or (current_count != last_count):
+        return True
+    last_data = last_status.get("data") if isinstance(last_status.get("data"), dict) else {}
+    current_data = status_data if isinstance(status_data, dict) else {}
+    last_signals = last_data.get("signals") or {}
+    current_signals = current_data.get("signals") or {}
+    return last_signals != current_signals
 
 
 def check_device_alerts(device_id, status, data):

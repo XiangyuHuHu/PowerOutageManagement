@@ -11,6 +11,7 @@ from flask import Blueprint, Response, g, jsonify, request
 from app.auth import login_required, user_room_filter_clause
 from app.database import get_db_cursor
 from app.services.batch_approval_service import process_batch_approval
+from app.services.room_names import db_values_for_room_group
 from app.notifications import notify_approval_result
 from app.services.application_flow_service import get_application, raw_sql, transition_application, write_application_log
 from app.services.tag_service import count_active_tags, create_tag_record, get_active_tags_by_device, get_tag_records_by_application
@@ -219,24 +220,31 @@ def batch_approve_room():
 
     user = g.user
     room_clause, room_params = user_room_filter_clause(user, "a")
-    if room_clause and power_room not in (user.get("room_scopes") or []):
-        return jsonify({"msg": "无此配电室审批权限"}), 403
+    room_keys = db_values_for_room_group(power_room)
+    if not room_keys:
+        return jsonify({"msg": "缺少配电室"}), 400
+    scopes = user.get("room_scopes") or []
+    if room_clause and not user.get("access_all_rooms"):
+        allowed = set(scopes) & set(room_keys)
+        if not allowed and power_room not in scopes:
+            return jsonify({"msg": "无此配电室审批权限"}), 403
 
     approver = user.get("realname") or user.get("username")
     approver_id = user.get("id")
     target_status = "pending" if stage == "power_off" else "power_on_applied"
     try:
         with get_db_cursor() as cursor:
+            in_ph = ",".join(["%s"] * len(room_keys))
             query = f"""
                 SELECT a.id, a.applicant_id, a.deviceId
                 FROM applications a
                 LEFT JOIN devices d ON d.device_id = a.deviceId
                 WHERE a.status = %s
-                  AND COALESCE(d.power_room, '') = %s
+                  AND COALESCE(d.power_room, '') IN ({in_ph})
                   {room_clause}
                 ORDER BY a.created_at ASC
             """
-            cursor.execute(query, [target_status, power_room] + room_params)
+            cursor.execute(query, [target_status, *room_keys] + room_params)
             applications = cursor.fetchall()
             if not applications:
                 return jsonify({"msg": "当前配电室没有可批量处理的工单"}), 404

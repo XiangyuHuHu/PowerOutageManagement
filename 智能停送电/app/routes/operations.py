@@ -7,6 +7,7 @@ from flask import Blueprint, g, jsonify, request
 from app.auth import login_required, user_room_filter_clause
 from app.database import get_db_cursor
 from app.mqtt_client import get_device_history, get_device_status
+from app.time_utils import normalize_timestamp_to_iso
 from app.notifications import (
     get_user_notifications,
     mark_notification_read,
@@ -20,6 +21,7 @@ from app.services.device_service import (
     get_device_by_id,
     get_signal_points_map,
     get_user_managed_device_ids,
+    query_device_event_history,
     set_user_managed_device_ids,
 )
 from app.services.tag_service import (
@@ -759,6 +761,10 @@ def get_device_status_api():
             workflow_tag_count = tag_count_map.get(device_id, 0)
             signal_tag_count = status.get("active_tag_count")
             active_tag_count = int(signal_tag_count if signal_tag_count is not None else workflow_tag_count)
+            status_data = status.get("data") if isinstance(status.get("data"), dict) else {}
+            last_update = normalize_timestamp_to_iso(status.get("last_update"))
+            if not last_update and isinstance(status_data, dict):
+                last_update = normalize_timestamp_to_iso(status_data.get("timestamp"))
             devices.append(
                 {
                     "device_id": device_id,
@@ -766,6 +772,7 @@ def get_device_status_api():
                     "power_room": meta.get("power_room"),
                     "cabinet": meta.get("cabinet"),
                     "line_name": meta.get("line_name"),
+                    "power_status": status.get("power_status"),
                     "active_tag_count": active_tag_count,
                     "workflow_tag_count": workflow_tag_count,
                     "signal_tag_count": int(signal_tag_count or 0),
@@ -776,6 +783,9 @@ def get_device_status_api():
                     "fault_signal": signal_info.get("fault_signal"),
                     "remote_switch_binding": signal_info.get("remote_switch_binding"),
                     "has_signal_config": signal_info.get("has_signal_config", False),
+                    "signal_points": signal_info.get("signal_points", []),
+                    "live_signals": status_data.get("signals") or {},
+                    "last_update": last_update,
                     "status": status,
                 }
             )
@@ -795,6 +805,29 @@ def get_device_history_api():
     except Exception:
         logger.exception("获取设备历史失败")
         return jsonify({"msg": "获取设备历史失败"}), 500
+
+
+@bp.route("/api/device-event-history", methods=["GET"])
+@login_required()
+def get_device_event_history_api():
+    """Query device signal / workflow history for the history page."""
+    try:
+        device_id = (request.args.get("device_id") or "").strip() or None
+        date_from = (request.args.get("date_from") or "").strip() or None
+        date_to = (request.args.get("date_to") or "").strip() or None
+        category = (request.args.get("category") or "all").strip().lower()
+        limit = request.args.get("limit", 500)
+        items = query_device_event_history(
+            device_id=device_id,
+            date_from=date_from,
+            date_to=date_to,
+            category=category,
+            limit=limit,
+        )
+        return jsonify(items), 200
+    except Exception as exc:
+        logger.exception("查询设备历史事件失败")
+        return jsonify({"msg": "查询设备历史事件失败", "error": str(exc)}), 500
 
 
 @bp.route("/api/device-alerts", methods=["GET"])

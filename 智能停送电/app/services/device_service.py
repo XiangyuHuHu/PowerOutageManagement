@@ -1,4 +1,8 @@
+import json
+from datetime import datetime
+
 from app.database import get_db_cursor
+from app.kep_opcua_address import FAULT_SIGNAL_TYPES, SIGNAL_TYPE_LABELS
 from app.mqtt_client import get_device_status
 
 
@@ -25,7 +29,7 @@ def get_signal_points_map(device_ids=None):
 
         cursor.execute(
             f"""
-            SELECT device_id, signal_type, signal_name, signal_address, source_sheet, description
+            SELECT device_id, signal_type, signal_name, signal_address, data_type, source_sheet, description
             FROM device_signal_points
             {where_sql}
             ORDER BY device_id ASC, signal_type ASC, signal_name ASC, id ASC
@@ -171,6 +175,193 @@ def enrich_devices_with_status(devices, managed_device_ids=None):
         active_tag_count = int(status.get("active_tag_count") or 0)
         item["can_skip_approval"] = active_tag_count > 0 and bool(signal_info.get("has_signal_config"))
         item["skip_approval_source"] = "tag_count_signal" if item["can_skip_approval"] else None
+        status_data = status.get("data") if isinstance(status.get("data"), dict) else {}
+        item["live_signals"] = status_data.get("signals") or {}
         enriched.append(item)
 
     return enriched
+
+
+WORKFLOW_OPERATION_LABELS = {
+    "create": "停电申请",
+    "power_off_approve": "停电审批",
+    "electrician_verify": "验电挂牌",
+    "repair_start": "开始检修",
+    "repair_end": "完成检修",
+    "power_on_apply": "申请送电",
+    "power_on_approve": "送电审批",
+    "tag_release": "解除挂牌",
+    "auto_skip_power_off_approval": "失电免审批转安全确认",
+}
+
+
+def _history_safe_int(value, default=0):
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return default
+
+
+def _history_format_signal_value(signal_type, value):
+    if signal_type == "power_feedback":
+        return "未知" if value is None else ("带电" if bool(value) else "失电")
+    if signal_type == "tag_count":
+        return str(_history_safe_int(value, 0))
+    if signal_type == "run_status":
+        return "未知" if value is None else ("运行" if bool(value) else "停止")
+    if value is None:
+        return "未知"
+    return "是" if bool(value) else "否"
+
+
+def _history_extract_signals(status_data):
+    if not status_data:
+        return {}
+    if isinstance(status_data, str):
+        try:
+            status_data = json.loads(status_data)
+        except json.JSONDecodeError:
+            return {}
+    if not isinstance(status_data, dict):
+        return {}
+    signals = status_data.get("signals")
+    if isinstance(signals, dict):
+        return signals
+    legacy = {}
+    if "power_feedback" in status_data:
+        legacy["power_feedback"] = status_data.get("power_feedback")
+    if "tag_count" in status_data:
+        legacy["tag_count"] = status_data.get("tag_count")
+    return legacy
+
+
+def _history_category_matches(signal_type, category):
+    category = (category or "all").lower()
+    if category in ("all", ""):
+        return True
+    if category == "workflow":
+        return False
+    if category == "fault":
+        return signal_type in FAULT_SIGNAL_TYPES
+    if category == "run":
+        return signal_type == "run_status"
+    if category in ("power", "breaker"):
+        return signal_type == "power_feedback"
+    return True
+
+
+def query_device_event_history(device_id=None, date_from=None, date_to=None, category="all", limit=500):
+    category = (category or "all").strip().lower()
+    limit = int(limit or 500)
+    events = []
+
+    if category != "workflow":
+        params = []
+        query = """
+            SELECT h.device_id, h.timestamp, h.status_data, d.device_name
+            FROM device_status_history h
+            LEFT JOIN devices d ON d.device_id = h.device_id
+            WHERE 1=1
+        """
+        if device_id:
+            query += " AND h.device_id = %s"
+            params.append(device_id)
+        if date_from:
+            query += " AND h.timestamp >= %s"
+            params.append(date_from)
+        if date_to:
+            query += " AND h.timestamp <= %s"
+            params.append(date_to)
+        query += " ORDER BY h.device_id ASC, h.timestamp ASC LIMIT %s"
+        params.append(max(limit * 4, 500))
+
+        with get_db_cursor() as cursor:
+            cursor.execute(query, params)
+            rows = cursor.fetchall()
+
+        last_signals = {}
+        for row in rows:
+            device = row["device_id"]
+            device_label = f"{row.get('device_name') or device}（{device}）"
+            signals = _history_extract_signals(row.get("status_data"))
+            previous = last_signals.get(device, {})
+            for signal_type, new_value in signals.items():
+                if not _history_category_matches(signal_type, category):
+                    continue
+                old_value = previous.get(signal_type)
+                if old_value is not None and old_value == new_value:
+                    continue
+                label = SIGNAL_TYPE_LABELS.get(signal_type, signal_type)
+                old_text = _history_format_signal_value(signal_type, old_value)
+                new_text = _history_format_signal_value(signal_type, new_value)
+                desc = f"{device_label} {label}：{old_text} → {new_text}"
+                if signal_type == "power_feedback":
+                    desc += "（合闸/带电）" if new_text == "带电" else "（分闸/失电）"
+                events.append(
+                    {
+                        "source": "signal",
+                        "device_id": device,
+                        "device_name": row.get("device_name") or device,
+                        "event_time": row["timestamp"],
+                        "event_type": signal_type,
+                        "event_category": (
+                            "fault"
+                            if signal_type in FAULT_SIGNAL_TYPES
+                            else "run"
+                            if signal_type == "run_status"
+                            else "power"
+                        ),
+                        "description": desc,
+                    }
+                )
+            last_signals[device] = dict(signals)
+
+    if category in ("all", "workflow"):
+        params = []
+        query = """
+            SELECT a.deviceId AS device_id, d.device_name, l.operation_type, l.operation_time,
+                   l.operation_comment, l.operator, l.old_status, l.new_status
+            FROM application_logs l
+            INNER JOIN applications a ON a.id = l.application_id
+            LEFT JOIN devices d ON d.device_id = a.deviceId
+            WHERE 1=1
+        """
+        if device_id:
+            query += " AND a.deviceId = %s"
+            params.append(device_id)
+        if date_from:
+            query += " AND l.operation_time >= %s"
+            params.append(date_from)
+        if date_to:
+            query += " AND l.operation_time <= %s"
+            params.append(date_to)
+        query += " ORDER BY l.operation_time DESC LIMIT %s"
+        params.append(min(200, limit))
+
+        with get_db_cursor() as cursor:
+            cursor.execute(query, params)
+            rows = cursor.fetchall()
+
+        for row in rows:
+            op = row.get("operation_type") or ""
+            device = row.get("device_id") or ""
+            device_name = row.get("device_name") or device
+            label = WORKFLOW_OPERATION_LABELS.get(op, op or "流程操作")
+            comment = (row.get("operation_comment") or "").strip()
+            desc = f"{device_name}（{device}）{label}"
+            if comment:
+                desc += f"：{comment}"
+            events.append(
+                {
+                    "source": "workflow",
+                    "device_id": device,
+                    "device_name": device_name,
+                    "event_time": row.get("operation_time"),
+                    "event_type": op,
+                    "event_category": "workflow",
+                    "description": desc,
+                }
+            )
+
+    events.sort(key=lambda item: item.get("event_time") or datetime.min, reverse=True)
+    return events[:limit]

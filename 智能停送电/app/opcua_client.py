@@ -5,13 +5,36 @@ import time
 from contextlib import contextmanager
 
 from app.database import get_db_cursor
+from app.kep_opcua_address import MONITORED_SIGNAL_TYPES, normalize_signal_address
+from app.time_utils import normalize_timestamp_to_iso
 
 logger = logging.getLogger(__name__)
 
 _opcua_thread = None
 _stop_event = threading.Event()
 _opcua_write_lock = threading.Lock()
-_KEP_NODE_PREFIX = "洗煤厂PLC.洗煤厂设备新"
+
+
+def _empty_signal_state():
+    return {"signals": {}, "timestamps": {}, "errors": []}
+
+
+def _coerce_signal_value(data_type, raw_value):
+    dtype = (data_type or "").strip().lower()
+    if raw_value is None:
+        return None
+    if dtype == "bool":
+        return bool(raw_value)
+    if dtype in {"int", "short", "word"}:
+        return _safe_int(raw_value, 0)
+    if dtype in {"float", "double", "real"}:
+        try:
+            return float(raw_value)
+        except (TypeError, ValueError):
+            return raw_value
+    if isinstance(raw_value, bool):
+        return raw_value
+    return _safe_int(raw_value, raw_value) if dtype else raw_value
 
 
 class _OpcuaSubscriptionHandler:
@@ -28,18 +51,11 @@ class _OpcuaSubscriptionHandler:
 
     def build_subscription(self, interval_ms):
         for item in self.plan:
-            state = {
-                "power_feedback": None,
-                "tag_count": None,
-                "timestamps": {},
-                "errors": [],
-            }
-            self._state[item["device_id"]] = state
-
-            if item.get("power_feedback_nodeid"):
-                self._node_map[item["power_feedback_nodeid"]] = (item, "power_feedback")
-            if item.get("tag_count_nodeid"):
-                self._node_map[item["tag_count_nodeid"]] = (item, "tag_count")
+            self._state[item["device_id"]] = _empty_signal_state()
+            for signal_type, meta in (item.get("signals") or {}).items():
+                nodeid = meta.get("nodeid")
+                if nodeid:
+                    self._node_map[nodeid] = (item, signal_type)
 
         if not self._node_map:
             return None
@@ -76,18 +92,14 @@ class _OpcuaSubscriptionHandler:
             ts = None
 
         with self._lock:
-            state = self._state.setdefault(
-                item["device_id"],
-                {"power_feedback": None, "tag_count": None, "timestamps": {}, "errors": []},
-            )
-            if signal_type == "power_feedback":
-                state["power_feedback"] = bool(val) if val is not None else None
-            elif signal_type == "tag_count":
-                state["tag_count"] = _safe_int(val, 0)
-
-            state["timestamps"][signal_type] = str(ts) if ts else None
+            state = self._state.setdefault(item["device_id"], _empty_signal_state())
+            meta = (item.get("signals") or {}).get(signal_type, {})
+            store_key = meta.get("signal_type") or signal_type
+            if store_key in state["signals"] and meta.get("signal_name"):
+                store_key = f"{store_key}#{meta.get('signal_name')}"
+            state["signals"][store_key] = _coerce_signal_value(meta.get("data_type"), val)
+            state["timestamps"][store_key] = str(ts) if ts else None
             state["errors"] = []
-
             payload = _build_payload_from_state(item, state, online=True)
 
         self.process_device_message(payload, topic=f"devices/{item['device_id']}/status")
@@ -100,15 +112,11 @@ class _OpcuaSubscriptionHandler:
 
     def sync_from_poll(self, item, payload):
         with self._lock:
-            state = self._state.setdefault(
-                item["device_id"],
-                {"power_feedback": None, "tag_count": None, "timestamps": {}, "errors": []},
-            )
+            state = self._state.setdefault(item["device_id"], _empty_signal_state())
             data = payload.get("data", {})
-            if "power_feedback" in data:
-                state["power_feedback"] = data.get("power_feedback")
-            if "tag_count" in data:
-                state["tag_count"] = _safe_int(data.get("tag_count"), 0)
+            signals = data.get("signals")
+            if isinstance(signals, dict):
+                state["signals"] = dict(signals)
             state["timestamps"] = data.get("timestamps", {})
             state["errors"] = data.get("errors", [])
 
@@ -116,10 +124,7 @@ class _OpcuaSubscriptionHandler:
         with self._lock:
             snapshots = []
             for item in self.plan:
-                state = self._state.get(
-                    item["device_id"],
-                    {"power_feedback": None, "tag_count": None, "timestamps": {}, "errors": []},
-                )
+                state = self._state.get(item["device_id"], _empty_signal_state())
                 snapshots.append(_build_payload_from_state(item, state, online=True))
 
         for payload in snapshots:
@@ -157,45 +162,23 @@ def _load_tag_signal_address(device_id):
     with get_db_cursor() as cursor:
         cursor.execute(
             """
-            SELECT signal_address
-            FROM device_signal_points
-            WHERE device_id = %s
-              AND signal_type = 'tag_count'
-              AND is_active = TRUE
-            ORDER BY id ASC
+            SELECT d.device_name, dsp.signal_address
+            FROM device_signal_points dsp
+            JOIN devices d ON d.device_id = dsp.device_id
+            WHERE dsp.device_id = %s
+              AND dsp.signal_type = 'tag_count'
+              AND dsp.is_active = TRUE
+            ORDER BY dsp.id ASC
             LIMIT 1
             """,
             (device_id,),
         )
         row = cursor.fetchone()
-    return _normalize_signal_address(device_id, "tag_count", (row or {}).get("signal_address"))
-
-
-def _build_default_signal_address(device_id, signal_type):
-    suffix_map = {
-        "power_feedback": "带电",
-        "tag_count": "挂牌",
-    }
-    suffix = suffix_map.get(signal_type)
-    if not suffix or not device_id:
-        return None
-    return f"ns=2;s={_KEP_NODE_PREFIX}.{device_id}.{suffix}"
-
-
-def _normalize_signal_address(device_id, signal_type, signal_address):
-    raw = (signal_address or "").strip()
-    if raw and "?" not in raw and "�" not in raw:
-        return raw
-    fallback = _build_default_signal_address(device_id, signal_type)
-    if raw and fallback and raw != fallback:
-        logger.warning(
-            "OPC UA signal address fallback for %s/%s: %s -> %s",
-            device_id,
-            signal_type,
-            raw,
-            fallback,
-        )
-    return fallback
+    if not row:
+        return normalize_signal_address(device_id, None, "tag_count", None)
+    return normalize_signal_address(
+        device_id, row.get("device_name"), "tag_count", row.get("signal_address")
+    )
 
 
 @contextmanager
@@ -232,16 +215,18 @@ def _load_signal_plan():
                 d.power_room,
                 d.cabinet,
                 dsp.signal_type,
-                dsp.signal_address
+                dsp.signal_name,
+                dsp.signal_address,
+                dsp.data_type
             FROM devices d
             INNER JOIN device_signal_points dsp
                 ON dsp.device_id = d.device_id
             WHERE d.is_active = TRUE
               AND dsp.is_active = TRUE
-              AND dsp.signal_type IN ('power_feedback', 'tag_count')
               AND dsp.signal_address IS NOT NULL
               AND dsp.signal_address <> ''
-            ORDER BY d.sort_order ASC, d.device_id ASC, dsp.signal_type ASC
+              AND dsp.signal_address LIKE 'ns=%'
+            ORDER BY d.sort_order ASC, d.device_id ASC, dsp.signal_type ASC, dsp.id ASC
             """
         )
         rows = cursor.fetchall()
@@ -256,16 +241,33 @@ def _load_signal_plan():
                 "device_name": row.get("device_name"),
                 "power_room": row.get("power_room"),
                 "cabinet": row.get("cabinet"),
-                "power_feedback_nodeid": None,
-                "tag_count_nodeid": None,
+                "signals": {},
             },
         )
-        if row["signal_type"] == "power_feedback" and not entry["power_feedback_nodeid"]:
-            entry["power_feedback_nodeid"] = _normalize_signal_address(device_id, "power_feedback", row["signal_address"])
-        elif row["signal_type"] == "tag_count" and not entry["tag_count_nodeid"]:
-            entry["tag_count_nodeid"] = _normalize_signal_address(device_id, "tag_count", row["signal_address"])
+        device_name = row.get("device_name")
+        signal_type = row["signal_type"]
+        signal_name = row.get("signal_name") or signal_type
+        point_key = signal_type
+        if point_key in entry["signals"]:
+            point_key = f"{signal_type}#{signal_name}"
+        nodeid = row.get("signal_address")
+        if nodeid and not nodeid.startswith("ns="):
+            nodeid = normalize_signal_address(
+                device_id, device_name, signal_type, nodeid
+            )
+        elif nodeid:
+            nodeid = normalize_signal_address(
+                device_id, device_name, signal_type, nodeid
+            )
+        if nodeid:
+            entry["signals"][point_key] = {
+                "nodeid": nodeid,
+                "data_type": row.get("data_type") or "bool",
+                "signal_type": signal_type,
+                "signal_name": signal_name,
+            }
 
-    return [item for item in plan.values() if item.get("power_feedback_nodeid") or item.get("tag_count_nodeid")]
+    return [item for item in plan.values() if item.get("signals")]
 
 
 def _read_value(client, nodeid):
@@ -280,28 +282,29 @@ def _read_value(client, nodeid):
 
 
 def _build_payload_from_state(plan_item, state, online=True):
-    active_tag_count = _safe_int(state.get("tag_count"), 0)
+    signals = state.get("signals") or {}
+    power_value = signals.get("power_feedback")
+    tag_count_value = signals.get("tag_count")
+    active_tag_count = _safe_int(tag_count_value, 0) if tag_count_value is not None else 0
     tag_status = "tagged" if active_tag_count > 0 else "untagged"
 
     power_status = None
-    power_value = state.get("power_feedback")
     if power_value is not None:
         power_status = "powered" if bool(power_value) else "unpowered"
 
     return {
         "device_id": plan_item["device_id"],
         "status": "online" if online else "warning",
-        "timestamp": time.time(),
+        "timestamp": normalize_timestamp_to_iso(time.time()),
         "source": "opcua",
         "power_status": power_status,
         "tag_status": tag_status,
         "active_tag_count": active_tag_count,
         "device_name": plan_item.get("device_name"),
         "data": {
+            "signals": signals,
             "power_feedback": power_value,
             "tag_count": active_tag_count,
-            "power_feedback_nodeid": plan_item.get("power_feedback_nodeid"),
-            "tag_count_nodeid": plan_item.get("tag_count_nodeid"),
             "timestamps": state.get("timestamps", {}),
             "errors": state.get("errors", []),
         },
@@ -367,56 +370,29 @@ def adjust_device_tag_count(device_id, delta):
 
 
 def _build_payload_for_device(client, plan_item):
-    power_value = None
-    tag_count_value = None
+    signals = {}
     status_codes = []
     timestamps = {}
     errors = []
 
-    if plan_item.get("power_feedback_nodeid"):
+    for signal_type, meta in (plan_item.get("signals") or {}).items():
+        nodeid = meta.get("nodeid")
+        if not nodeid:
+            continue
         try:
-            raw_value, status_code, ts = _read_value(client, plan_item["power_feedback_nodeid"])
-            power_value = bool(raw_value) if raw_value is not None else None
+            raw_value, status_code, ts = _read_value(client, nodeid)
+            store_key = meta.get("signal_type") or signal_type
+            if store_key in signals and meta.get("signal_name"):
+                store_key = f"{store_key}#{meta.get('signal_name')}"
+            signals[store_key] = _coerce_signal_value(meta.get("data_type"), raw_value)
             status_codes.append(status_code)
-            timestamps["power_feedback"] = str(ts) if ts else None
+            timestamps[store_key] = str(ts) if ts else None
         except Exception as exc:
-            errors.append(f"power_feedback:{exc}")
-
-    if plan_item.get("tag_count_nodeid"):
-        try:
-            raw_value, status_code, ts = _read_value(client, plan_item["tag_count_nodeid"])
-            tag_count_value = _safe_int(raw_value, 0)
-            status_codes.append(status_code)
-            timestamps["tag_count"] = str(ts) if ts else None
-        except Exception as exc:
-            errors.append(f"tag_count:{exc}")
+            errors.append(f"{signal_type}:{exc}")
 
     online = bool(status_codes) and all(code == "StatusCode(Good)" for code in status_codes)
-    active_tag_count = tag_count_value if tag_count_value is not None else 0
-    tag_status = "tagged" if active_tag_count > 0 else "untagged"
-    power_status = None
-    if power_value is not None:
-        power_status = "powered" if power_value else "unpowered"
-
-    payload = {
-        "device_id": plan_item["device_id"],
-        "status": "online" if online else "warning",
-        "timestamp": time.time(),
-        "source": "opcua",
-        "power_status": power_status,
-        "tag_status": tag_status,
-        "active_tag_count": active_tag_count,
-        "device_name": plan_item.get("device_name"),
-        "data": {
-            "power_feedback": power_value,
-            "tag_count": active_tag_count,
-            "power_feedback_nodeid": plan_item.get("power_feedback_nodeid"),
-            "tag_count_nodeid": plan_item.get("tag_count_nodeid"),
-            "timestamps": timestamps,
-            "errors": errors,
-        },
-    }
-    return payload
+    state = {"signals": signals, "timestamps": timestamps, "errors": errors}
+    return _build_payload_from_state(plan_item, state, online=online)
 
 
 def _listen_loop():

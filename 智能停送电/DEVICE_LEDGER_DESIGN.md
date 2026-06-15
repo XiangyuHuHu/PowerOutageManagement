@@ -391,6 +391,10 @@ device_profiles (
 
 ### 8.2 当前需人工校对的字段
 
+设备信号导入的**未匹配**与**前缀歧义匹配**清单见：[DEVICE_SIGNAL_MATCH_LOG.md](./DEVICE_SIGNAL_MATCH_LOG.md)（由 `tools/refresh_device_signal_match_log.py` 自动生成）。
+
+低压后台综保（四个通讯管理机 CSV）专项对接情况见：[LOW_VOLTAGE_PROTECTION_INTEGRATION.md](./LOW_VOLTAGE_PROTECTION_INTEGRATION.md)。
+
 这些字段大概率要结合 `dwg` 或现场台账人工补充：
 
 - 配电室
